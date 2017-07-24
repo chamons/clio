@@ -38,7 +38,7 @@ namespace clio
 					if (branch == null)
 						return Enumerable.Empty<CommitInfo> ();
 
-					return branch.Commits.Select (x => new CommitInfo (x.Sha, x.MessageShort, x.Message ));
+					return branch.Commits.Select (x => new CommitInfo (x.Sha, x.MessageShort, x.Message)).ToList ();
 				}
 			}
 			catch (RepositoryNotFoundException)
