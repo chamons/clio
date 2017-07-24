@@ -3,4 +3,6 @@
 .DS_Store
 src/bin
 src/obj
-src/packages
+tests/bin
+tests/obj
+packages
