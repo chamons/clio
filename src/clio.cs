@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using Optional;
 
 namespace clio
@@ -24,7 +25,9 @@ namespace clio
 
 		public void Run ()
 		{
-			Console.WriteLine ($"Running on {Path} ({Branch}), outputting to {Output}.");
+			var commits = CommitFinder.Parse (Path, Branch);
+			foreach (var commit in commits)
+				Console.WriteLine ($"{commit.Hash} {commit.Title}");
 		}
 	}
 }
