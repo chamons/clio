@@ -25,10 +25,9 @@ namespace clio
 
 		public void Run ()
 		{
-			Console.WriteLine ($"Running on {Path} ({Branch}), outputting to {Output}.");
-
 			var commits = CommitFinder.Parse (Path, Branch);
-			Console.WriteLine (commits.Count ());
+			foreach (var commit in commits)
+				Console.WriteLine ($"{commit.Hash} {commit.Title}");
 		}
 	}
 }

@@ -28,6 +28,13 @@ namespace clio.Tests
 			var commits = CommitFinder.Parse (TestDataLocator.GetPath (), "master");
 			int count = commits.Count ();
 			Assert.AreNotEqual (0, commits.Count ());
+			foreach (var commit in commits)
+			{
+				Assert.IsNotNull (commit.Hash);
+				Assert.IsNotNull (commit.Title);
+				Assert.IsNotNull (commit.Description);
+			}
+
 		}
 	}
 }
