@@ -1,0 +1,8 @@
+*.userprefs
+*.csproj.user
+.DS_Store
+src/bin
+src/obj
+tests/bin
+tests/obj
+packages
