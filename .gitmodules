@@ -1,0 +1,3 @@
+[submodule "clio-test-data"]
+	path = clio-test-data
+	url = git@github.com:chamons/clio-test-data.git
