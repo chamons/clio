@@ -10,7 +10,7 @@ namespace clio.Tests
 	public class CommitParserTests
 	{
 		[Test]
-		public void CommitParser_FindsValidBugzilla ()
+		public void CommitParser_FindsNonExistantBugzilla_GivesLow ()
 		{
 			var commit = CommitFinder.ParseSingle (TestDataLocator.GetPath (), "0ff022416059f4819673a3ae2378110858f2e853");
 			Assert.IsTrue (commit.HasValue);
@@ -20,27 +20,31 @@ namespace clio.Tests
 				Assert.True (parsedCommit.HasValue);
 				parsedCommit.MatchSome (pc => {
 					Assert.AreEqual ("https://bugzilla.xamarin.com/show_bug.cgi?id=200001", pc.Link);
-					Assert.AreEqual (ParsingConfidence.High, pc.Confidence);
+					Assert.AreEqual (ParsingConfidence.Low, pc.Confidence);
 				});
 			});
 		}
 
-		// TODO - Add bugzilla check for valid
-		//[Test]
-		//public void CommitParser_HandlesInvalidBugzillaCommit ()
-		//{
-		//	var commit = CommitFinder.ParseSingle (TestDataLocator.GetPath (), "a0a2db269bb36ecdfbfaef1e8806296e83c203dc");
-		//	Assert.True (commit.HasValue);
+		[Test]
+		public void CommitParser_HandlesInvalidBugzillaCommit ()
+		{
+			var commit = CommitFinder.ParseSingle (TestDataLocator.GetPath (), "a0a2db269bb36ecdfbfaef1e8806296e83c203dc");
+			Assert.True (commit.HasValue);
 
-		//	commit.MatchSome (c => {
-		//		var parsedCommit = CommitParser.ParseSingle (c);
-		//		Assert.True (parsedCommit.HasValue);
-		//		parsedCommit.MatchSome (pc => {
-		//			Assert.AreEqual ("https://bugzilla.xamarin.com/show_bug.cgi?id=20000x", pc.Link);
-		//			Assert.AreEqual (ParsingConfidence.Low, pc.Confidence);
-		//		});
-		//	});
-		//}
+			commit.MatchSome (c => {
+				var parsedCommit = CommitParser.ParseSingle (c);
+				Assert.True (parsedCommit.HasValue);
+				parsedCommit.MatchSome (pc => {
+					Assert.AreEqual ("https://bugzilla.xamarin.com/show_bug.cgi?id=20000x", pc.Link);
+					Assert.AreEqual (ParsingConfidence.Low, pc.Confidence);
+				});
+			});
+		}
+
+		[Test]
+		public void CommitParser_FindsValidBugzilla_GivesHigh ()
+		{
+		}
 
 		[Test]
 		public void CommitParser_HandlesNoCommitLinks ()

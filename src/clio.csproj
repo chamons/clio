@@ -54,6 +54,7 @@
     <Compile Include="Model\ParsedCommit.cs" />
     <Compile Include="Model\CommitInfo.cs" />
     <Compile Include="Extensions.cs" />
+    <Compile Include="BugzillaChecker.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
@@ -61,6 +62,12 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Model\" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\external\libbz\libbz\libbz.csproj">
+      <Project>{DB06A55C-89FF-46A9-ABE5-D9F095C6B740}</Project>
+      <Name>libbz</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
 </Project>

@@ -11,17 +11,25 @@ namespace clio
 {
 	public static class CommitParser
 	{
-		static Regex FullBuzilla = new Regex (@"htt.*?://bugzilla\.xamarin\.com[^=]+(=)\d*", RegexOptions.Compiled | RegexOptions.IgnoreCase);
-		static Regex Buzilla = new Regex (@"bugzilla\s*\d*", RegexOptions.Compiled | RegexOptions.IgnoreCase);
-		static Regex Bug = new Regex (@"bug\s*\d*", RegexOptions.Compiled | RegexOptions.IgnoreCase);
-		static Regex Fixes = new Regex (@"fix(es)?\s*\d*", RegexOptions.Compiled | RegexOptions.IgnoreCase);
-		static Regex Short = new Regex (@"bxc\s*\d*", RegexOptions.Compiled | RegexOptions.IgnoreCase);
+		static Regex FullBuzilla = new Regex (@"htt.*?://bugzilla\.xamarin\.com[^=]+(=)(\d*)", RegexOptions.Compiled | RegexOptions.IgnoreCase);
+		static Regex Buzilla = new Regex (@"bugzilla\s*(\d*)", RegexOptions.Compiled | RegexOptions.IgnoreCase);
+		static Regex Bug = new Regex (@"bug\s*(\d*)", RegexOptions.Compiled | RegexOptions.IgnoreCase);
+		static Regex Fixes = new Regex (@"fix\s*(\d*)", RegexOptions.Compiled | RegexOptions.IgnoreCase);
+		static Regex Short = new Regex (@"bxc\s*(\d*)", RegexOptions.Compiled | RegexOptions.IgnoreCase);
 
 		static Regex[] AllRegex = { FullBuzilla, Buzilla, Bug, Fixes, Short };
 
-		static bool BugzillaCheck (string match)
+		static BugzillaChecker bugzillaChecker;
+
+		static bool BugzillaCheck (int id)
 		{
-			return true;
+			if (bugzillaChecker == null)
+			{
+				bugzillaChecker = new BugzillaChecker ();
+				bugzillaChecker.Setup ().Wait ();
+			}
+
+			return bugzillaChecker.GetTitle (id).Result != null;
 		}
 
 		static ValueTuple <ParsingConfidence, string> ParseLine (string line)
@@ -31,12 +39,13 @@ namespace clio
 				var match = FullBuzilla.Match (line);
 				if (match.Success)
 				{
+					int id = int.Parse (match.Groups[match.Groups.Count -1].Value);
 					ParsingConfidence confidence = ParsingConfidence.High;
 
 					if (line.Contains ("Context") || line.Contains ("context"))
 						confidence = ParsingConfidence.Low;
 
-					if (!BugzillaCheck (match.Value))
+					if (!BugzillaCheck (id))
 						confidence = ParsingConfidence.Low;
 
 					return new ValueTuple<ParsingConfidence, string> (confidence, match.Value);
