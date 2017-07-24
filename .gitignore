@@ -1,0 +1,6 @@
+*.userprefs
+*.csproj.user
+.DS_Store
+src/bin
+src/obj
+src/packages
