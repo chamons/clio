@@ -3,19 +3,22 @@ using System;
 using clio;
 using System.Linq;
 using clio.Model;
+using Optional;
 
 namespace clio.Tests
 {
 	[TestFixture]
 	public class CommitParserTests
 	{
-		void TestConfidenceOfCommit (string hash, string expectedUrl, ParsingConfidence expectedConfidence)
+		void TestConfidenceOfCommit (string hash, string expectedUrl, ParsingConfidence expectedConfidence) => TestConfidenceOfCommit (hash, expectedUrl, expectedConfidence, Option.None<SearchOptions> ());
+		
+		void TestConfidenceOfCommit (string hash, string expectedUrl, ParsingConfidence expectedConfidence, Option<SearchOptions> options)
 		{
 			var commit = CommitFinder.ParseSingle (TestDataLocator.GetPath (), hash);
 			Assert.IsTrue (commit.HasValue);
 			commit.MatchSome (c =>
 			{
-				var parsedCommit = CommitParser.ParseSingle (c);
+				var parsedCommit = CommitParser.ParseSingle (c, options.ValueOr (new SearchOptions ()));
 				Assert.True (parsedCommit.HasValue, $"{hash} did not parse into a bug commit");
 				parsedCommit.MatchSome (pc => {
 					Assert.AreEqual (expectedUrl, pc.Link, $"{hash} link {pc.Link} did not match expected {expectedUrl}");
@@ -23,6 +26,19 @@ namespace clio.Tests
 				});
 			});
 		}
+
+		void TestCommitHasNoBug (string hash) => TestCommitHasNoBug (hash, Option.None <SearchOptions> ());
+
+		void TestCommitHasNoBug (string hash, Option<SearchOptions> options)
+		{
+			var commit = CommitFinder.ParseSingle (TestDataLocator.GetPath (), hash);
+			Assert.True (commit.HasValue);
+			commit.MatchSome (c => {
+				var parsedCommit = CommitParser.ParseSingle (c, options.ValueOr (new SearchOptions ()));
+				Assert.False (parsedCommit.HasValue);
+			});
+		}
+
 		
 		[Test]
 		public void CommitParser_FindsNonExistantBugzilla_GivesLow ()
@@ -30,11 +46,11 @@ namespace clio.Tests
 			TestConfidenceOfCommit ("0ff022416059f4819673a3ae2378110858f2e853", "https://bugzilla.xamarin.com/show_bug.cgi?id=200001", ParsingConfidence.Low);
 		}
 
-		// This behavior is less than optimal
+		// This behavior is less than optimal - 20000x is counted as 20000
 		[Test]
 		public void CommitParser_HandlesCommitWithTypeAtEnd_ByIgnoring ()
 		{
-			TestConfidenceOfCommit ("a0a2db269bb36ecdfbfaef1e8806296e83c203dc", "https://bugzilla.xamarin.com/show_bug.cgi?id=20000", ParsingConfidence.Low);
+			TestConfidenceOfCommit ("a0a2db269bb36ecdfbfaef1e8806296e83c203dc", "https://bugzilla.xamarin.com/show_bug.cgi?id=20000", ParsingConfidence.High);
 		}
 
 		[Test]
@@ -51,25 +67,34 @@ namespace clio.Tests
 		[Test]
 		public void CommitParser_HandlesNoCommitLinks ()
 		{
-			var commit = CommitFinder.ParseSingle (TestDataLocator.GetPath (), "148b7c4bcddf6ca0831fea3ad536042e9d1e349a");
-			Assert.True (commit.HasValue);
-			commit.MatchSome (c => {
-				var parsedCommit = CommitParser.ParseSingle (c);
-				Assert.False (parsedCommit.HasValue);
-			});
+			TestCommitHasNoBug ("148b7c4bcddf6ca0831fea3ad536042e9d1e349a");
 		}
 
 		[Test]
 		public void CommitParser_SmokeTestAllCommits ()
 		{
 			var commits = CommitFinder.Parse (TestDataLocator.GetPath (), "master");
-			var parsedCommits = CommitParser.Parse (commits);
+			var parsedCommits = CommitParser.Parse (commits, new SearchOptions ());
 			Assert.NotZero (commits.Count ());
 			foreach (var parsedCommit in parsedCommits)
 			{
 				Assert.IsNotNull (parsedCommit.Commit.Title);
 				Assert.IsNotNull (parsedCommit.Link);
 			}
+		}
+
+		[Test]
+		public void LowNumberBugs_OnlyShowUpWithoutOption ()
+		{
+			SearchOptions options = new SearchOptions ();
+
+			options.IgnoreLowBugs = false;
+			TestConfidenceOfCommit ("261dab610e5f29c77877c68ff8abe7852bf617e4", "Fix 2", ParsingConfidence.High, options.Some ());
+
+			options.IgnoreLowBugs = true;
+			TestCommitHasNoBug ("261dab610e5f29c77877c68ff8abe7852bf617e4", options.Some ());
+
+
 		}
 	}
 }

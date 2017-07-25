@@ -21,7 +21,7 @@ namespace clio
 
 		static BugzillaChecker bugzillaChecker;
 
-		static bool BugzillaCheck (int id)
+		static string GetTitle (int id)
 		{
 			if (bugzillaChecker == null)
 			{
@@ -29,10 +29,18 @@ namespace clio
 				bugzillaChecker.Setup ().Wait ();
 			}
 
-			return bugzillaChecker.GetTitle (id).Result != null;
+			return bugzillaChecker.GetTitle (id).Result;
 		}
 
-		static ValueTuple <ParsingConfidence, string> ParseLine (string line)
+		struct ParseResults
+		{
+			public ParsingConfidence Confidence;
+			public string Link;
+			public int ID;
+			public string BugzillaSummary;
+		}
+
+		static ParseResults ParseLine (string line, SearchOptions options)
 		{
 			foreach (Regex regex in AllRegex)
 			{
@@ -42,37 +50,44 @@ namespace clio
 					int id;
 					if (int.TryParse (match.Groups[match.Groups.Count - 1].Value, out id))
 					{
+						if (options.IgnoreLowBugs && id < 1000)
+							return new ParseResults { Confidence = ParsingConfidence.Invalid };
+
 						ParsingConfidence confidence = ParsingConfidence.High;
 
 						if (line.Contains ("Context") || line.Contains ("context"))
 							confidence = ParsingConfidence.Low;
 
-						if (!BugzillaCheck (id))
+						string bugzillaSummary = GetTitle (id);
+						if (bugzillaSummary == null)
+						{
 							confidence = ParsingConfidence.Low;
+							bugzillaSummary = "";
+						}
 
-						return new ValueTuple<ParsingConfidence, string> (confidence, match.Value);
+						return new ParseResults() { Confidence = confidence, Link = match.Value, ID = id, BugzillaSummary = bugzillaSummary };
 					}
 				}
 			}
-			return new ValueTuple<ParsingConfidence, string> (ParsingConfidence.Invalid, "");
+			return new ParseResults { Confidence = ParsingConfidence.Invalid };
 		}
 
-		public static Option<ParsedCommit> ParseSingle (CommitInfo commit)
+		public static Option<ParsedCommit> ParseSingle (CommitInfo commit, SearchOptions options)
 		{
 			var textToSearch = commit.Description.SplitLines ();
-			var topMatch = textToSearch.Select (x => ParseLine (x)).OrderBy (x => x.Item1).FirstOrDefault ();
+			var topMatch = textToSearch.Select (x => ParseLine (x, options)).OrderBy (x => x.Confidence).FirstOrDefault ();
 
-			if (topMatch.Item1 != ParsingConfidence.Invalid)
-				return new ParsedCommit (commit, topMatch.Item2, topMatch.Item1).Some ();
+			if (topMatch.Confidence != ParsingConfidence.Invalid)
+				return new ParsedCommit (commit, topMatch.Link, topMatch.ID, topMatch.Confidence, topMatch.BugzillaSummary).Some ();
 			else
 				return Option.None<ParsedCommit> ();
 		}
 
-		public static IEnumerable<ParsedCommit> Parse (IEnumerable<CommitInfo> commits)
+		public static IEnumerable<ParsedCommit> Parse (IEnumerable<CommitInfo> commits, SearchOptions options)
 		{
 			foreach (var commit in commits)
 			{
-				var parsed = ParseSingle (commit);
+				var parsed = ParseSingle (commit, options);
 				if (parsed.HasValue)
 					yield return parsed.ValueOrFailure ();
 			}

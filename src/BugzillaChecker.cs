@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Threading.Tasks;
 using CodeRinseRepeat.Bugzilla;
@@ -40,7 +41,20 @@ namespace clio
 			await client.LoginAsync (login.Item1, login.Item2);
 		}
 
+		Dictionary<int, string> TitleCache = new Dictionary<int, string> ();
+
 		public async Task<string> GetTitle (int number)
+		{
+			string result;
+			if (!TitleCache.TryGetValue(number, out result))
+			{
+				result = await LookupTitle (number);
+				TitleCache [number] = result;
+			}
+			return result;
+		}
+
+		private async Task<string> LookupTitle (int number)
 		{
 			try
 			{
@@ -50,7 +64,7 @@ namespace clio
 				else
 					return null;
 			}
-			catch (AggregateException e)
+			catch (AggregateException)
 			{
 				return null;
 			}
