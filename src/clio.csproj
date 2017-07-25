@@ -55,6 +55,7 @@
     <Compile Include="Model\CommitInfo.cs" />
     <Compile Include="Extensions.cs" />
     <Compile Include="BugzillaChecker.cs" />
+    <Compile Include="SearchOptions.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

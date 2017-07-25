@@ -12,13 +12,17 @@ namespace clio.Model
 	{
 		public CommitInfo Commit { get; private set; }
 		public string Link { get; private set; }
+		public int ID { get; private set; }
 		public ParsingConfidence Confidence { get; private set; }
+		public string BugzillaSummary { get; private set; }
 
-		public ParsedCommit (CommitInfo commit, string link, ParsingConfidence confidence)
+		public ParsedCommit (CommitInfo commit, string link, int id, ParsingConfidence confidence, string bugzillaSummary)
 		{
 			Commit = commit;
 			Link = link;
+			ID = id;
 			Confidence = confidence;
+			BugzillaSummary = bugzillaSummary;
 		}
 	}
 }
