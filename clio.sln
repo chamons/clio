@@ -5,6 +5,10 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "clio", "src\clio.csproj", "
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "clio-tests", "tests\clio-tests.csproj", "{26493F38-F3B3-4126-84C5-CB3262BB4CF1}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "External", "External", "{3D7CA6F8-0577-49F0-98DE-13AE6109361F}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "libbz", "external\libbz\libbz\libbz.csproj", "{DB06A55C-89FF-46A9-ABE5-D9F095C6B740}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x86 = Debug|x86
@@ -19,6 +23,10 @@ Global
 		{26493F38-F3B3-4126-84C5-CB3262BB4CF1}.Debug|x86.Build.0 = Debug|Any CPU
 		{26493F38-F3B3-4126-84C5-CB3262BB4CF1}.Release|x86.ActiveCfg = Release|Any CPU
 		{26493F38-F3B3-4126-84C5-CB3262BB4CF1}.Release|x86.Build.0 = Release|Any CPU
+		{DB06A55C-89FF-46A9-ABE5-D9F095C6B740}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{DB06A55C-89FF-46A9-ABE5-D9F095C6B740}.Debug|x86.Build.0 = Debug|Any CPU
+		{DB06A55C-89FF-46A9-ABE5-D9F095C6B740}.Release|x86.ActiveCfg = Release|Any CPU
+		{DB06A55C-89FF-46A9-ABE5-D9F095C6B740}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(MonoDevelopProperties) = preSolution
 		Policies = $0
@@ -26,10 +34,9 @@ Global
 		$1.inheritsSet = null
 		$1.scope = text/x-csharp
 		$0.CSharpFormattingPolicy = $2
-		$2.NewLinesForBracesInProperties = True
-		$2.NewLinesForBracesInAccessors = True
-		$2.NewLinesForBracesInControlBlocks = True
-		$2.NewLinesForBracesInObjectCollectionArrayInitializers = True
 		$2.scope = text/x-csharp
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{DB06A55C-89FF-46A9-ABE5-D9F095C6B740} = {3D7CA6F8-0577-49F0-98DE-13AE6109361F}
 	EndGlobalSection
 EndGlobal
