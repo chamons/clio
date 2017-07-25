@@ -8,25 +8,24 @@ namespace clio
 {
 	public static class CommitFinder
 	{
-		public static IEnumerable<CommitInfo> Parse (string path, string branchName)
-		{
-			return Parse (path, branchName, Option.None<string> (), Option.None <string> ());
-		}
-
-		public static IEnumerable<CommitInfo> Parse (string path, string branchName, Option<string> startHash, Option<string> endHash)
+		public static IEnumerable<CommitInfo> Parse (string path, SearchOptions options)
 		{
 			try 
 			{
 				using (var repo = new Repository (path)) 
 				{
-					var branch = repo.Branches[branchName];
-					if (branch == null)
-						return Enumerable.Empty<CommitInfo> ();
+					var filter = new CommitFilter ();
+					options.Starting.MatchSome (v => filter.ExcludeReachableFrom = v + (options.IncludeStarting ? "~" : ""));
+					options.Ending.MatchSome (v => filter.IncludeReachableFrom = v);
 
-					return branch.Commits.Select (x => new CommitInfo (x.Sha, x.MessageShort, x.Message)).ToList ();
+					return repo.Commits.QueryBy (filter).Select (x => new CommitInfo (x.Sha, x.MessageShort, x.Message)).ToList ();
 				}
 			}
 			catch (RepositoryNotFoundException)
+			{
+				return Enumerable.Empty<CommitInfo> ();
+			}
+			catch (NotFoundException)
 			{
 				return Enumerable.Empty<CommitInfo> ();
 			}
