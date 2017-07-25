@@ -8,6 +8,7 @@ namespace clio.Model
 		Invalid, // None found
 	}
 
+	// CommitInfo with metadata from bugzilla and heuristics applied 
 	public struct ParsedCommit
 	{
 		public CommitInfo Commit { get; private set; }

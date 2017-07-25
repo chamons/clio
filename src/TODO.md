@@ -1,4 +1,4 @@
-﻿- Handling duplicate bugs found
-- From built in template generate links
-- Look at something for feature PRs? What commits in X after Y
+﻿- From built in template generate links
 - External templates instead of built in?
+
+- Look at something for feature PRs?

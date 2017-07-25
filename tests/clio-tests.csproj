@@ -41,6 +41,7 @@
     <Compile Include="CommitFinder.cs" />
     <Compile Include="TestDataLocator.cs" />
     <Compile Include="CommitParser.cs" />
+    <Compile Include="BugCollector.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

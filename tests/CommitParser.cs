@@ -94,42 +94,5 @@ namespace clio.Tests
 			options.IgnoreLowBugs = true;
 			TestCommitHasNoBug ("261dab610e5f29c77877c68ff8abe7852bf617e4", options.Some ());
 		}
-
-		[Test]
-		public void CommitParser_SubsetRange_ReturnsCorrectEntires ()
-		{
-			SearchOptions options = new SearchOptions ();
-			options.Starting = "4bb85fb".Some ();
-			options.Ending = "261dab6".Some ();
-			var commits = CommitFinder.Parse (TestDataLocator.GetPath (), options);
-			Assert.AreEqual (6, commits.Count ());
-
-			options.IncludeStarting = false;
-			commits = CommitFinder.Parse (TestDataLocator.GetPath (), options);
-			Assert.AreEqual (5, commits.Count ());
-		}
-
-		[Test]
-		public void CommitParser_EndingOnlyRange_ReturnsCorrectEntires ()
-		{
-			SearchOptions options = new SearchOptions ();
-			options.Ending = "261dab6".Some ();
-			var commits = CommitFinder.Parse (TestDataLocator.GetPath (), options);
-			Assert.AreEqual (20, commits.Count ());
-		}
-
-		[Test]
-		public void CommitParser_StartingOnlyRange_ReturnsCorrectEntires ()
-		{
-			// This is brittle if we add more tests data
-			SearchOptions options = new SearchOptions ();
-			options.Starting = "261dab6".Some ();
-			var commits = CommitFinder.Parse (TestDataLocator.GetPath (), options);
-			Assert.AreEqual (2, commits.Count ());
-
-			options.IncludeStarting = false;
-			commits = CommitFinder.Parse (TestDataLocator.GetPath (), options);
-			Assert.AreEqual (1, commits.Count ());
-		}
 	}
 }
