@@ -1,7 +1,6 @@
-﻿using NUnit.Framework;
-using System;
-using clio;
-using System.Linq;
+﻿using System.Linq;
+using NUnit.Framework;
+using Optional;
 
 namespace clio.Tests
 {
@@ -11,21 +10,21 @@ namespace clio.Tests
 		[Test]
 		public void CommitFinder_ParseInvalidPath_ReturnsEmpty ()
 		{
-			var commits = CommitFinder.Parse ("/not/a/path", "master");
+			var commits = CommitFinder.Parse ("/not/a/path", new SearchOptions ());
 			Assert.Zero (commits.Count ());
 		}
 
 		[Test]
 		public void CommitFinder_ParseInvalidBranch_ReturnsEmpty ()
 		{
-			var commits = CommitFinder.Parse (TestDataLocator.GetPath (), "a-non-existant-branch");
+			var commits = CommitFinder.Parse (TestDataLocator.GetPath (), new SearchOptions () { Starting = "a-non-existant-branch".Some () });
 			Assert.Zero (commits.Count ());
 		}
 
 		[Test]
 		public void CommitFinder_Parse_ReturnsEntries ()
 		{
-			var commits = CommitFinder.Parse (TestDataLocator.GetPath (), "master");
+			var commits = CommitFinder.Parse (TestDataLocator.GetPath (), new SearchOptions ());
 			int count = commits.Count ();
 			Assert.NotZero (commits.Count ());
 			foreach (var commit in commits)
