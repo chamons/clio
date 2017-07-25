@@ -36,19 +36,22 @@ namespace clio
 		{
 			foreach (Regex regex in AllRegex)
 			{
-				var match = FullBuzilla.Match (line);
+				var match = regex.Match (line);
 				if (match.Success)
 				{
-					int id = int.Parse (match.Groups[match.Groups.Count -1].Value);
-					ParsingConfidence confidence = ParsingConfidence.High;
+					int id;
+					if (int.TryParse (match.Groups[match.Groups.Count - 1].Value, out id))
+					{
+						ParsingConfidence confidence = ParsingConfidence.High;
 
-					if (line.Contains ("Context") || line.Contains ("context"))
-						confidence = ParsingConfidence.Low;
+						if (line.Contains ("Context") || line.Contains ("context"))
+							confidence = ParsingConfidence.Low;
 
-					if (!BugzillaCheck (id))
-						confidence = ParsingConfidence.Low;
+						if (!BugzillaCheck (id))
+							confidence = ParsingConfidence.Low;
 
-					return new ValueTuple<ParsingConfidence, string> (confidence, match.Value);
+						return new ValueTuple<ParsingConfidence, string> (confidence, match.Value);
+					}
 				}
 			}
 			return new ValueTuple<ParsingConfidence, string> (ParsingConfidence.Invalid, "");
@@ -56,7 +59,7 @@ namespace clio
 
 		public static Option<ParsedCommit> ParseSingle (CommitInfo commit)
 		{
-			var textToSearch = commit.Title.Yield ().Concat (commit.Description.SplitLines ());
+			var textToSearch = commit.Description.SplitLines ();
 			var topMatch = textToSearch.Select (x => ParseLine (x)).OrderBy (x => x.Item1).FirstOrDefault ();
 
 			if (topMatch.Item1 != ParsingConfidence.Invalid)
