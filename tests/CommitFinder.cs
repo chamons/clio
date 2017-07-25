@@ -48,5 +48,42 @@ namespace clio.Tests
 			var commit = CommitFinder.ParseSingle (TestDataLocator.GetPath (), "NOT_A_HASH");
 			Assert.IsFalse (commit.HasValue);
 		}
+
+		[Test]
+		public void CommitFinder_SubsetRange_ReturnsCorrectEntires ()
+		{
+			SearchOptions options = new SearchOptions ();
+			options.Starting = "4bb85fb".Some ();
+			options.Ending = "261dab6".Some ();
+			var commits = CommitFinder.Parse (TestDataLocator.GetPath (), options);
+			Assert.AreEqual (6, commits.Count ());
+
+			options.IncludeStarting = false;
+			commits = CommitFinder.Parse (TestDataLocator.GetPath (), options);
+			Assert.AreEqual (5, commits.Count ());
+		}
+
+		[Test]
+		public void CommitFinder_EndingOnlyRange_ReturnsCorrectEntires ()
+		{
+			SearchOptions options = new SearchOptions ();
+			options.Ending = "261dab6".Some ();
+			var commits = CommitFinder.Parse (TestDataLocator.GetPath (), options);
+			Assert.AreEqual (20, commits.Count ());
+		}
+
+		[Test]
+		public void CommitFinder_StartingOnlyRange_ReturnsCorrectEntires ()
+		{
+			// This is brittle if we add more tests data
+			SearchOptions options = new SearchOptions ();
+			options.Starting = "261dab6".Some ();
+			var commits = CommitFinder.Parse (TestDataLocator.GetPath (), options);
+			Assert.AreEqual (5, commits.Count ());
+
+			options.IncludeStarting = false;
+			commits = CommitFinder.Parse (TestDataLocator.GetPath (), options);
+			Assert.AreEqual (4, commits.Count ());
+		}
 	}
 }

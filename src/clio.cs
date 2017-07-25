@@ -33,8 +33,15 @@ namespace clio
 
 			var parsedCommits = CommitParser.Parse (commits, Options);
 
-			foreach (var parsedCommit in parsedCommits)
-				Console.WriteLine ($"{parsedCommit.Commit.Hash} ({parsedCommit.Confidence}) - {parsedCommit.BugzillaSummary} / {parsedCommit.Commit.Title} - {parsedCommit.ID} ");
+			var bugCollection = BugCollector.ClassifyCommits (parsedCommits);
+
+			Console.WriteLine ("Confirmed Bugs:");
+			foreach (var bug in bugCollection.ConfirmedBugs)
+				Console.WriteLine ($"[{bug.ID}] - {bug.Title}" + (String.IsNullOrEmpty (bug.SecondaryTitle) ? "" : $" / {bug.SecondaryTitle}") );
+
+			Console.WriteLine ("\nUncertain Bugs:");
+			foreach (var bug in bugCollection.UncertainBugs)
+				Console.WriteLine ($"[{bug.ID}] - {bug.SecondaryTitle}");
 		}
 	}
 }

@@ -2,6 +2,7 @@
 
 namespace clio.Model
 {
+	// Raw data harvested from git
 	public struct CommitInfo
 	{
 		public string Hash { get; private set; }
