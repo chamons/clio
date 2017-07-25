@@ -27,9 +27,11 @@ namespace clio
 				{ "o|output=", "Path to output release notes (Defaults to current directory)", o => output = o },
 				{ "s|starting=", "Starting to consider", s => options.Starting = s.Some () },
 				{ "e|ending=", "Ending to consider", e => options.Ending = e.Some () },
-				{ "exclude-starting-item", "Exclude starting items from range considered (included by default)", v => options.IncludeStarting = false },
 
+				{ "single=", "Analyze just a single commit", e => options.SingleCommit = e.Some () },
+				{ "exclude-starting-item", "Exclude starting items from range considered (included by default)", v => options.IncludeStarting = false },
 				{ "ignore-low-bugs=", "Ignore any bug references to bugs with IDs less than 1000 (Defaults to true)", (bool v) => options.IgnoreLowBugs = v },
+				{ "explain", "Explain why each commit is considered a bug", v => options.Explain = true },
 			};
 
 			try 

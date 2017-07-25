@@ -33,7 +33,6 @@ namespace clio
 
 		public static Option<CommitInfo> ParseSingle (string path, string hash)
 		{
-
 			try
 			{
 				using (var repo = new Repository (path))
