@@ -25,8 +25,9 @@ namespace clio.Tests
 			});
 		}
 
+		// This behavior is less than optimal
 		[Test]
-		public void CommitParser_HandlesInvalidBugzillaCommit ()
+		public void CommitParser_HandlesCommitWithTypeAtEnd_ByIgnoring ()
 		{
 			var commit = CommitFinder.ParseSingle (TestDataLocator.GetPath (), "a0a2db269bb36ecdfbfaef1e8806296e83c203dc");
 			Assert.True (commit.HasValue);
@@ -35,7 +36,7 @@ namespace clio.Tests
 				var parsedCommit = CommitParser.ParseSingle (c);
 				Assert.True (parsedCommit.HasValue);
 				parsedCommit.MatchSome (pc => {
-					Assert.AreEqual ("https://bugzilla.xamarin.com/show_bug.cgi?id=20000x", pc.Link);
+					Assert.AreEqual ("https://bugzilla.xamarin.com/show_bug.cgi?id=20000", pc.Link);
 					Assert.AreEqual (ParsingConfidence.Low, pc.Confidence);
 				});
 			});
