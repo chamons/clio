@@ -1,5 +1,7 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
+using clio.Model;
 using Optional;
 
 namespace clio
@@ -23,11 +25,25 @@ namespace clio
 
 		public void Run ()
 		{
-			var commits = CommitFinder.Parse (Path, Options);
+			IEnumerable<CommitInfo> commits = null;
+
+			Options.SingleCommit.Match (single => {
+				commits = CommitFinder.ParseSingle (Path, single).Match (x => x.Yield (), () => Enumerable.Empty<CommitInfo> ());
+			}, () => { 
+				commits = CommitFinder.Parse (Path, Options);
+			});
+
+			if (Options.Explain)
+				Console.WriteLine ($"Found {commits.Count ()} commits.");
+
 			if (Options.OnlyListCommitsConsidered)
 			{
 				foreach (var commit in commits)
 					Console.WriteLine ($"{commit.Hash} {commit.Title}");
+
+				if (Options.Explain)
+					Console.WriteLine ($"Only listing of commits was requested. Exiting.");
+
 				return;
 			}
 

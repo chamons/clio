@@ -50,19 +50,30 @@ namespace clio
 					int id;
 					if (int.TryParse (match.Groups[match.Groups.Count - 1].Value, out id))
 					{
+						if (options.Explain)
+							Console.WriteLine ($"\tLine \"{line}\" matched pattern {regex}.");
+
 						if (options.IgnoreLowBugs && id < 1000)
 							return new ParseResults { Confidence = ParsingConfidence.Invalid };
+
+						if (options.Explain)
+							Console.WriteLine ($"\tHad a valid id {id}.");
 
 						ParsingConfidence confidence = ParsingConfidence.High;
 
 						if (line.Contains ("Context") || line.Contains ("context"))
 							confidence = ParsingConfidence.Low;
 
+						if (options.Explain)
+							Console.WriteLine ($"\tDefault Confidence was {confidence}.");
+
 						string bugzillaSummary = GetTitle (id);
 						if (bugzillaSummary == null)
 						{
 							confidence = ParsingConfidence.Low;
 							bugzillaSummary = "";
+							if (options.Explain)
+								Console.WriteLine ($"\tGiven low confidence due to lack of a matching bugzilla bug.");
 						}
 
 						return new ParseResults() { Confidence = confidence, Link = match.Value, ID = id, BugzillaSummary = bugzillaSummary };
@@ -74,6 +85,9 @@ namespace clio
 
 		public static Option<ParsedCommit> ParseSingle (CommitInfo commit, SearchOptions options)
 		{
+			if (options.Explain)
+				Console.WriteLine ($"Analyzing {commit.Hash}.");
+
 			var textToSearch = commit.Description.SplitLines ();
 			var topMatch = textToSearch.Select (x => ParseLine (x, options)).OrderBy (x => x.Confidence).FirstOrDefault ();
 
