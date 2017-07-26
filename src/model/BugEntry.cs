@@ -14,8 +14,8 @@ namespace clio.Model
 		public BugEntry (int id, string title, string secondaryTitle, string pr = "")
 		{
 			ID = id;
-			Title = title;
-			SecondaryTitle = secondaryTitle;
+			Title = title.Replace ('`', '`');
+			SecondaryTitle = secondaryTitle.Replace ('`', '`');
 			PR = pr;
 		}
 	}
