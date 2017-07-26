@@ -51,7 +51,9 @@ namespace clio
 				builder.AppendLine (FormatBug (bug));
 			builder.AppendLine ();
 
-			builder.AppendLine ("XXX - Potential bugs (for manual review)");
+			if (bugCollection.UncertainBugs.Count > 0)
+				builder.AppendLine ("XXX - Potential bugs (for manual review)");
+			
 			foreach (var bug in bugCollection.UncertainBugs)
 				builder.AppendLine (FormatUncertainBug (bug));
 
