@@ -39,7 +39,7 @@ namespace clio
 
 		public async Task Setup ()
 		{
-			if (Options.DisableBugzillaLogOn)
+			if (Options.Bugzilla != BugzillaLevel.Private)
 				return;
 			var login = GetLogin ();
 			await Client.LoginAsync (login.Item1, login.Item2);

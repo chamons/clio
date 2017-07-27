@@ -4,13 +4,20 @@ using Optional;
 
 namespace clio
 {
+	public enum BugzillaLevel
+	{
+		Public,
+		Private,
+		Disable
+	}
+
+	
 	public class SearchOptions
 	{
 		public string OutputPath { get; set; } = Path.Combine (System.Environment.CurrentDirectory, "ReleaseNotes.md");
 		public Option<string> Template { get; set; } = Option.None<string> ();
 
-		public bool DisableBugzillaLogOn { get; set; } = false;
-		public bool DisableBugzillaValidation { get; set; } = false;
+		public BugzillaLevel Bugzilla { get; set; } = BugzillaLevel.Public;
 
 		public bool IgnoreLowBugs { get; set; } = true;
 		public bool SortBugs { get; set; } = true;

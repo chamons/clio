@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Globalization;
 using Mono.Options;
 using Optional;
 using Optional.Unsafe;
@@ -44,8 +45,24 @@ namespace clio
 				{ "exclude-oldest", "Exclude oldest item from range considered (included by default)", v => options.IncludeOldest = false },
 				{ "ignore-low-bugs=", "Ignore any bug references to bugs with IDs less than 1000 (Defaults to true)", (bool v) => options.IgnoreLowBugs = v },
 				{ "explain", "Explain why each commit is considered a bug", v => options.Explain = true },
-				{ "disable-private-buzilla", "Fully logging into bugzilla. Will only validate public bugs.", v => options.DisableBugzillaLogOn = true },
-				{ "disable-bugzilla", "Fully disable bugzilla validation of bugs. May increase false positive bugs but drastically reduce time taken.", v => options.DisableBugzillaValidation = true },
+				{ "bugzilla=", "What level should bugzilla queries be made at      (Public, Private, Disable)", v =>
+					{
+						switch (v.ToLower (CultureInfo.InvariantCulture))
+						{
+							case "public":
+								options.Bugzilla = BugzillaLevel.Public;
+								break;
+							case "private":
+								options.Bugzilla = BugzillaLevel.Private;
+								break;
+							case "disable":
+								options.Bugzilla = BugzillaLevel.Disable;
+								break;
+							default:
+								Die ($"Unknown value for --bugzilla {v}");
+							break;
+						}
+					}},
 				{ "sort-bug-list=", "Sort bug list by id number (Defaults to true)", (bool v) => options.SortBugs = v },
 			};
 

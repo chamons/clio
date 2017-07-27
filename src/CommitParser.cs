@@ -68,7 +68,7 @@ namespace clio
 							Console.WriteLine ($"\tDefault Confidence was {confidence}.");
 
 						string bugzillaSummary = "";
-						if (!options.DisableBugzillaValidation)
+						if (options.Bugzilla != BugzillaLevel.Disable)
 						{
 							bugzillaSummary = GetTitle (id, options);
 							if (bugzillaSummary == null)
