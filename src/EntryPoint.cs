@@ -28,7 +28,7 @@ namespace clio
 				{ "h|?|help", "Displays the help", v => requestedAction = ActionType.Help },
 				{ "l|list-commits", "List commits that would be considered", v => requestedAction = ActionType.ListConsideredCommits },
 				{ "b|list-bugs", "List bugs discovered instead of formatting release notes", v => requestedAction = ActionType.ListBugs },
-				{ "f|format-notes=", "Output formatted release notes of a given type (must be a built in template type)", v => {
+				{ "f|format-notes=", $"Output formatted release notes of a given type     ({TemplateGenerator.GetTemplateList ()})", v => {
 						if (!TemplateGenerator.ValidateTemplateName (v))
 							Die ($"Unable to find template {v} embedded as a resource.");
 
@@ -81,6 +81,7 @@ namespace clio
 		static void ShowHelp (OptionSet os)
 		{
 			Console.WriteLine ("clio [options] path");
+			Console.WriteLine ("One action (--list-commits, --list-bugs, --format-notes) must be selected.\n");
 			os.WriteOptionDescriptions (Console.Out);
 		}
 	}
