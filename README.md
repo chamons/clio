@@ -4,8 +4,7 @@ Generate release notes from git history
 ## Building
 
 ```
-git submodule update --recursive --init
-nuget restore clio.sln
+make prepare
 make release
 ```
 
