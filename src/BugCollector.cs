@@ -13,7 +13,7 @@ namespace clio
 
 	public static class BugCollector
 	{
-		public static BugCollection ClassifyCommits (IEnumerable<ParsedCommit> commits)
+		public static BugCollection ClassifyCommits (IEnumerable<ParsedCommit> commits, SearchOptions options)
 		{
 			BugCollection collection = new BugCollection ();
 			var handledBugs = new HashSet<int> ();
@@ -43,6 +43,12 @@ namespace clio
 						collection.UncertainBugs.Add (new BugEntry (parsedCommit.ID, parsedCommit.BugzillaSummary, parsedCommit.Commit.Title));
 					handledBugs.Add (parsedCommit.ID);
 				}
+			}
+
+			if (options.SortBugs)
+			{
+				collection.ConfirmedBugs = collection.ConfirmedBugs.OrderBy (x => x.ID).ToList ();
+				collection.UncertainBugs = collection.UncertainBugs.OrderBy (x => x.ID).ToList ();
 			}
 
 			return collection;

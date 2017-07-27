@@ -41,7 +41,7 @@ namespace clio
 			}
 
 			var parsedCommits = CommitParser.Parse (commits, Options);
-			var bugCollection = BugCollector.ClassifyCommits (parsedCommits);
+			var bugCollection = BugCollector.ClassifyCommits (parsedCommits, Options);
 
 			if (action == ActionType.ListBugs)
 			{
