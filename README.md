@@ -37,9 +37,13 @@ One action (--list-commits, --list-bugs, --format-notes) must be selected.
                              Ignore any bug references to bugs with IDs less
                                than 1000 (Defaults to true)
       --explain              Explain why each commit is considered a bug
-      --disable-bugzilla     Disable bugzilla validation of bugs. May increase
-                               false positive bugs but drastically reduce time
-                               taken.
+      --disable-private-buzilla
+                             Fully logging into bugzilla. Will only validate
+                               public bugs.
+      --disable-bugzilla     Fully disable bugzilla validation of bugs. May
+                               increase false positive bugs but drastically
+                               reduce time taken.
+      --sort-bug-list=VALUE  Sort bug list by id number (Defaults to true)
 ```
 
 The three current actions (beyond help) are:
