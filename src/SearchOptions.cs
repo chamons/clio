@@ -13,8 +13,8 @@ namespace clio
 		public bool Explain { get; set; } = false;
 		public Option<string> SingleCommit { get; set; } = Option.None<string> ();
 
-		public Option<string> Starting { get; set; } = Option.None<string> ();
-		public bool IncludeStarting { get; set; } = true;
-		public Option<string> Ending { get; set; } = Option.None<string> ();
+		public Option<string> Oldest { get; set; } = Option.None<string> ();
+		public bool IncludeOldest { get; set; } = true;
+		public Option<string> Newest { get; set; } = Option.None<string> ();
 	}
 }

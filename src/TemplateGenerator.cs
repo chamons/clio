@@ -12,9 +12,9 @@ namespace clio
 		{
 			string template = GetTemplateText (options.Template.ValueOr (""));
 
-			template = template.Replace ("{START_RANGE}", options.Starting.ValueOr (""));
-			template = template.Replace ("{END_RANGE}", options.Ending.ValueOr (""));
-			template = template.Replace ("{INCLUDE_STARTING}", options.IncludeStarting ? "True" : "False");
+			template = template.Replace ("{OLDEST_COMMIT_CONSIDERED}", options.Oldest.ValueOr (""));
+			template = template.Replace ("{NEWEST_COMMIT_CONSIDERED}", options.Newest.ValueOr (""));
+			template = template.Replace ("{INCLUDE_OLDEST}", options.IncludeOldest ? "True" : "False");
 
 			template = template.Replace ("{BUG_LIST}", GetBugReportText (bugCollection, options));
 

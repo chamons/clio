@@ -2,9 +2,9 @@
 title:Xamarin.iOS
 version:XXX
 releasedate:XXX
-clio-start-range:{START_RANGE}
-clio-end-range:{END_RANGE}
-clio-include-starting:{INCLUDE_STARTING}
+clio-start-range:{OLDEST_COMMIT_CONSIDERED}
+clio-end-range:{NEWEST_COMMIT_CONSIDERED}
+clio-include-starting:{INCLUDE_OLDEST}
 
 Requirements
 ============
