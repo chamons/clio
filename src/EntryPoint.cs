@@ -44,7 +44,8 @@ namespace clio
 				{ "exclude-oldest", "Exclude oldest item from range considered (included by default)", v => options.IncludeOldest = false },
 				{ "ignore-low-bugs=", "Ignore any bug references to bugs with IDs less than 1000 (Defaults to true)", (bool v) => options.IgnoreLowBugs = v },
 				{ "explain", "Explain why each commit is considered a bug", v => options.Explain = true },
-				{ "disable-bugzilla", "Disable bugzilla validation of bugs. May increase false positive bugs but drastically reduce time taken.", v => options.DisableBugzillaValidation = true },
+				{ "disable-private-buzilla", "Fully logging into bugzilla. Will only validate public bugs.", v => options.DisableBugzillaLogOn = true },
+				{ "disable-bugzilla", "Fully disable bugzilla validation of bugs. May increase false positive bugs but drastically reduce time taken.", v => options.DisableBugzillaValidation = true },
 			};
 
 			try

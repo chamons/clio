@@ -21,11 +21,11 @@ namespace clio
 
 		static BugzillaChecker bugzillaChecker;
 
-		static string GetTitle (int id)
+		static string GetTitle (int id, SearchOptions options)
 		{
 			if (bugzillaChecker == null)
 			{
-				bugzillaChecker = new BugzillaChecker ();
+				bugzillaChecker = new BugzillaChecker (options);
 				bugzillaChecker.Setup ().Wait ();
 			}
 
@@ -70,7 +70,7 @@ namespace clio
 						string bugzillaSummary = "";
 						if (!options.DisableBugzillaValidation)
 						{
-							bugzillaSummary = GetTitle (id);
+							bugzillaSummary = GetTitle (id, options);
 							if (bugzillaSummary == null)
 							{
 								confidence = ParsingConfidence.Low;
