@@ -1,5 +1,6 @@
 ﻿using System;
 using System.IO;
+using System.Linq;
 using System.Reflection;
 using System.Text;
 using clio.Model;
@@ -24,6 +25,12 @@ namespace clio
 		public static bool ValidateTemplateName (string name)
 		{
 			return GetTemplateStream (name) != null;
+		}
+
+		public static string GetTemplateList ()
+		{
+			var assembly = Assembly.GetExecutingAssembly ();
+			return string.Join (" ", assembly.GetManifestResourceNames ().Where (x => x.StartsWith ("clio.Templates", StringComparison.InvariantCulture)).Select (x => x.Remove (0, 15).Replace (".md", "")));
 		}
 
 		static string GetTemplateText (string name)
