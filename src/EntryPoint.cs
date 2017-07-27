@@ -46,6 +46,7 @@ namespace clio
 				{ "explain", "Explain why each commit is considered a bug", v => options.Explain = true },
 				{ "disable-private-buzilla", "Fully logging into bugzilla. Will only validate public bugs.", v => options.DisableBugzillaLogOn = true },
 				{ "disable-bugzilla", "Fully disable bugzilla validation of bugs. May increase false positive bugs but drastically reduce time taken.", v => options.DisableBugzillaValidation = true },
+				{ "sort-bug-list=", "Sort bug list by id number (Defaults to true)", (bool v) => options.SortBugs = v },
 			};
 
 			try
