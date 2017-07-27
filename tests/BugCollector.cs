@@ -18,7 +18,7 @@ namespace clio.Tests
 			var commits = CommitFinder.Parse (TestDataLocator.GetPath (), options);
 			var parsedCommits = CommitParser.Parse (commits, options).ToList ();
 
-			var bugCollection = BugCollector.ClassifyCommits (parsedCommits);
+			var bugCollection = BugCollector.ClassifyCommits (parsedCommits, new SearchOptions ());
 
 			Assert.AreEqual (1, bugCollection.ConfirmedBugs.Count);
 			Assert.AreEqual (0, bugCollection.UncertainBugs.Count);
@@ -31,7 +31,7 @@ namespace clio.Tests
 			var commits = CommitFinder.Parse (TestDataLocator.GetPath (), options);
 			var parsedCommits = CommitParser.Parse (commits, options).ToList ();
 
-			var bugCollection = BugCollector.ClassifyCommits (parsedCommits);
+			var bugCollection = BugCollector.ClassifyCommits (parsedCommits, new SearchOptions ());
 			Assert.AreEqual (2, bugCollection.ConfirmedBugs.Count);
 			Assert.AreEqual (3, bugCollection.UncertainBugs.Count);
 		}	
