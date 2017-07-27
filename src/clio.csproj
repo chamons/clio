@@ -75,7 +75,9 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
-    <EmbeddedResource Include="Templates\XamarinMac.md" />
+    <EmbeddedResource Include="Templates\Mac.md" />
+    <EmbeddedResource Include="Templates\iOS.md" />
+    <EmbeddedResource Include="Templates\Android.md" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
 </Project>

@@ -16,7 +16,7 @@ namespace clio
 			template = template.Replace ("{END_RANGE}", options.Ending.ValueOr (""));
 			template = template.Replace ("{INCLUDE_STARTING}", options.IncludeStarting ? "True" : "False");
 
-			template = template.Replace ("{BUG_LIST}", GetBugReportText (bugCollection));
+			template = template.Replace ("{BUG_LIST}", GetBugReportText (bugCollection, options));
 
 			File.WriteAllText (options.OutputPath, template);
 		}
@@ -43,31 +43,49 @@ namespace clio
 			}
 		}
 
-		static string GetBugReportText (BugCollection bugCollection)
+		static string GetBugReportText (BugCollection bugCollection, SearchOptions options)
 		{
 			StringBuilder builder = new StringBuilder ();
 
 			foreach (var bug in bugCollection.ConfirmedBugs)
-				builder.AppendLine (FormatBug (bug));
+				builder.AppendLine (FormatBug (bug, options));
 			builder.AppendLine ();
 
 			if (bugCollection.UncertainBugs.Count > 0)
+			{
 				builder.AppendLine ("XXX - Potential bugs (for manual review)");
-			
-			foreach (var bug in bugCollection.UncertainBugs)
-				builder.AppendLine (FormatUncertainBug (bug));
+
+				foreach (var bug in bugCollection.UncertainBugs)
+					builder.AppendLine (FormatUncertainBug (bug, options));
+			}
 
 			return builder.ToString ();
 		}
 
-		static string FormatBug (BugEntry bug)
+		static string FormatBug (BugEntry bug, SearchOptions options)
 		{
-			return $"* [{bug.ID}](https://bugzilla.xamarin.com/show_bug.cgi?id={bug.ID}) -  {bug.Title}" + (String.IsNullOrEmpty (bug.SecondaryTitle) ? "" : $" / {bug.SecondaryTitle}");
+			switch (options.Template.ValueOr (""))
+			{
+				case "Android":
+					return $"* [{bug.ID}](https://bugzilla.xamarin.com/show_bug.cgi?id={bug.ID}):\n\t{bug.Title}" + (String.IsNullOrEmpty (bug.SecondaryTitle) ? "" : $" / {bug.SecondaryTitle}");
+				case "Mac":
+				case "iOS":
+				default:
+					return $"* [{bug.ID}](https://bugzilla.xamarin.com/show_bug.cgi?id={bug.ID}) -  {bug.Title}" + (String.IsNullOrEmpty (bug.SecondaryTitle) ? "" : $" / {bug.SecondaryTitle}");
+			}
 		}
 
-		static string FormatUncertainBug (BugEntry bug)
+		static string FormatUncertainBug (BugEntry bug, SearchOptions options)
 		{
-			return $"* [{bug.ID}](https://bugzilla.xamarin.com/show_bug.cgi?id={bug.ID}) -  {bug.SecondaryTitle}";
+			switch (options.Template.ValueOr (""))
+			{
+				case "Android":
+					return $"* [{bug.ID}](https://bugzilla.xamarin.com/show_bug.cgi?id={bug.ID}):\n\t{bug.SecondaryTitle}";
+				case "Mac":
+				case "iOS":
+				default:
+					return $"* [{bug.ID}](https://bugzilla.xamarin.com/show_bug.cgi?id={bug.ID}) -  {bug.SecondaryTitle}";
+			}
 		}
 
 		static Stream GetTemplateStream (string name)
