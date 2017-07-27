@@ -3,15 +3,19 @@ Generate release notes from git history
 
 ## Building
 
+```
 git submodule update --recursive --init
 nuget restore clio.sln
 make release
+```
 
 The contents of dist are relocatable where ever you desire.
 
 ## Quickstart
 
+```
 ./dist/clio
+```
 
 ```
 clio [options] path
