@@ -67,13 +67,17 @@ namespace clio
 						if (options.Explain)
 							Console.WriteLine ($"\tDefault Confidence was {confidence}.");
 
-						string bugzillaSummary = GetTitle (id);
-						if (bugzillaSummary == null)
+						string bugzillaSummary = "";
+						if (!options.DisableBugzillaValidation)
 						{
-							confidence = ParsingConfidence.Low;
-							bugzillaSummary = "";
-							if (options.Explain)
-								Console.WriteLine ($"\tGiven low confidence due to lack of a matching bugzilla bug.");
+							bugzillaSummary = GetTitle (id);
+							if (bugzillaSummary == null)
+							{
+								confidence = ParsingConfidence.Low;
+								bugzillaSummary = "";
+								if (options.Explain)
+									Console.WriteLine ($"\tGiven low confidence due to lack of a matching bugzilla bug.");
+							}
 						}
 
 						return new ParseResults() { Confidence = confidence, Link = match.Value, ID = id, BugzillaSummary = bugzillaSummary };

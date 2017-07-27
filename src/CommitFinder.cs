@@ -63,7 +63,7 @@ namespace clio
 				Commit newestCommit = repo.Lookup<Commit> (newest);
 				if (newestCommit == null)
 				{
-					Console.Error.WriteLine ($"Unable to find ending hash {oldest} in repo.");
+					Console.Error.WriteLine ($"Unable to find ending hash {newest} in repo.");
 					return false;
 				}
 
