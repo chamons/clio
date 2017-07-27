@@ -4,6 +4,7 @@ using clio;
 using System.Linq;
 using clio.Model;
 using Optional;
+using System.Collections.Generic;
 
 namespace clio.Tests
 {
@@ -18,12 +19,13 @@ namespace clio.Tests
 			Assert.IsTrue (commit.HasValue);
 			commit.MatchSome (c =>
 			{
-				var parsedCommit = CommitParser.ParseSingle (c, options.ValueOr (new SearchOptions ()));
-				Assert.True (parsedCommit.HasValue, $"{hash} did not parse into a bug commit");
-				parsedCommit.MatchSome (pc => {
-					Assert.AreEqual (expectedUrl, pc.Link, $"{hash} link {pc.Link} did not match expected {expectedUrl}");
-					Assert.AreEqual (expectedConfidence, pc.Confidence, $"{hash} confidence {pc.Confidence} did not match expected {expectedConfidence}");
-				});
+				var parsedCommits = CommitParser.ParseSingle (c, options.ValueOr (new SearchOptions ()));
+
+				Assert.AreEqual (1, parsedCommits.Count (), $"{hash} did not parse into one bug commit");
+				var parsedCommit = parsedCommits.First ();
+
+				Assert.AreEqual (expectedUrl, parsedCommit.Link, $"{hash} link {parsedCommit.Link} did not match expected {expectedUrl}");
+				Assert.AreEqual (expectedConfidence, parsedCommit.Confidence, $"{hash} confidence {parsedCommit.Confidence} did not match expected {expectedConfidence}");
 			});
 		}
 
@@ -34,11 +36,22 @@ namespace clio.Tests
 			var commit = CommitFinder.ParseSingle (TestDataLocator.GetPath (), hash);
 			Assert.True (commit.HasValue);
 			commit.MatchSome (c => {
-				var parsedCommit = CommitParser.ParseSingle (c, options.ValueOr (new SearchOptions ()));
-				Assert.False (parsedCommit.HasValue);
+				var parsedCommits = CommitParser.ParseSingle (c, options.ValueOr (new SearchOptions ()));
+				Assert.Zero (parsedCommits.Count ());
 			});
 		}
 
+		void TestMultipleCommits (string hash, List<string> expectedUrls, Option<SearchOptions> options)
+		{
+			var commit = CommitFinder.ParseSingle (TestDataLocator.GetPath (), hash);
+			Assert.IsTrue (commit.HasValue);
+			commit.MatchSome (c =>
+			{
+				var parsedCommits = CommitParser.ParseSingle (c, options.ValueOr (new SearchOptions ())).ToList ();
+				Assert.AreEqual (parsedCommits.Count(), expectedUrls.Count);
+				Assert.True (new HashSet<string> (parsedCommits.Select (x => x.Link)).SetEquals (expectedUrls));
+			});
+		}
 		
 		[Test]
 		public void CommitParser_FindsNonExistantBugzilla_GivesLow ()
@@ -93,6 +106,18 @@ namespace clio.Tests
 
 			options.IgnoreLowBugs = true;
 			TestCommitHasNoBug ("261dab610e5f29c77877c68ff8abe7852bf617e4", options.Some ());
+		}
+
+		[Test]
+		public void CommitWithMultipleBugs_ShowsAllBugs ()
+		{
+			TestMultipleCommits ("cc3924fcc86fdf30a34b58d52f4dc124c6117a8b",
+			                     new List<string> { "https://bugzilla.xamarin.com/show_bug.cgi?id=57808", "https://bugzilla.xamarin.com/show_bug.cgi?id=56653", "https://bugzilla.xamarin.com/show_bug.cgi?id=55561" }, Option.None<SearchOptions> ());
+
+			TestMultipleCommits ("f47157f09c065ef504c9c5278a4aedd2b9570ddc",
+								 new List<string> { "https://bugzilla.xamarin.com/show_bug.cgi?id=33052", "https://bugzilla.xamarin.com/show_bug.cgi?id=55477", "https://bugzilla.xamarin.com/show_bug.cgi?id=56867",
+								"https://bugzilla.xamarin.com/show_bug.cgi?id=56874", "https://bugzilla.xamarin.com/show_bug.cgi?id=57027"}, Option.None<SearchOptions> ());
+
 		}
 	}
 }
