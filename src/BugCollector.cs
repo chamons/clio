@@ -7,8 +7,8 @@ namespace clio
 {
 	public class BugCollection
 	{
-		public List<BugEntry> ConfirmedBugs { get; set; } = new List<BugEntry> ();
-		public List<BugEntry> UncertainBugs { get; set; } = new List<BugEntry> ();
+		public List<BugEntry> Bugs { get; set; } = new List<BugEntry> ();
+		public List<BugEntry> PotentialBugs { get; set; } = new List<BugEntry> ();
 	}
 
 	public static class BugCollector
@@ -29,26 +29,26 @@ namespace clio
 						continue;
 
 					// If we were low before, remove and replace with high
-					if (collection.UncertainBugs.Any (x => x.ID == parsedCommit.ID))
+					if (collection.PotentialBugs.Any (x => x.ID == parsedCommit.ID))
 					{
-						collection.UncertainBugs.RemoveAll (x => x.ID == parsedCommit.ID);
-						collection.ConfirmedBugs.Add (new BugEntry (parsedCommit.ID, parsedCommit.BugzillaSummary, parsedCommit.Commit.Title));
+						collection.PotentialBugs.RemoveAll (x => x.ID == parsedCommit.ID);
+						collection.Bugs.Add (new BugEntry (parsedCommit.ID, parsedCommit.BugzillaSummary, parsedCommit.Commit.Title));
 					}
 				}
 				else
 				{
 					if (parsedCommit.Confidence == ParsingConfidence.High)
-						collection.ConfirmedBugs.Add (new BugEntry (parsedCommit.ID, parsedCommit.BugzillaSummary, parsedCommit.Commit.Title));
+						collection.Bugs.Add (new BugEntry (parsedCommit.ID, parsedCommit.BugzillaSummary, parsedCommit.Commit.Title));
 					else
-						collection.UncertainBugs.Add (new BugEntry (parsedCommit.ID, parsedCommit.BugzillaSummary, parsedCommit.Commit.Title));
+						collection.PotentialBugs.Add (new BugEntry (parsedCommit.ID, parsedCommit.BugzillaSummary, parsedCommit.Commit.Title));
 					handledBugs.Add (parsedCommit.ID);
 				}
 			}
 
 			if (options.SortBugs)
 			{
-				collection.ConfirmedBugs = collection.ConfirmedBugs.OrderBy (x => x.ID).ToList ();
-				collection.UncertainBugs = collection.UncertainBugs.OrderBy (x => x.ID).ToList ();
+				collection.Bugs = collection.Bugs.OrderBy (x => x.ID).ToList ();
+				collection.PotentialBugs = collection.PotentialBugs.OrderBy (x => x.ID).ToList ();
 			}
 
 			return collection;
