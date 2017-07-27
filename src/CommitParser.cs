@@ -61,14 +61,14 @@ namespace clio
 
 						ParsingConfidence confidence = ParsingConfidence.High;
 
-						if (line.Contains ("Context") || line.Contains ("context"))
-							confidence = ParsingConfidence.Low;
+						if (line.StartsWith ("Context", StringComparison.InvariantCultureIgnoreCase))
+							confidence = ParsingConfidence.Invalid;
 
 						if (options.Explain)
 							Console.WriteLine ($"\tDefault Confidence was {confidence}.");
 
 						string bugzillaSummary = "";
-						if (!options.DisableBugzillaValidation)
+						if (options.Bugzilla != BugzillaLevel.Disable)
 						{
 							bugzillaSummary = GetTitle (id, options);
 							if (bugzillaSummary == null)
@@ -87,27 +87,23 @@ namespace clio
 			return new ParseResults { Confidence = ParsingConfidence.Invalid };
 		}
 
-		public static Option<ParsedCommit> ParseSingle (CommitInfo commit, SearchOptions options)
+		public static IEnumerable<ParsedCommit> ParseSingle (CommitInfo commit, SearchOptions options)
 		{
 			if (options.Explain)
 				Console.WriteLine ($"Analyzing {commit.Hash}.");
 
 			var textToSearch = commit.Description.SplitLines ();
-			var topMatch = textToSearch.Select (x => ParseLine (x, options)).OrderBy (x => x.Confidence).FirstOrDefault ();
 
-			if (topMatch.Confidence != ParsingConfidence.Invalid)
-				return new ParsedCommit (commit, topMatch.Link, topMatch.ID, topMatch.Confidence, topMatch.BugzillaSummary).Some ();
-			else
-				return Option.None<ParsedCommit> ();
+			foreach (var match in textToSearch.Select (x => ParseLine (x, options)).Where (x => x.Confidence != ParsingConfidence.Invalid))
+				yield return new ParsedCommit (commit, match.Link, match.ID, match.Confidence, match.BugzillaSummary);
 		}
 
 		public static IEnumerable<ParsedCommit> Parse (IEnumerable<CommitInfo> commits, SearchOptions options)
 		{
 			foreach (var commit in commits)
 			{
-				var parsed = ParseSingle (commit, options);
-				if (parsed.HasValue)
-					yield return parsed.ValueOrFailure ();
+				foreach (var parsedCommit in ParseSingle (commit, options))
+					yield return parsedCommit;
 			}
 		}
 	}

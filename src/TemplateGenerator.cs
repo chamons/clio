@@ -54,15 +54,15 @@ namespace clio
 		{
 			StringBuilder builder = new StringBuilder ();
 
-			foreach (var bug in bugCollection.ConfirmedBugs)
+			foreach (var bug in bugCollection.Bugs)
 				builder.AppendLine (FormatBug (bug, options));
 			builder.AppendLine ();
 
-			if (bugCollection.UncertainBugs.Count > 0)
+			if (bugCollection.PotentialBugs.Count > 0)
 			{
 				builder.AppendLine ("XXX - Potential bugs (for manual review)");
 
-				foreach (var bug in bugCollection.UncertainBugs)
+				foreach (var bug in bugCollection.PotentialBugs)
 					builder.AppendLine (FormatUncertainBug (bug, options));
 			}
 

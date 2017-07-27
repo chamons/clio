@@ -60,14 +60,14 @@ namespace clio
 
 		void PrintBugs (BugCollection bugCollection, SearchOptions options)
 		{
-			Console.WriteLine ("Confirmed Bugs:");
-			foreach (var bug in bugCollection.ConfirmedBugs)
+			Console.WriteLine ("Bugs:");
+			foreach (var bug in bugCollection.Bugs)
 				Console.WriteLine (TemplateGenerator.FormatBug (bug, options));
 
-			if (bugCollection.UncertainBugs.Count () > 0)
+			if (bugCollection.PotentialBugs.Count () > 0)
 			{
-				Console.WriteLine ("\nUncertain Bugs:");
-				foreach (var bug in bugCollection.UncertainBugs)
+				Console.WriteLine ("\tPotential Bugs:");
+				foreach (var bug in bugCollection.PotentialBugs)
 					Console.WriteLine (TemplateGenerator.FormatUncertainBug (bug, options));
 			}
 		}
