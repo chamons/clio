@@ -8,11 +8,13 @@ namespace clio
 {
 	public class BugzillaChecker
 	{
-		BugzillaClient client;
+		BugzillaClient Client;
+		SearchOptions Options;
 
-		public BugzillaChecker ()
+		public BugzillaChecker (SearchOptions options)
 		{
-			client = new BugzillaClient (new Uri (@"https://bugzilla.xamarin.com/jsonrpc.cgi"));
+			Client = new BugzillaClient (new Uri (@"https://bugzilla.xamarin.com/jsonrpc.cgi"));
+			Options = options;
 		}
 
 		static string LoginFilePath = Path.Combine (Environment.GetFolderPath (Environment.SpecialFolder.MyDocuments), ".bugzilla");
@@ -37,8 +39,10 @@ namespace clio
 
 		public async Task Setup ()
 		{
+			if (Options.DisableBugzillaLogOn)
+				return;
 			var login = GetLogin ();
-			await client.LoginAsync (login.Item1, login.Item2);
+			await Client.LoginAsync (login.Item1, login.Item2);
 		}
 
 		Dictionary<int, string> TitleCache = new Dictionary<int, string> ();
@@ -58,7 +62,7 @@ namespace clio
 		{
 			try
 			{
-				Bug bug = await client.GetBugAsync (number);
+				Bug bug = await Client.GetBugAsync (number);
 				if (bug != null)
 					return bug.Summary;
 				else
