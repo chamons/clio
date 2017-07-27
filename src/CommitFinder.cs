@@ -11,16 +11,26 @@ namespace clio
 	{
 		public static IEnumerable<CommitInfo> Parse (string path, SearchOptions options)
 		{
+			var filter = new CommitFilter ();
+
+			options.Oldest.MatchSome (v => filter.ExcludeReachableFrom = v + (options.IncludeOldest ? "~" : ""));
+			options.Newest.MatchSome (v => filter.IncludeReachableFrom = v);
+
+			return ParseWithFilter (path, filter);
+		}
+
+		public static IEnumerable<CommitInfo> ParseSpecificRange (string path, string oldest, string newest)
+		{
+			var filter = new CommitFilter { ExcludeReachableFrom = oldest, IncludeReachableFrom = newest };
+			return ParseWithFilter (path, filter);
+		}
+
+		public static IEnumerable<CommitInfo> ParseWithFilter (string path, CommitFilter filter)
+		{
 			try
 			{
 				using (var repo = new Repository (path))
-				{
-					var filter = new CommitFilter ();
-					options.Oldest.MatchSome (v => filter.ExcludeReachableFrom = v + (options.IncludeOldest ? "~" : ""));
-					options.Newest.MatchSome (v => filter.IncludeReachableFrom = v);
-
 					return repo.Commits.QueryBy (filter).Select (x => new CommitInfo (x.Sha, x.MessageShort, x.Message)).ToList ();
-				}
 			}
 			catch (RepositoryNotFoundException)
 			{
@@ -47,6 +57,20 @@ namespace clio
 			catch (RepositoryNotFoundException)
 			{
 				return Option.None<CommitInfo> ();
+			}
+		}
+
+		public static Option<Commit> FindMergeBase (string path, string branchName)
+		{
+			using (var repo = new Repository (path))
+			{
+				var aCommit = repo.Lookup<Commit> ($"origin/{branchName}");
+				var bCommit = repo.Lookup<Commit> ("origin/master");
+				if (aCommit == null || bCommit == null)
+					return Option.None<Commit>();
+
+				var baseCommit = repo.ObjectDatabase.FindMergeBase (aCommit, bCommit);
+				return baseCommit.SomeNotNull ();
 			}
 		}
 

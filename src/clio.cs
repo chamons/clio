@@ -24,6 +24,34 @@ namespace clio
 		public void Run (ActionType action)
 		{
 			IEnumerable<CommitInfo> commits = null;
+			IEnumerable<ParsedCommit> commitsToIgnore = Enumerable.Empty<ParsedCommit> ();
+
+			Options.OldestBranch.MatchSome (branchName =>
+			{
+				if (branchName.StartsWith ("origin/", StringComparison.InvariantCulture))
+					branchName = branchName.Remove (0, 7);
+
+				var commit = CommitFinder.FindMergeBase (Path, branchName);
+
+				commit.Match (mergeBase => {
+					if (Options.Explain)
+						Console.WriteLine ($"Found merge base for {branchName} at {mergeBase}.");
+
+					var commitToIgnoreOnBranch = CommitFinder.ParseSpecificRange (Path, mergeBase.Sha, $"origin/{branchName}");
+
+					if (Options.Explain)
+						Console.WriteLine ($"Found {commitToIgnoreOnBranch.Count ()} commits on {branchName} after branch.");
+
+					commitsToIgnore = CommitParser.Parse (commitToIgnoreOnBranch, Options);
+
+					if (Options.Explain)
+						Console.WriteLine ($"Found {commitsToIgnore.Count ()} bugs on {branchName} after branch to ignore.");
+
+					Options.Oldest = mergeBase.Sha.Some ();
+					Options.IncludeOldest = false;
+				},
+				() => EntryPoint.Die ($"Unable to find merge-base with {branchName} on {Path}. Do you need to get fetch?"));
+			});
 
 			Options.SingleCommit.Match (single => {
 				commits = CommitFinder.ParseSingle (Path, single).Match (x => x.Yield (), () => Enumerable.Empty<CommitInfo> ());
@@ -40,8 +68,8 @@ namespace clio
 				return;
 			}
 
-			var parsedCommits = CommitParser.Parse (commits, Options);
-			var bugCollection = BugCollector.ClassifyCommits (parsedCommits, Options);
+			var parsedCommits = CommitParser.Parse (commits, Options).ToList ();
+			var bugCollection = BugCollector.ClassifyCommits (parsedCommits, Options, commitsToIgnore);
 
 			if (action == ActionType.ListBugs)
 			{
