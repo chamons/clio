@@ -45,7 +45,7 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Program.cs" />
+    <Compile Include="EntryPoint.cs" />
     <Compile Include="CommitFinder.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Options.cs" />
@@ -58,6 +58,7 @@
     <Compile Include="SearchOptions.cs" />
     <Compile Include="BugCollector.cs" />
     <Compile Include="Model\BugEntry.cs" />
+    <Compile Include="TemplateGenerator.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
@@ -65,12 +66,18 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Model\" />
+    <Folder Include="Templates\" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\external\libbz\libbz\libbz.csproj">
       <Project>{DB06A55C-89FF-46A9-ABE5-D9F095C6B740}</Project>
       <Name>libbz</Name>
     </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Templates\Mac.md" />
+    <EmbeddedResource Include="Templates\iOS.md" />
+    <EmbeddedResource Include="Templates\Android.md" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
 </Project>
