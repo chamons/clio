@@ -21,7 +21,7 @@ namespace clio
 			string path = null;
 			SearchOptions options = new SearchOptions ();
 
-			ActionType requestedAction = ActionType.Help;
+			ActionType requestedAction = ActionType.ListBugs;
 
 			OptionSet os = new OptionSet ()
 			{
@@ -83,7 +83,7 @@ namespace clio
 		static void ShowHelp (OptionSet os)
 		{
 			Console.WriteLine ("clio [options] path");
-			Console.WriteLine ("One action (--list-commits, --list-bugs, --format-notes) must be selected.\n");
+			Console.WriteLine ("--list-bugs is the default option when none of (--list-commits, --list-bugs, --format-notes) selected.\n");
 			os.WriteOptionDescriptions (Console.Out);
 		}
 	}
