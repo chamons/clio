@@ -62,13 +62,30 @@ namespace clio
 		{
 			Console.WriteLine ("Bugs:");
 			foreach (var bug in bugCollection.Bugs)
-				Console.WriteLine (TemplateGenerator.FormatBug (bug, options));
+				PointBug (bug, false, options);
 
 			if (bugCollection.PotentialBugs.Count () > 0)
 			{
 				Console.WriteLine ("\tPotential Bugs:");
 				foreach (var bug in bugCollection.PotentialBugs)
-					Console.WriteLine (TemplateGenerator.FormatUncertainBug (bug, options));
+					PointBug (bug, true, options);
+			}
+		}
+
+		void PointBug (BugEntry bug, bool potential, SearchOptions options)
+		{
+			if (!potential)
+				Console.WriteLine (TemplateGenerator.FormatBug (bug, options));
+			else
+				Console.WriteLine (TemplateGenerator.FormatUncertainBug (bug, options));
+
+			if (options.AdditionalBugInfo)
+			{
+				BugzillaChecker checker = new BugzillaChecker (options);
+				checker.Setup ().Wait ();
+				string additionalInfo = checker.LookupAdditionalInfo (bug.ID).Result;
+				if (additionalInfo != null)
+					Console.WriteLine ($"\t{additionalInfo}");
 			}
 		}
 

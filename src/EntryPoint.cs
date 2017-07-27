@@ -64,6 +64,7 @@ namespace clio
 						}
 					}},
 				{ "sort-bug-list=", "Sort bug list by id number (Defaults to true)", (bool v) => options.SortBugs = v },
+				{ "additional-bug-info", "Print additional information on each bug for list-bugs", v => options.AdditionalBugInfo = true},
 				new ResponseFileSource (),
 			};
 

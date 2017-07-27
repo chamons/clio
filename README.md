@@ -40,6 +40,9 @@ clio [options] path
       --bugzilla=VALUE       What level should bugzilla queries be made at     
                                (Public, Private, Disable)
       --sort-bug-list=VALUE  Sort bug list by id number (Defaults to true)
+      --additional-bug-info  Print additional information on each bug for list-
+                               bugs
+  @file                      Read response file for more options.
 ```
 
 The three current actions (beyond help) are:
