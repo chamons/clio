@@ -64,6 +64,7 @@ namespace clio
 						}
 					}},
 				{ "sort-bug-list=", "Sort bug list by id number (Defaults to true)", (bool v) => options.SortBugs = v },
+				new ResponseFileSource (),
 			};
 
 			try
