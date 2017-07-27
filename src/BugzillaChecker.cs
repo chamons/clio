@@ -58,13 +58,29 @@ namespace clio
 			return result;
 		}
 
-		private async Task<string> LookupTitle (int number)
+		async Task<string> LookupTitle (int number)
 		{
 			try
 			{
 				Bug bug = await Client.GetBugAsync (number);
 				if (bug != null)
 					return bug.Summary;
+				else
+					return null;
+			}
+			catch (AggregateException)
+			{
+				return null;
+			}
+		}
+
+		public async Task<string> LookupAdditionalInfo (int number)
+		{
+			try
+			{
+				Bug bug = await Client.GetBugAsync (number);
+				if (bug != null)
+					return $"({bug.Product}) - {bug.Milestone} {bug.Status}";
 				else
 					return null;
 			}
