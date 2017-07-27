@@ -1,8 +1,8 @@
 ﻿id:XXX
 title:Xamarin.Android XXX
-clio-start-range:{START_RANGE}
-clio-end-range:{END_RANGE}
-clio-include-starting:{INCLUDE_STARTING}
+clio-start-range:{OLDEST_COMMIT_CONSIDERED}
+clio-end-range:{NEWEST_COMMIT_CONSIDERED}
+clio-include-starting:{INCLUDE_OLDEST}
 
 Xamarin.Android XXX: XXX
 

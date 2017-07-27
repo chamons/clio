@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using Mono.Options;
 using Optional;
+using Optional.Unsafe;
 
 namespace clio
 {
@@ -29,23 +30,21 @@ namespace clio
 				{ "b|list-bugs", "List bugs discovered instead of formatting release notes", v => requestedAction = ActionType.ListBugs },
 				{ "f|format-notes=", "Output formatted release notes of a given type (must be a built in template type)", v => {
 						if (!TemplateGenerator.ValidateTemplateName (v))
-						{
-							Console.Error.WriteLine ($"Unable to find template {v} embedded as a resource.");
-							Environment.Exit (-1);
-						}
+							Die ($"Unable to find template {v} embedded as a resource.");
 
 						options.Template = v.Some ();
 						requestedAction = ActionType.GenerateReleaseNotes;
 					}},
 
 				{ "o|output=", "Path to output release notes (Defaults to current directory)", o => options.OutputPath = o },
-				{ "s|starting=", "Starting to consider", s => options.Starting = s.Some () },
-				{ "e|ending=", "Ending to consider", e => options.Ending = e.Some () },
+				{ "oldest=", "Starting to consider", s => options.Oldest = s.Some () },
+				{ "newest=", "Ending to consider", e => options.Newest = e.Some () },
 
 				{ "single=", "Analyze just a single commit", e => options.SingleCommit = e.Some () },
-				{ "exclude-starting-item", "Exclude starting items from range considered (included by default)", v => options.IncludeStarting = false },
+				{ "exclude-oldest", "Exclude oldest item from range considered (included by default)", v => options.IncludeOldest = false },
 				{ "ignore-low-bugs=", "Ignore any bug references to bugs with IDs less than 1000 (Defaults to true)", (bool v) => options.IgnoreLowBugs = v },
 				{ "explain", "Explain why each commit is considered a bug", v => options.Explain = true },
+				{ "disable-bugzilla", "Disable bugzilla validation of bugs. May increase false positive bugs but drastically reduce time taken.", v => options.DisableBugzillaValidation = true },
 			};
 
 			try
@@ -63,8 +62,20 @@ namespace clio
 				Console.Error.WriteLine ("Could not parse the command line arguments: {0}", e.Message);
 			}
 
+			if (options.Oldest.HasValue && options.Newest.HasValue)
+			{
+				if (!CommitFinder.ValidateGitHashes (path, options.Oldest.ValueOrFailure (), options.Newest.ValueOrFailure ()))
+					Environment.Exit (-1);
+			}
+
 			var request = new clio (path, options);
 			request.Run (requestedAction);	
+		}
+
+		static void Die (string v)
+		{
+			Console.Error.WriteLine (v);
+			Environment.Exit (-1);
 		}
 
 		static void ShowHelp (OptionSet os)

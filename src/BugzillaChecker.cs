@@ -32,7 +32,7 @@ namespace clio
 					return new ValueTuple<string, string> (loginText[0], loginText[1]);
 			}
 
-			throw new InvalidOperationException ("Unable to determine bugzilla login infomration. Please set BUGZILLA_LOGIN/BUGZILLA_PASSWORD environmental variable or create ~/.bugzilla with two lines");
+			throw new InvalidOperationException ("Unable to determine bugzilla login infomration. Please set BUGZILLA_LOGIN/BUGZILLA_PASSWORD environmental variable, create ~/.bugzilla with two lines, or pass --disable-bugzilla");
 		}
 
 		public async Task Setup ()
