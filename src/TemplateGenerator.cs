@@ -62,8 +62,12 @@ namespace clio
 			return builder.ToString ();
 		}
 
-		static string FormatBug (BugEntry bug, SearchOptions options)
+		public static string FormatBug (BugEntry bug, SearchOptions options)
 		{
+			// If bugzilla validation is disabled, all bugs are uncertain
+			if (string.IsNullOrEmpty (bug.Title))
+				return FormatUncertainBug (bug, options);
+
 			switch (options.Template.ValueOr (""))
 			{
 				case "Android":
@@ -75,7 +79,7 @@ namespace clio
 			}
 		}
 
-		static string FormatUncertainBug (BugEntry bug, SearchOptions options)
+		public static string FormatUncertainBug (BugEntry bug, SearchOptions options)
 		{
 			switch (options.Template.ValueOr (""))
 			{

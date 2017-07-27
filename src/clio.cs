@@ -45,7 +45,7 @@ namespace clio
 
 			if (action == ActionType.ListBugs)
 			{
-				PrintBugs (bugCollection);
+				PrintBugs (bugCollection, Options);
 				return;
 			}
 
@@ -58,15 +58,18 @@ namespace clio
 			throw new InvalidOperationException ($"Internal Error - Unknown action requested {action}");
 		}
 
-		void PrintBugs (BugCollection bugCollection)
+		void PrintBugs (BugCollection bugCollection, SearchOptions options)
 		{
 			Console.WriteLine ("Confirmed Bugs:");
 			foreach (var bug in bugCollection.ConfirmedBugs)
-				Console.WriteLine ($"[{bug.ID}] - {bug.Title}" + (String.IsNullOrEmpty (bug.SecondaryTitle) ? "" : $" / {bug.SecondaryTitle}"));
+				Console.WriteLine (TemplateGenerator.FormatBug (bug, options));
 
-			Console.WriteLine ("\nUncertain Bugs:");
-			foreach (var bug in bugCollection.UncertainBugs)
-				Console.WriteLine ($"[{bug.ID}] - {bug.SecondaryTitle}");
+			if (bugCollection.UncertainBugs.Count () > 0)
+			{
+				Console.WriteLine ("\nUncertain Bugs:");
+				foreach (var bug in bugCollection.UncertainBugs)
+					Console.WriteLine (TemplateGenerator.FormatUncertainBug (bug, options));
+			}
 		}
 
 		void PrintCommits (IEnumerable<CommitInfo> commits)
