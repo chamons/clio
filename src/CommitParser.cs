@@ -19,17 +19,22 @@ namespace clio
 
 		static Regex[] AllRegex = { FullBuzilla, Buzilla, Bug, Fixes, Short };
 
-		static BugzillaChecker bugzillaChecker;
 
 		static string GetTitle (int id, SearchOptions options)
 		{
-			if (bugzillaChecker == null)
-			{
-				bugzillaChecker = new BugzillaChecker (options);
-				bugzillaChecker.Setup ().Wait ();
-			}
+			var checker = GetBugChecker (options);
+			return checker.LookupTitle (id).Result;
+		}
 
-			return bugzillaChecker.GetTitle (id).Result;
+		static BugzillaChecker _bugChecker;
+		static BugzillaChecker GetBugChecker (SearchOptions options)
+		{
+			if (_bugChecker == null)
+			{
+				_bugChecker = new BugzillaChecker (options);
+				_bugChecker.Setup ().Wait ();
+			}
+			return _bugChecker;
 		}
 
 		struct ParseResults
