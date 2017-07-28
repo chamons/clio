@@ -67,6 +67,7 @@ Two additional options can change this behavor (beyond --bugzilla:public which i
 - --bugzilla:private - Log into bugzilla with credentials stored in ~/.bugzilla or the ```BUGZILLA_LOGIN``` ```BUGZILLA_PASSWORD``` environmental variables, which allows private bugs to be listed and verified
 - --bugzilla:disable - Disable all bugzilla validation. Will drastically improve speed but may reduce bug sorting quality.
 
+By default bugzilla valiation is set to public, which means private bugs will be called out as "Potential bugs". Additionall, they will not have bugzilla titles added as additional descriptions to choose from in bug listings. This may be desired behavior, if private bugs are not considered release notes appropriate. This behavior can be changed with the aforementioned ```--bugzilla:private``` option.
 
 ## Full Argument Listing
 
