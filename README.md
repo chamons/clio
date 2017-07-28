@@ -46,6 +46,7 @@ clio [options] path
       --sort-bug-list=VALUE  Sort bug list by id number (Defaults to true)
       --additional-bug-info  Print additional information on each bug for list-
                                bugs
+      --submodules           Query submodules as well
   @file                      Read response file for more options.
 ```
 
