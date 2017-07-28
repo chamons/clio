@@ -21,7 +21,7 @@ namespace clio
 		{
 			string path = null;
 			SearchOptions options = new SearchOptions ();
-
+			SearchRange range = new SearchRange ();
 			ActionType requestedAction = ActionType.ListBugs;
 
 			OptionSet os = new OptionSet ()
@@ -38,12 +38,12 @@ namespace clio
 					}},
 
 				{ "o|output=", "Path to output release notes (Defaults to current directory)", o => options.OutputPath = o },
-				{ "oldest=", "Starting hash to consider", s => options.Oldest = s.Some () },
-				{ "newest=", "Ending hash to consider", e => options.Newest = e.Some () },
-				{ "oldest-branch=", "Starting branch to consider. Finds the last commit in master before branch, and ignore all bugs fixed in master that are also fixed in this branch.", s => options.OldestBranch = s.Some () },
+				{ "oldest=", "Starting hash to consider", s => range.Oldest = s.Some () },
+				{ "newest=", "Ending hash to consider", e => range.Newest = e.Some () },
+				{ "oldest-branch=", "Starting branch to consider. Finds the last commit in master before branch, and ignore all bugs fixed in master that are also fixed in this branch.", s => range.OldestBranch = s.Some () },
 
-				{ "single=", "Analyze just a single commit", e => options.SingleCommit = e.Some () },
-				{ "exclude-oldest", "Exclude oldest item from range considered (included by default)", v => options.IncludeOldest = false },
+				{ "single=", "Analyze just a single commit", e => range.SingleCommit = e.Some () },
+				{ "exclude-oldest", "Exclude oldest item from range considered (included by default)", v => range.IncludeOldest = false },
 				{ "ignore-low-bugs=", "Ignore any bug references to bugs with IDs less than 1000 (Defaults to true)", (bool v) => options.IgnoreLowBugs = v },
 				{ "explain", "Explain why each commit is considered a bug", v => options.Explain = true },
 				{ "bugzilla=", "What level should bugzilla queries be made at      (Public, Private, Disable)", v =>
@@ -84,13 +84,13 @@ namespace clio
 				Console.Error.WriteLine ("Could not parse the command line arguments: {0}", e.Message);
 			}
 
-			if (options.Oldest.HasValue && options.Newest.HasValue)
+			if (range.Oldest.HasValue && range.Newest.HasValue)
 			{
-				if (!CommitFinder.ValidateGitHashes (path, options.Oldest.ValueOrFailure (), options.Newest.ValueOrFailure ()))
+				if (!CommitFinder.ValidateGitHashes (path, range.Oldest.ValueOrFailure (), range.Newest.ValueOrFailure ()))
 					Environment.Exit (-1);
 			}
 
-			var request = new clio (path, options);
+			var request = new clio (path, range, options);
 			request.Run (requestedAction);	
 		}
 

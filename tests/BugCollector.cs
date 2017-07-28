@@ -14,8 +14,9 @@ namespace clio.Tests
 		public void BugCollector_HandlesDuplicateBugEntries ()
 		{
 			// One commit with certain, one without. Only one copy in final output
-			var options = new SearchOptions { Oldest = "ad26139".Some (), Newest = "6c280ad".Some (), Bugzilla = BugzillaLevel.Private };
-			var commits = CommitFinder.Parse (TestDataLocator.GetPath (), options);
+			var options = new SearchOptions () { Bugzilla = BugzillaLevel.Private };
+			var range = new SearchRange { Oldest = "ad26139".Some (), Newest = "6c280ad".Some () };
+			var commits = CommitFinder.Parse (TestDataLocator.GetPath (), range);
 			var parsedCommits = CommitParser.Parse (commits, options).ToList ();
 
 			var bugCollection = BugCollector.ClassifyCommits (parsedCommits, new SearchOptions ());
@@ -27,11 +28,12 @@ namespace clio.Tests
 		[Test]
 		public void BugCollector_SmokeTest ()
 		{
-			var options = new SearchOptions { Oldest = "98fff31".Some (), Newest = "6c280ad".Some (), Bugzilla = BugzillaLevel.Private };
-			var commits = CommitFinder.Parse (TestDataLocator.GetPath (), options);
+			var options = new SearchOptions () { Bugzilla = BugzillaLevel.Private };
+			var range = new SearchRange { Oldest = "98fff31".Some (), Newest = "6c280ad".Some () };
+			var commits = CommitFinder.Parse (TestDataLocator.GetPath (), range);
 			var parsedCommits = CommitParser.Parse (commits, options).ToList ();
 
-			var bugCollection = BugCollector.ClassifyCommits (parsedCommits, new SearchOptions ());
+			var bugCollection = BugCollector.ClassifyCommits (parsedCommits, options);
 			Assert.AreEqual (2, bugCollection.Bugs.Count);
 			Assert.AreEqual (3, bugCollection.PotentialBugs.Count);
 		}	
