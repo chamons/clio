@@ -77,6 +77,15 @@ namespace clio.Tests
 			TestConfidenceOfCommit ("0d94343191415f75ed5cd55d932d0ac18be188ba", "bxc 58119", ParsingConfidence.High);
 			TestConfidenceOfCommit ("4cde556b508f921d542ed42c94207cbae0d788c7", "fix 58119", ParsingConfidence.High);
 			TestConfidenceOfCommit ("dc48bf12f33cbb7c60b636774a9bc75f9868e9d5", "https://bugzilla.xamarin.com/show_bug.cgi?id=58119", ParsingConfidence.High);
+			TestConfidenceOfCommit ("5e77c3710fed7672c705e2823af892381da8e1de", "Fixes 200100", ParsingConfidence.Low);
+
+			TestConfidenceOfCommit ("b8c57b9f3dc91f9e90b28b29a86fd7a5d75721d2", "bugzilla #58119", ParsingConfidence.High);
+			TestConfidenceOfCommit ("dcd9d0ff1c3d7d5137842faa7601b1ed6edf2956", "bug #58119", ParsingConfidence.High);
+			TestConfidenceOfCommit ("7b6f494c5158bf4666fe3eae1278bb6c4991ec63", "bxc #58119", ParsingConfidence.High);
+			TestConfidenceOfCommit ("7c291a65be221810bd73a8097fe5dc2f365d21f7", "fix #58119", ParsingConfidence.High);
+
+			TestConfidenceOfCommit ("b7dc900ee6ab57337d9a5655c876cf92e2372b9e", "Fix #200100", ParsingConfidence.Low);
+			TestConfidenceOfCommit ("a2238572ca5385ea9c72196c87cfe9484beac2b3", "Fixes #200100", ParsingConfidence.Low);
 		}
 
 		[Test]
