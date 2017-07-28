@@ -21,7 +21,7 @@ namespace clio
 
 		public bool IgnoreLowBugs { get; set; } = true;
 		public bool SortBugs { get; set; } = true;
-		public bool AdditionalBugInfo { get; set; } = true;
+		public bool AdditionalBugInfo { get; set; } = false;
 
 		public bool Explain { get; set; } = false;
 		public Option<string> SingleCommit { get; set; } = Option.None<string> ();
