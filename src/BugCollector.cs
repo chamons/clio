@@ -19,11 +19,8 @@ namespace clio
 		{
 			var bugsToIgnore = new HashSet<int> (commitsToIgnore.Select (x => x.ID));
 
-			if (options.Explain)
-			{
-				Console.WriteLine ($"\nClassifying {commits.Count ()} commits ignoring {commitsToIgnore.Count ()} commit.");
-				Console.WriteLine ($"\t{String.Join (" ", bugsToIgnore.Select (x => x.ToString ()))}");
-			}
+			options.PrintExplain ($"\nClassifying {commits.Count ()} commits ignoring {commitsToIgnore.Count ()} commit.");
+			options.PrintExplain ($"\t{String.Join (" ", bugsToIgnore.Select (x => x.ToString ()))}");
 
 			BugCollection collection = new BugCollection ();
 			var handledBugs = new HashSet<int> ();

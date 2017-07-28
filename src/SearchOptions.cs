@@ -11,7 +11,6 @@ namespace clio
 		Disable
 	}
 
-	
 	public class SearchOptions
 	{
 		public string OutputPath { get; set; } = Path.Combine (System.Environment.CurrentDirectory, "ReleaseNotes.md");
@@ -22,7 +21,19 @@ namespace clio
 		public bool IgnoreLowBugs { get; set; } = true;
 		public bool SortBugs { get; set; } = true;
 		public bool AdditionalBugInfo { get; set; } = false;
+		public bool Submodules { get; set; } = false;
+
 		public bool Explain { get; set; } = false;
+
+		int ExplainIndent = 0;
+		public void IndentExplain () => ExplainIndent += 1;
+		public void DeindentExplain () => ExplainIndent -= 1;
+
+		public void PrintExplain (string s)
+		{
+			if (Explain)
+				Console.WriteLine (new string ('\t', ExplainIndent) + s);
+		}
 	}
 
 	public class SearchRange

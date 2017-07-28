@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.IO;
 using clio.Model;
 using Optional;
 
@@ -25,29 +26,72 @@ namespace clio
 
 		public void Run (ActionType action)
 		{
-			Process (Path, Options, Range, action);
+			// This can mutage Range so must be done first.
+			var commitsToIgnore = ProcessOldestBranch ();
+
+			Process (Path, Options, Range, action, commitsToIgnore);
+
+			if (Options.Submodules)
+			{
+				string oldest = Range.Oldest.ValueOr ("");
+				var initialSubmoduleStatus = CommitFinder.FindSubmodulesStatus (Path, oldest);
+
+				string newest = Range.Newest.ValueOr ("HEAD");
+				var finalSubmoduleStatus = CommitFinder.FindSubmodulesStatus (Path, newest);
+
+				Options.PrintExplain ($"Processing {initialSubmoduleStatus.Count} submodules for change as well");
+				Options.IndentExplain ();
+
+				foreach (var submodule in initialSubmoduleStatus.Keys)
+				{
+					string initialHash = initialSubmoduleStatus[submodule];
+					string finalHash = finalSubmoduleStatus[submodule];
+
+					if (initialHash == finalHash)
+					{
+						Options.PrintExplain ($"Submodule {submodule} had zero changes ({finalHash}).");
+						continue;
+					}
+
+					Console.WriteLine ($"\nSubmodule: {submodule}");
+
+					Options.PrintExplain ($"Processing {submodule} submodule from {initialHash} to {finalHash}.");
+
+					SearchRange submoduleRange = new SearchRange () { Oldest = initialHash.Some (), Newest = finalHash.Some () };
+
+					Options.IndentExplain ();
+					Process (System.IO.Path.Combine (Path, submodule), Options, submoduleRange, action, Enumerable.Empty<ParsedCommit> ());
+					Options.DeindentExplain ();
+				}
+
+				Options.DeindentExplain ();
+			}
 		}
 
-		static void Process (string path, SearchOptions options, SearchRange range, ActionType action)
+		IEnumerable<ParsedCommit> ProcessOldestBranch ()
 		{
-			IEnumerable<CommitInfo> commits = null;
 			IEnumerable<ParsedCommit> commitsToIgnore = Enumerable.Empty<ParsedCommit> ();
 
-			range.OldestBranch.MatchSome (branchName =>
+			Range.OldestBranch.MatchSome (branchName =>
 			{
 				if (branchName.StartsWith ("origin/", StringComparison.InvariantCulture))
 					branchName = branchName.Remove (0, 7);
 
-				var commitInfo = CommitFinder.FindCommitsOnBranchToIgnore (path, branchName, options);
+				var commitInfo = CommitFinder.FindCommitsOnBranchToIgnore (Path, branchName, Options);
 
-				commitsToIgnore = CommitParser.Parse (commitInfo.Item1, options);
+				commitsToIgnore = CommitParser.Parse (commitInfo.Item1, Options);
 
-				if (options.Explain)
-					Console.WriteLine ($"Found {commitsToIgnore.Count ()} bugs on {branchName} after branch to ignore.");
+				Options.PrintExplain ($"Found {commitsToIgnore.Count ()} bugs on {branchName} after branch to ignore.");
 
-				range.Oldest = commitInfo.Item2.Some ();
-				range.IncludeOldest = false;
+				Range.Oldest = commitInfo.Item2.Some ();
+				Range.IncludeOldest = false;
 			});
+			return commitsToIgnore;
+		}
+
+		static void Process (string path, SearchOptions options, SearchRange range, ActionType action, IEnumerable<ParsedCommit> commitsToIgnore)
+		{
+			IEnumerable<CommitInfo> commits = null;
 
 			range.SingleCommit.Match (single =>
 			{
@@ -57,8 +101,7 @@ namespace clio
 				commits = CommitFinder.Parse (path, range);
 			});
 
-			if (options.Explain)
-				Console.WriteLine ($"Found {commits.Count ()} commits.");
+			options.PrintExplain ($"Found {commits.Count ()} commits.");
 
 			if (action == ActionType.ListConsideredCommits)
 			{
@@ -86,13 +129,16 @@ namespace clio
 
 		static void PrintBugs (BugCollection bugCollection, SearchOptions options)
 		{
-			Console.WriteLine ("Bugs:");
-			foreach (var bug in bugCollection.Bugs)
-				PointBug (bug, false, options);
+			if (bugCollection.Bugs.Count () > 0)
+			{
+				Console.WriteLine ("Bugs:");
+				foreach (var bug in bugCollection.Bugs)
+					PointBug (bug, false, options);
+			}
 
 			if (bugCollection.PotentialBugs.Count () > 0)
 			{
-				Console.WriteLine ("\tPotential Bugs:");
+				Console.WriteLine ("Potential Bugs:");
 				foreach (var bug in bugCollection.PotentialBugs)
 					PointBug (bug, true, options);
 			}
@@ -120,8 +166,7 @@ namespace clio
 			foreach (var commit in commits)
 				Console.WriteLine ($"{commit.Hash} {commit.Title}");
 
-			if (options.Explain)
-				Console.WriteLine ($"Only listing of commits was requested. Exiting.");
+			options.PrintExplain ($"Only listing of commits was requested. Exiting.");
 		}
 	}
 }

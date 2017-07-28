@@ -85,13 +85,12 @@ namespace clio
 			}
 
 			var mergeBase = merge.ValueOrFailure ();
-			if (options.Explain)
-				Console.WriteLine ($"Found merge base for {branchName} at {mergeBase}.");
+
+			options.PrintExplain ($"Found merge base for {branchName} at {mergeBase}.");
 
 			var commitToIgnoreOnBranch = ParseSpecificRange (path, mergeBase, $"origin/{branchName}");
 
-			if (options.Explain)
-				Console.WriteLine ($"Found {commitToIgnoreOnBranch.Count ()} commits on {branchName} after branch.");
+			options.PrintExplain ($"Found {commitToIgnoreOnBranch.Count ()} commits on {branchName} after branch.");
 
 			return new ValueTuple<IEnumerable<CommitInfo>, string> (commitToIgnoreOnBranch, mergeBase);
 		}
@@ -127,6 +126,25 @@ namespace clio
 
 				return true;
 			}
+		}
+
+		public static Dictionary<string, string> FindSubmodulesStatus (string path, string hash)
+		{
+			Dictionary<string, string> submoduleStatus = new Dictionary<string, string> ();
+
+			// This assumes submodules did not drastically change over a single release
+			using (var repo = new Repository (path))
+			{
+				var commit = repo.Lookup <Commit> (hash);
+
+				foreach (var submodule in repo.Submodules.Select (x => x.Path))
+				{
+					var submoduleObject = commit[submodule];
+					if (submoduleObject != null)
+						submoduleStatus[submodule] = submoduleObject.Target.Sha;
+				}
+			}
+			return submoduleStatus;
 		}
 	}
 }
