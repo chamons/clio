@@ -1,4 +1,5 @@
 ﻿# Moderate Priority:
+- Handle "revert" commits correctly
 - Understand tags
 - Understand ~ in paths passed in
 
