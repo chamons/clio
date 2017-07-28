@@ -89,6 +89,15 @@ namespace clio.Tests
 		}
 
 		[Test]
+		public void CommitParser_HandlesInvalidFormatted_WithInvalid ()
+		{
+			TestCommitHasNoBug ("33552d61eb89ef046479798c291e3175a7834a69"); //fix123
+			TestCommitHasNoBug ("c214f9f9c1a968325ecb434a5ad2a3e4a2a27b06"); //fix#123
+			TestCommitHasNoBug ("2e70896e5da484d67dadd004188f0de3dd39a158"); //fix
+			TestCommitHasNoBug ("53f5dfb223100271d77d0674efbac91ff4d28c8f"); //fix#
+		}
+
+		[Test]
 		public void CommitParser_HandlesNoCommitLinks ()
 		{
 			TestCommitHasNoBug ("148b7c4bcddf6ca0831fea3ad536042e9d1e349a");
