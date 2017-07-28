@@ -22,13 +22,14 @@ namespace clio
 		public bool IgnoreLowBugs { get; set; } = true;
 		public bool SortBugs { get; set; } = true;
 		public bool AdditionalBugInfo { get; set; } = false;
-
 		public bool Explain { get; set; } = false;
-		public Option<string> SingleCommit { get; set; } = Option.None<string> ();
+	}
 
+	public class SearchRange
+	{
+		public Option<string> SingleCommit { get; set; } = Option.None<string> ();
 		public Option<string> Oldest { get; set; } = Option.None<string> ();
 		public Option<string> OldestBranch { get; set; } = Option.None<string> ();
-
 		public bool IncludeOldest { get; set; } = true;
 		public Option<string> Newest { get; set; } = Option.None<string> ();
 	}

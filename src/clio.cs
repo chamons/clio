@@ -11,71 +11,80 @@ namespace clio
 	{
 		public string Path { get; private set; }
 		public SearchOptions Options { get; private set; }
+		public SearchRange Range { get; private set; }
 
 		public Option<string> StartHash { get; private set; }
 		public Option<string> EndingHash { get; private set; }
 
-		public clio (string path, SearchOptions options)
+		public clio (string path, SearchRange range, SearchOptions options)
 		{
 			Path = path;
+			Range = range;
 			Options = options;
 		}
 
 		public void Run (ActionType action)
 		{
+			Process (Path, Options, Range, action);
+		}
+
+		static void Process (string path, SearchOptions options, SearchRange range, ActionType action)
+		{
 			IEnumerable<CommitInfo> commits = null;
 			IEnumerable<ParsedCommit> commitsToIgnore = Enumerable.Empty<ParsedCommit> ();
 
-			Options.OldestBranch.MatchSome (branchName =>
+			range.OldestBranch.MatchSome (branchName =>
 			{
 				if (branchName.StartsWith ("origin/", StringComparison.InvariantCulture))
 					branchName = branchName.Remove (0, 7);
 
-				var commitInfo = CommitFinder.FindCommitsOnBranchToIgnore (Path, branchName, Options);
+				var commitInfo = CommitFinder.FindCommitsOnBranchToIgnore (path, branchName, options);
 
-				commitsToIgnore = CommitParser.Parse (commitInfo.Item1, Options);
+				commitsToIgnore = CommitParser.Parse (commitInfo.Item1, options);
 
-				if (Options.Explain)
+				if (options.Explain)
 					Console.WriteLine ($"Found {commitsToIgnore.Count ()} bugs on {branchName} after branch to ignore.");
 
-				Options.Oldest = commitInfo.Item2.Some ();
-				Options.IncludeOldest = false;
+				range.Oldest = commitInfo.Item2.Some ();
+				range.IncludeOldest = false;
 			});
 
-			Options.SingleCommit.Match (single => {
-				commits = CommitFinder.ParseSingle (Path, single).Match (x => x.Yield (), () => Enumerable.Empty<CommitInfo> ());
-			}, () => {
-				commits = CommitFinder.Parse (Path, Options);
+			range.SingleCommit.Match (single =>
+			{
+				commits = CommitFinder.ParseSingle (path, single).Match (x => x.Yield (), () => Enumerable.Empty<CommitInfo> ());
+			}, () =>
+			{
+				commits = CommitFinder.Parse (path, range);
 			});
 
-			if (Options.Explain)
+			if (options.Explain)
 				Console.WriteLine ($"Found {commits.Count ()} commits.");
 
 			if (action == ActionType.ListConsideredCommits)
 			{
-				PrintCommits (commits);
+				PrintCommits (commits, options);
 				return;
 			}
 
-			var parsedCommits = CommitParser.Parse (commits, Options).ToList ();
-			var bugCollection = BugCollector.ClassifyCommits (parsedCommits, Options, commitsToIgnore);
+			var parsedCommits = CommitParser.Parse (commits, options).ToList ();
+			var bugCollection = BugCollector.ClassifyCommits (parsedCommits, options, commitsToIgnore);
 
 			if (action == ActionType.ListBugs)
 			{
-				PrintBugs (bugCollection, Options);
+				PrintBugs (bugCollection, options);
 				return;
 			}
 
 			if (action == ActionType.GenerateReleaseNotes)
 			{
-				TemplateGenerator.GenerateReleaseNotes (bugCollection, Options);
+				TemplateGenerator.GenerateReleaseNotes (bugCollection, options, range);
 				return;
 			}
 
 			throw new InvalidOperationException ($"Internal Error - Unknown action requested {action}");
 		}
 
-		void PrintBugs (BugCollection bugCollection, SearchOptions options)
+		static void PrintBugs (BugCollection bugCollection, SearchOptions options)
 		{
 			Console.WriteLine ("Bugs:");
 			foreach (var bug in bugCollection.Bugs)
@@ -89,7 +98,7 @@ namespace clio
 			}
 		}
 
-		void PointBug (BugEntry bug, bool potential, SearchOptions options)
+		static void PointBug (BugEntry bug, bool potential, SearchOptions options)
 		{
 			if (!potential)
 				Console.WriteLine (TemplateGenerator.FormatBug (bug, options));
@@ -106,12 +115,12 @@ namespace clio
 			}
 		}
 
-		void PrintCommits (IEnumerable<CommitInfo> commits)
+		static void PrintCommits (IEnumerable<CommitInfo> commits, SearchOptions options)
 		{
 			foreach (var commit in commits)
 				Console.WriteLine ($"{commit.Hash} {commit.Title}");
 
-			if (Options.Explain)
+			if (options.Explain)
 				Console.WriteLine ($"Only listing of commits was requested. Exiting.");
 		}
 	}

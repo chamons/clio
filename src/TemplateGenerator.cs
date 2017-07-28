@@ -9,13 +9,13 @@ namespace clio
 {
 	public static class TemplateGenerator
 	{
-		public static void GenerateReleaseNotes (BugCollection bugCollection, SearchOptions options)
+		public static void GenerateReleaseNotes (BugCollection bugCollection, SearchOptions options, SearchRange range)
 		{
 			string template = GetTemplateText (options.Template.ValueOr (""));
 
-			template = template.Replace ("{OLDEST_COMMIT_CONSIDERED}", options.Oldest.ValueOr (""));
-			template = template.Replace ("{NEWEST_COMMIT_CONSIDERED}", options.Newest.ValueOr (""));
-			template = template.Replace ("{INCLUDE_OLDEST}", options.IncludeOldest ? "True" : "False");
+			template = template.Replace ("{OLDEST_COMMIT_CONSIDERED}", range.Oldest.ValueOr (""));
+			template = template.Replace ("{NEWEST_COMMIT_CONSIDERED}", range.Newest.ValueOr (""));
+			template = template.Replace ("{INCLUDE_OLDEST}", range.IncludeOldest ? "True" : "False");
 
 			template = template.Replace ("{BUG_LIST}", GetBugReportText (bugCollection, options));
 

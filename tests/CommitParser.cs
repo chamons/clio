@@ -88,7 +88,7 @@ namespace clio.Tests
 		[Test]
 		public void CommitParser_SmokeTestAllCommits ()
 		{
-			var commits = CommitFinder.Parse (TestDataLocator.GetPath (), new SearchOptions ());
+			var commits = CommitFinder.Parse (TestDataLocator.GetPath (), new SearchRange ());
 			var parsedCommits = CommitParser.Parse (commits, new SearchOptions ());
 			Assert.NotZero (commits.Count ());
 			foreach (var parsedCommit in parsedCommits)

@@ -10,12 +10,12 @@ namespace clio
 {
 	public static class CommitFinder
 	{
-		public static IEnumerable<CommitInfo> Parse (string path, SearchOptions options)
+		public static IEnumerable<CommitInfo> Parse (string path, SearchRange range)
 		{
 			var filter = new CommitFilter ();
 
-			options.Oldest.MatchSome (v => filter.ExcludeReachableFrom = v + (options.IncludeOldest ? "~" : ""));
-			options.Newest.MatchSome (v => filter.IncludeReachableFrom = v);
+			range.Oldest.MatchSome (v => filter.ExcludeReachableFrom = v + (range.IncludeOldest ? "~" : ""));
+			range.Newest.MatchSome (v => filter.IncludeReachableFrom = v);
 
 			return ParseWithFilter (path, filter);
 		}
