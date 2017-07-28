@@ -50,60 +50,65 @@ namespace clio
 
 		static ParseResults ParseLine (string line, SearchOptions options)
 		{
-			foreach (Regex regex in AllRegex)
+			try
 			{
-				var match = regex.Match (line);
-				if (match.Success)
+				options.IndentExplain ();
+				foreach (Regex regex in AllRegex)
 				{
-					int id;
-					if (int.TryParse (match.Groups[match.Groups.Count - 1].Value, out id))
+					var match = regex.Match (line);
+					if (match.Success)
 					{
-						if (options.Explain)
-							Console.WriteLine ($"\t\tLine \"{StripNewLine (line)}\" matched pattern {regex}.");
-
-						if (options.IgnoreLowBugs && id < 1000)
-							return new ParseResults { Confidence = ParsingConfidence.Invalid };
-
-						if (options.Explain)
-							Console.WriteLine ($"\t\tHad a valid id {id}.");
-
-						ParsingConfidence confidence = ParsingConfidence.High;
-
-						if (line.StartsWith ("Context", StringComparison.InvariantCultureIgnoreCase))
-							confidence = ParsingConfidence.Invalid;
-
-						if (options.Explain)
-							Console.WriteLine ($"\t\tDefault Confidence was {confidence}.");
-
-						string bugzillaSummary = "";
-						if (options.Bugzilla != BugzillaLevel.Disable)
+						int id;
+						if (int.TryParse (match.Groups[match.Groups.Count - 1].Value, out id))
 						{
-							bugzillaSummary = GetTitle (id, options);
-							if (bugzillaSummary == null)
-							{
-								confidence = ParsingConfidence.Low;
-								bugzillaSummary = "";
-								if (options.Explain)
-									Console.WriteLine ($"\t\tGiven low confidence due to lack of a matching bugzilla bug.");
-							}
-						}
+							options.PrintExplain ($"Line \"{StripNewLine (line)}\" matched pattern {regex}.");
 
-						return new ParseResults() { Confidence = confidence, Link = match.Value, ID = id, BugzillaSummary = bugzillaSummary };
+							if (options.IgnoreLowBugs && id < 1000)
+								return new ParseResults { Confidence = ParsingConfidence.Invalid };
+
+							options.PrintExplain ($"Had a valid id {id}.");
+
+							ParsingConfidence confidence = ParsingConfidence.High;
+
+							if (line.StartsWith ("Context", StringComparison.InvariantCultureIgnoreCase))
+								confidence = ParsingConfidence.Invalid;
+
+							options.PrintExplain ($"Default Confidence was {confidence}.");
+
+							string bugzillaSummary = "";
+							if (options.Bugzilla != BugzillaLevel.Disable)
+							{
+								bugzillaSummary = GetTitle (id, options);
+								if (bugzillaSummary == null)
+								{
+									confidence = ParsingConfidence.Low;
+									bugzillaSummary = "";
+									options.PrintExplain ($"Given low confidence due to lack of a matching bugzilla bug.");
+								}
+							}
+
+							return new ParseResults () { Confidence = confidence, Link = match.Value, ID = id, BugzillaSummary = bugzillaSummary };
+						}
 					}
 				}
+				return new ParseResults { Confidence = ParsingConfidence.Invalid };
 			}
-			return new ParseResults { Confidence = ParsingConfidence.Invalid };
+			finally
+			{
+				options.DeindentExplain ();
+			}
 		}
 
 		public static IEnumerable<ParsedCommit> ParseSingle (CommitInfo commit, SearchOptions options)
 		{
-			if (options.Explain)
-				Console.WriteLine ($"\tAnalyzing {commit.Hash}.");
+			options.IndentExplain ();
+			options.PrintExplain ($"Analyzing {commit.Hash}.");
 
 			var textToSearch = commit.Description.SplitLines ();
 
 			foreach (var match in textToSearch.Select (x => ParseLine (x, options)).Where (x => x.Confidence != ParsingConfidence.Invalid))
 				yield return new ParsedCommit (commit, match.Link, match.ID, match.Confidence, match.BugzillaSummary);
+			options.DeindentExplain ();
 		}
 
 		public static IEnumerable<ParsedCommit> Parse (IEnumerable<CommitInfo> commits, SearchOptions options)

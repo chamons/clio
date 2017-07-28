@@ -66,6 +66,7 @@ namespace clio
 					}},
 				{ "sort-bug-list=", "Sort bug list by id number (Defaults to true)", (bool v) => options.SortBugs = v },
 				{ "additional-bug-info", "Print additional information on each bug for list-bugs", v => options.AdditionalBugInfo = true},
+				{ "submodules", "Query submodules as well", v => options.Submodules = true},
 				new ResponseFileSource (),
 			};
 
@@ -89,6 +90,12 @@ namespace clio
 				if (!CommitFinder.ValidateGitHashes (path, range.Oldest.ValueOrFailure (), range.Newest.ValueOrFailure ()))
 					Environment.Exit (-1);
 			}
+
+			if (options.Submodules && range.SingleCommit.HasValue)
+				Die ("Submodules requires a range to consider, not a single entry");
+
+			if (options.Submodules && requestedAction == ActionType.GenerateReleaseNotes)
+				Die ("Submodules currently do not support generating release notes");
 
 			var request = new clio (path, range, options);
 			request.Run (requestedAction);	
