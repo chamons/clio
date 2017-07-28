@@ -45,49 +45,39 @@ namespace clio
 			await Client.LoginAsync (login.Item1, login.Item2);
 		}
 
-		Dictionary<int, string> TitleCache = new Dictionary<int, string> ();
-
-		public async Task<string> GetTitle (int number)
+		public async Task<string> LookupTitle (int number)
 		{
-			string result;
-			if (!TitleCache.TryGetValue(number, out result))
-			{
-				result = await LookupTitle (number);
-				TitleCache [number] = result;
-			}
-			return result;
-		}
-
-		async Task<string> LookupTitle (int number)
-		{
-			try
-			{
-				Bug bug = await Client.GetBugAsync (number);
-				if (bug != null)
-					return bug.Summary;
-				else
-					return null;
-			}
-			catch (AggregateException)
-			{
-				return null;
-			}
+			Bug bug = await GetBug (number);
+			return bug != null ? bug.Summary : null;
 		}
 
 		public async Task<string> LookupAdditionalInfo (int number)
 		{
-			try
-			{
-				Bug bug = await Client.GetBugAsync (number);
-				if (bug != null)
-					return $"({bug.Product}) - {bug.Milestone} {bug.Status}";
-				else
-					return null;
-			}
-			catch (AggregateException)
-			{
+			Bug bug = await GetBug (number);
+			if (bug != null)
+				return $"({bug.Product}) - {bug.Milestone} {bug.Status}";
+			else
 				return null;
+		}
+
+		Dictionary<int, Bug> BugCache = new Dictionary<int, Bug> ();
+
+		async Task<Bug> GetBug (int number)
+		{
+			Bug result;
+			if (!BugCache.TryGetValue (number, out result))
+			{
+				try
+				{
+					result = await Client.GetBugAsync (number);
+				}
+				catch (AggregateException)
+				{
+					result = null;
+				}
+				BugCache[number] = result;
 			}
+			return result;
 		}
 	}
 }
