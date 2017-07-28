@@ -1,5 +1,20 @@
 # clio
-Generate release notes from git history
+
+Clio automates searaching git history to determine what bug fixes went in to a given release.
+
+It currently understand the following formats in commit notes:
+
+```
+https://bugzilla.xamarin.com/show_bug.cgi?id=####
+bugzilla ####
+bug ####
+fix ####
+bxc ####
+
+with an optional # before the number for the last four.
+```
+
+and will cross reference bugzilla to verify the existance of referenced bugs when possible.
 
 ## Building
 
@@ -13,8 +28,47 @@ The contents of dist are relocatable where ever you desire.
 ## Quickstart
 
 ```
-./dist/clio
+./dist/clio [ACTION] [OPTIONS] PATH_TO_GIT_CHECKOUT
 ```
+
+###Examples:
+
+#####What bugs were fixed after a given hash:
+
+``` --oldest:bcfddc9 clio-test-data/```
+
+#####What mono bugs were fixed in a release branch (clio currently does not understand tags):
+
+```--list-bugs --oldest:`git rev-list -1 mono-5.2.0.213` --newest:origin/2017-04 mono/```
+
+#####What bugs were fixed after d15-3 branched to current d15-4, excluding cherry picks to d15-3, including submodule bumped:
+
+```--list-bugs --submodules --oldest-branch:d15-3 --newest=d15-4 xamarin-macios```
+
+#####Start release notes for a release based on a built in template:
+
+```--bugzilla:private --oldest-branch:d15-3 --newest=d15-4 --format-notes:Mac -o:xamarin.mac_3.8.md xamarin-macios/```
+
+
+## Actions
+
+The three current actions (beyond help) are:
+
+- list-commits: List the commits that are under consideration based upon the path given, --oldest, and --newest
+- list-bugs: Print a markdown formatted table of the bugs found in the commit range in question. A secondary set of "potential" bugs may come after, which will require manual verification.
+- format-notes: Instance up full release notes based upon saved templates and insert the bug list directly. PR are welcome to add additional formats.
+
+## Bugzilla Validation
+
+By default, clio will contact bugzilla.xamarin.com and verify potential bugs against the public bug list. This takes significant amount of time, but reduces false positives and provides better title information in many cases.
+
+Two additional options can change this behavor (beyond --bugzilla:public which is default)
+
+- --bugzilla:private - Log into bugzilla with credentials stored in ~/.bugzilla or the ```BUGZILLA_LOGIN``` ```BUGZILLA_PASSWORD``` environmental variables, which allows private bugs to be listed and verified
+- --bugzilla:disable - Disable all bugzilla validation. Will drastically improve speed but may reduce bug sorting quality.
+
+
+## Full Argument Listing
 
 ```
 clio [options] path
@@ -50,20 +104,9 @@ clio [options] path
   @file                      Read response file for more options.
 ```
 
-The three current actions (beyond help) are:
+## "Under the hood" documentation
 
-- list-commits: List the commits that are under consideration based upon the path given, --oldest, and --newest
-- list-bugs: Print a markdown formatted table of the bugs found in the commit range in question. A secondary set of "potential" bugs may come after, which will require manual verification.
-- format-notes: Instance up full release notes based upon saved templates and insert the bug list directly. PR are welcome to add additional formats.
-
-## Bugzilla Validation
-
-By default, clio will contact bugzilla.xamarin.com and verify potential bugs against the public bug list. This takes significant amount of time, but reduces false positives and provides better title information in many cases.
-
-Two additional options can change this behavor (beyond --bugzilla:public which is default)
-
-- --bugzilla:private - Log into bugzilla with credentials stored in ~/.bugzilla or the ```BUGZILLA_LOGIN``` ```BUGZILLA_PASSWORD``` environmental variables, which allows private bugs to be listed and verified
-- --bugzilla:disable - Disable all bugzilla validation. Will drastically improve speed but may reduce bug sorting quality.
+[TechnicalOverview.md](docs/TechnicalOverview.md)
 
 ## Why the name clio?
 
