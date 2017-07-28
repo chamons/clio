@@ -81,11 +81,11 @@ namespace clio.Tests
 			var range = new SearchRange ();
 			range.Oldest = "261dab6".Some ();
 			var commits = CommitFinder.Parse (TestDataLocator.GetPath (), range);
-			Assert.AreEqual (16, commits.Count ());
+			Assert.AreEqual (27, commits.Count ());
 
 			range.IncludeOldest = false;
 			commits = CommitFinder.Parse (TestDataLocator.GetPath (), range);
-			Assert.AreEqual (15, commits.Count ());
+			Assert.AreEqual (26, commits.Count ());
 		}
 
 		[Test]

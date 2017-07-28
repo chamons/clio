@@ -12,10 +12,10 @@ namespace clio
 	public static class CommitParser
 	{
 		static Regex FullBuzilla = new Regex (@"htt.*?://bugzilla\.xamarin\.com[^=]+(=)(\d*)", RegexOptions.Compiled | RegexOptions.IgnoreCase);
-		static Regex Buzilla = new Regex (@"bugzilla\s*(\d*)", RegexOptions.Compiled | RegexOptions.IgnoreCase);
-		static Regex Bug = new Regex (@"bug\s*(\d*)", RegexOptions.Compiled | RegexOptions.IgnoreCase);
-		static Regex Fixes = new Regex (@"fix\s*(\d*)", RegexOptions.Compiled | RegexOptions.IgnoreCase);
-		static Regex Short = new Regex (@"bxc\s*(\d*)", RegexOptions.Compiled | RegexOptions.IgnoreCase);
+		static Regex Buzilla = new Regex (@"bugzilla\s*(#)?(\d*)", RegexOptions.Compiled | RegexOptions.IgnoreCase);
+		static Regex Bug = new Regex (@"bug\s*(#)?(\d*)", RegexOptions.Compiled | RegexOptions.IgnoreCase);
+		static Regex Fixes = new Regex (@"fix(es)?\s*(#)?(\d*)", RegexOptions.Compiled | RegexOptions.IgnoreCase);
+		static Regex Short = new Regex (@"bxc\s*(#)?(\d*)", RegexOptions.Compiled | RegexOptions.IgnoreCase);
 
 		static Regex[] AllRegex = { FullBuzilla, Buzilla, Bug, Fixes, Short };
 
