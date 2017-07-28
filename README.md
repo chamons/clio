@@ -28,8 +28,12 @@ clio [options] path
                                (Mac iOS Android)
   -o, --output=VALUE         Path to output release notes (Defaults to current
                                directory)
-      --oldest=VALUE         Starting to consider
-      --newest=VALUE         Ending to consider
+      --oldest=VALUE         Starting hash to consider
+      --newest=VALUE         Ending hash to consider
+      --oldest-branch=VALUE  Starting branch to consider. Finds the last commit
+                               in master before branch, and ignore all bugs
+                               fixed in master that are also fixed in this
+                               branch.
       --single=VALUE         Analyze just a single commit
       --exclude-oldest       Exclude oldest item from range considered (
                                included by default)
