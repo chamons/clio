@@ -109,8 +109,6 @@ namespace clio
 					yield return parsedCommit;
 			}
 		}
-
-
 	}
 }
  
