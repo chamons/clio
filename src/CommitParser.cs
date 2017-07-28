@@ -40,6 +40,9 @@ namespace clio
 			public string BugzillaSummary;
 		}
 
+		static string StripNewLine (string line) => Regex.Replace (line, @"\r\n?|\n", "");
+
+
 		static ParseResults ParseLine (string line, SearchOptions options)
 		{
 			foreach (Regex regex in AllRegex)
@@ -51,13 +54,13 @@ namespace clio
 					if (int.TryParse (match.Groups[match.Groups.Count - 1].Value, out id))
 					{
 						if (options.Explain)
-							Console.WriteLine ($"\tLine \"{line}\" matched pattern {regex}.");
+							Console.WriteLine ($"\t\tLine \"{StripNewLine (line)}\" matched pattern {regex}.");
 
 						if (options.IgnoreLowBugs && id < 1000)
 							return new ParseResults { Confidence = ParsingConfidence.Invalid };
 
 						if (options.Explain)
-							Console.WriteLine ($"\tHad a valid id {id}.");
+							Console.WriteLine ($"\t\tHad a valid id {id}.");
 
 						ParsingConfidence confidence = ParsingConfidence.High;
 
@@ -65,7 +68,7 @@ namespace clio
 							confidence = ParsingConfidence.Invalid;
 
 						if (options.Explain)
-							Console.WriteLine ($"\tDefault Confidence was {confidence}.");
+							Console.WriteLine ($"\t\tDefault Confidence was {confidence}.");
 
 						string bugzillaSummary = "";
 						if (options.Bugzilla != BugzillaLevel.Disable)
@@ -76,7 +79,7 @@ namespace clio
 								confidence = ParsingConfidence.Low;
 								bugzillaSummary = "";
 								if (options.Explain)
-									Console.WriteLine ($"\tGiven low confidence due to lack of a matching bugzilla bug.");
+									Console.WriteLine ($"\t\tGiven low confidence due to lack of a matching bugzilla bug.");
 							}
 						}
 
@@ -90,7 +93,7 @@ namespace clio
 		public static IEnumerable<ParsedCommit> ParseSingle (CommitInfo commit, SearchOptions options)
 		{
 			if (options.Explain)
-				Console.WriteLine ($"Analyzing {commit.Hash}.");
+				Console.WriteLine ($"\tAnalyzing {commit.Hash}.");
 
 			var textToSearch = commit.Description.SplitLines ();
 

@@ -38,8 +38,9 @@ namespace clio
 					}},
 
 				{ "o|output=", "Path to output release notes (Defaults to current directory)", o => options.OutputPath = o },
-				{ "oldest=", "Starting to consider", s => options.Oldest = s.Some () },
-				{ "newest=", "Ending to consider", e => options.Newest = e.Some () },
+				{ "oldest=", "Starting hash to consider", s => options.Oldest = s.Some () },
+				{ "newest=", "Ending hash to consider", e => options.Newest = e.Some () },
+				{ "oldest-branch=", "Starting branch to consider. Finds the last commit in master before branch, and ignore all bugs fixed in master that are also fixed in this branch.", s => options.OldestBranch = s.Some () },
 
 				{ "single=", "Analyze just a single commit", e => options.SingleCommit = e.Some () },
 				{ "exclude-oldest", "Exclude oldest item from range considered (included by default)", v => options.IncludeOldest = false },
@@ -93,7 +94,7 @@ namespace clio
 			request.Run (requestedAction);	
 		}
 
-		static void Die (string v)
+		public static void Die (string v)
 		{
 			Console.Error.WriteLine (v);
 			Environment.Exit (-1);

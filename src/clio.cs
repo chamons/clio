@@ -24,6 +24,23 @@ namespace clio
 		public void Run (ActionType action)
 		{
 			IEnumerable<CommitInfo> commits = null;
+			IEnumerable<ParsedCommit> commitsToIgnore = Enumerable.Empty<ParsedCommit> ();
+
+			Options.OldestBranch.MatchSome (branchName =>
+			{
+				if (branchName.StartsWith ("origin/", StringComparison.InvariantCulture))
+					branchName = branchName.Remove (0, 7);
+
+				var commitInfo = CommitFinder.FindCommitsOnBranchToIgnore (Path, branchName, Options);
+
+				commitsToIgnore = CommitParser.Parse (commitInfo.Item1, Options);
+
+				if (Options.Explain)
+					Console.WriteLine ($"Found {commitsToIgnore.Count ()} bugs on {branchName} after branch to ignore.");
+
+				Options.Oldest = commitInfo.Item2.Some ();
+				Options.IncludeOldest = false;
+			});
 
 			Options.SingleCommit.Match (single => {
 				commits = CommitFinder.ParseSingle (Path, single).Match (x => x.Yield (), () => Enumerable.Empty<CommitInfo> ());
@@ -40,8 +57,8 @@ namespace clio
 				return;
 			}
 
-			var parsedCommits = CommitParser.Parse (commits, Options);
-			var bugCollection = BugCollector.ClassifyCommits (parsedCommits, Options);
+			var parsedCommits = CommitParser.Parse (commits, Options).ToList ();
+			var bugCollection = BugCollector.ClassifyCommits (parsedCommits, Options, commitsToIgnore);
 
 			if (action == ActionType.ListBugs)
 			{

@@ -13,12 +13,22 @@ namespace clio
 
 	public static class BugCollector
 	{
-		public static BugCollection ClassifyCommits (IEnumerable<ParsedCommit> commits, SearchOptions options)
+		public static BugCollection ClassifyCommits (IEnumerable<ParsedCommit> commits, SearchOptions options) => ClassifyCommits (commits, options, Enumerable.Empty<ParsedCommit> ());
+
+		public static BugCollection ClassifyCommits (IEnumerable<ParsedCommit> commits, SearchOptions options, IEnumerable<ParsedCommit> commitsToIgnore)
 		{
+			var bugsToIgnore = new HashSet<int> (commitsToIgnore.Select (x => x.ID));
+
+			if (options.Explain)
+			{
+				Console.WriteLine ($"\nClassifying {commits.Count ()} commits ignoring {commitsToIgnore.Count ()} commit.");
+				Console.WriteLine ($"\t{String.Join (" ", bugsToIgnore.Select (x => x.ToString ()))}");
+			}
+
 			BugCollection collection = new BugCollection ();
 			var handledBugs = new HashSet<int> ();
 
-			foreach (var parsedCommit in commits)
+			foreach (var parsedCommit in commits.Where (x => !bugsToIgnore.Contains (x.ID)))
 			{
 				if (handledBugs.Contains (parsedCommit.ID))
 				{
