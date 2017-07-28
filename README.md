@@ -31,7 +31,7 @@ The contents of dist are relocatable where ever you desire.
 ./dist/clio [ACTION] [OPTIONS] PATH_TO_GIT_CHECKOUT
 ```
 
-##Examples:
+## Examples:
 
 **What bugs were fixed after a given hash**:
 
