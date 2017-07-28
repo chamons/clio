@@ -31,21 +31,21 @@ The contents of dist are relocatable where ever you desire.
 ./dist/clio [ACTION] [OPTIONS] PATH_TO_GIT_CHECKOUT
 ```
 
-###Examples:
+##Examples:
 
-#####What bugs were fixed after a given hash:
+**What bugs were fixed after a given hash**:
 
 ``` --oldest:bcfddc9 clio-test-data/```
 
-#####What mono bugs were fixed in a release branch (clio currently does not understand tags):
+**What mono bugs were fixed in a release branch (clio currently does not understand tags)**:
 
 ```--list-bugs --oldest:`git rev-list -1 mono-5.2.0.213` --newest:origin/2017-04 mono/```
 
-#####What bugs were fixed after d15-3 branched to current d15-4, excluding cherry picks to d15-3, including submodule bumped:
+**What bugs were fixed after d15-3 branched to current d15-4, excluding cherry picks to d15-3, including submodule bumped**:
 
 ```--list-bugs --submodules --oldest-branch:d15-3 --newest=d15-4 xamarin-macios```
 
-#####Start release notes for a release based on a built in template:
+**Start release notes for a release based on a built in template**:
 
 ```--bugzilla:private --oldest-branch:d15-3 --newest=d15-4 --format-notes:Mac -o:xamarin.mac_3.8.md xamarin-macios/```
 
