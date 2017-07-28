@@ -31,26 +31,15 @@ namespace clio
 				if (branchName.StartsWith ("origin/", StringComparison.InvariantCulture))
 					branchName = branchName.Remove (0, 7);
 
-				var commit = CommitFinder.FindMergeBase (Path, branchName);
+				var commitInfo = CommitFinder.FindCommitsOnBranchToIgnore (Path, branchName, Options);
 
-				commit.Match (mergeBase => {
-					if (Options.Explain)
-						Console.WriteLine ($"Found merge base for {branchName} at {mergeBase}.");
+				commitsToIgnore = CommitParser.Parse (commitInfo.Item1, Options);
 
-					var commitToIgnoreOnBranch = CommitFinder.ParseSpecificRange (Path, mergeBase.Sha, $"origin/{branchName}");
+				if (Options.Explain)
+					Console.WriteLine ($"Found {commitsToIgnore.Count ()} bugs on {branchName} after branch to ignore.");
 
-					if (Options.Explain)
-						Console.WriteLine ($"Found {commitToIgnoreOnBranch.Count ()} commits on {branchName} after branch.");
-
-					commitsToIgnore = CommitParser.Parse (commitToIgnoreOnBranch, Options);
-
-					if (Options.Explain)
-						Console.WriteLine ($"Found {commitsToIgnore.Count ()} bugs on {branchName} after branch to ignore.");
-
-					Options.Oldest = mergeBase.Sha.Some ();
-					Options.IncludeOldest = false;
-				},
-				() => EntryPoint.Die ($"Unable to find merge-base with {branchName} on {Path}. Do you need to get fetch?"));
+				Options.Oldest = commitInfo.Item2.Some ();
+				Options.IncludeOldest = false;
 			});
 
 			Options.SingleCommit.Match (single => {

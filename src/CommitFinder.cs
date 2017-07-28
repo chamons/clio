@@ -4,6 +4,7 @@ using System.Linq;
 using clio.Model;
 using LibGit2Sharp;
 using Optional;
+using Optional.Unsafe;
 
 namespace clio
 {
@@ -60,18 +61,39 @@ namespace clio
 			}
 		}
 
-		public static Option<Commit> FindMergeBase (string path, string branchName)
+		public static Option<string> FindMergeBase (string path, string branchName)
 		{
 			using (var repo = new Repository (path))
 			{
 				var aCommit = repo.Lookup<Commit> ($"origin/{branchName}");
 				var bCommit = repo.Lookup<Commit> ("origin/master");
 				if (aCommit == null || bCommit == null)
-					return Option.None<Commit>();
+					return Option.None<string>();
 
 				var baseCommit = repo.ObjectDatabase.FindMergeBase (aCommit, bCommit);
-				return baseCommit.SomeNotNull ();
+				return baseCommit.Sha.SomeNotNull ();
 			}
+		}
+
+		public static ValueTuple<IEnumerable<CommitInfo>, string> FindCommitsOnBranchToIgnore (string path, string branchName, SearchOptions options)
+		{
+			var merge = FindMergeBase (path, branchName);
+			if (!merge.HasValue)
+			{
+				EntryPoint.Die ($"Unable to find merge-base with {branchName} on {path}. Do you need to get fetch?");
+				return new ValueTuple<IEnumerable<CommitInfo>, string> ();
+			}
+
+			var mergeBase = merge.ValueOrFailure ();
+			if (options.Explain)
+				Console.WriteLine ($"Found merge base for {branchName} at {mergeBase}.");
+
+			var commitToIgnoreOnBranch = ParseSpecificRange (path, mergeBase, $"origin/{branchName}");
+
+			if (options.Explain)
+				Console.WriteLine ($"Found {commitToIgnoreOnBranch.Count ()} commits on {branchName} after branch.");
+
+			return new ValueTuple<IEnumerable<CommitInfo>, string> (commitToIgnoreOnBranch, mergeBase);
 		}
 
 		public static bool ValidateGitHashes (string path, string oldest, string newest)
