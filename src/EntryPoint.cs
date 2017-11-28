@@ -31,11 +31,8 @@ namespace clio
 				{ "oldest=", "Starting hash to consider", s => range.Oldest = s.Some () },
 				{ "newest=", "Ending hash to consider", e => range.Newest = e.Some () },
 				{ "oldest-branch=", "Starting branch to consider. Finds the last commit in master before branch, and ignore all bugs fixed in master that are also fixed in this branch.", s => range.OldestBranch = s.Some () },
-
-				{ "single=", "Analyze just a single commit", e => range.SingleCommit = e.Some () },
 				{ "exclude-oldest", "Exclude oldest item from range considered (included by default)", v => range.IncludeOldest = false },
-				{ "ignore-low-bugs=", "Ignore any bug references to bugs with IDs less than 1000 (Defaults to true)", (bool v) => options.IgnoreLowBugs = v },
-				{ "explain", "Explain why each commit is considered a bug", v => options.Explain = true },
+				{ "explain", "Explain why each commit is considered a bug", v => Explain.Enabled = true },
 				{ "bugzilla=", "What level should bugzilla queries be made at      (Public, Private, Disable)", v =>
 					{
 						switch (v.ToLower (CultureInfo.InvariantCulture))
@@ -54,7 +51,6 @@ namespace clio
 							break;
 						}
 					}},
-				{ "sort-bug-list=", "Sort bug list by id number (Defaults to true)", (bool v) => options.SortBugs = v },
 				{ "additional-bug-info", "Print additional information on each bug for list-bugs", v => options.AdditionalBugInfo = true},
 				{ "submodules", "Query submodules as well", v => options.Submodules = true},
 				new ResponseFileSource (),
@@ -80,9 +76,6 @@ namespace clio
 				if (!CommitFinder.ValidateGitHashes (path, range.Oldest.ValueOrFailure (), range.Newest.ValueOrFailure ()))
 					Environment.Exit (-1);
 			}
-
-			if (options.Submodules && range.SingleCommit.HasValue)
-				Die ("Submodules requires a range to consider, not a single entry");
 
 			var request = new clio (path, range, options);
 			request.Run (requestedAction);	

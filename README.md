@@ -85,9 +85,6 @@ clio [options] path
       --single=VALUE         Analyze just a single commit
       --exclude-oldest       Exclude oldest item from range considered (
                                included by default)
-      --ignore-low-bugs=VALUE
-                             Ignore any bug references to bugs with IDs less
-                               than 1000 (Defaults to true)
       --explain              Explain why each commit is considered a bug
       --bugzilla=VALUE       What level should bugzilla queries be made at     
                                (Public, Private, Disable)

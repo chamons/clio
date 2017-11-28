@@ -39,8 +39,8 @@ namespace clio
 				string newest = Range.Newest.ValueOr ("HEAD");
 				var finalSubmoduleStatus = CommitFinder.FindSubmodulesStatus (Path, newest);
 
-				Options.PrintExplain ($"Processing {initialSubmoduleStatus.Count} submodules for change as well");
-				Options.IndentExplain ();
+				Explain.Print ($"Processing {initialSubmoduleStatus.Count} submodules for change as well");
+				Explain.Indent ();
 
 				foreach (var submodule in initialSubmoduleStatus.Keys)
 				{
@@ -49,22 +49,22 @@ namespace clio
 
 					if (initialHash == finalHash)
 					{
-						Options.PrintExplain ($"Submodule {submodule} had zero changes ({finalHash}).");
+						Explain.Print ($"Submodule {submodule} had zero changes ({finalHash}).");
 						continue;
 					}
 
 					Console.WriteLine ($"\nSubmodule: {submodule}");
 
-					Options.PrintExplain ($"Processing {submodule} submodule from {initialHash} to {finalHash}.");
+					Explain.Print ($"Processing {submodule} submodule from {initialHash} to {finalHash}.");
 
 					SearchRange submoduleRange = new SearchRange () { Oldest = initialHash.Some (), Newest = finalHash.Some () };
 
-					Options.IndentExplain ();
+					Explain.Indent ();
 					Process (System.IO.Path.Combine (Path, submodule), Options, submoduleRange, action, Enumerable.Empty<ParsedCommit> ());
-					Options.DeindentExplain ();
+					Explain.Deindent ();
 				}
 
-				Options.DeindentExplain ();
+				Explain.Deindent ();
 			}
 		}
 
@@ -81,7 +81,7 @@ namespace clio
 
 				commitsToIgnore = CommitParser.Parse (commitInfo.Item1, Options);
 
-				Options.PrintExplain ($"Found {commitsToIgnore.Count ()} bugs on {branchName} after branch to ignore.");
+				Explain.Print ($"Found {commitsToIgnore.Count ()} bugs on {branchName} after branch to ignore.");
 
 				Range.Oldest = commitInfo.Item2.Some ();
 				Range.IncludeOldest = false;
@@ -91,17 +91,9 @@ namespace clio
 
 		static void Process (string path, SearchOptions options, SearchRange range, ActionType action, IEnumerable<ParsedCommit> commitsToIgnore)
 		{
-			IEnumerable<CommitInfo> commits = null;
+			IEnumerable<CommitInfo> commits = CommitFinder.Parse (path, range);
 
-			range.SingleCommit.Match (single =>
-			{
-				commits = CommitFinder.ParseSingle (path, single).Match (x => x.Yield (), () => Enumerable.Empty<CommitInfo> ());
-			}, () =>
-			{
-				commits = CommitFinder.Parse (path, range);
-			});
-
-			options.PrintExplain ($"Found {commits.Count ()} commits.");
+			Explain.Print ($"Found {commits.Count ()} commits.");
 
 			if (action == ActionType.ListConsideredCommits)
 			{
@@ -174,7 +166,7 @@ namespace clio
 			foreach (var commit in commits)
 				Console.WriteLine ($"{commit.Hash} {commit.Title}");
 
-			options.PrintExplain ($"Only listing of commits was requested. Exiting.");
+			Explain.Print ($"Only listing of commits was requested. Exiting.");
 		}
 	}
 }

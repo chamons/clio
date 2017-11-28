@@ -117,14 +117,9 @@ namespace clio.Tests
 		}
 
 		[Test]
-		public void LowNumberBugs_OnlyShowUpWithoutOption ()
+		public void LowNumberBugs_NeverShowUp ()
 		{
 			SearchOptions options = new SearchOptions () { Bugzilla = BugzillaLevel.Private };
-
-			options.IgnoreLowBugs = false;
-			TestConfidenceOfCommit ("261dab610e5f29c77877c68ff8abe7852bf617e4", "Fix 2", ParsingConfidence.High, options.Some ());
-
-			options.IgnoreLowBugs = true;
 			TestCommitHasNoBug ("261dab610e5f29c77877c68ff8abe7852bf617e4", options.Some ());
 		}
 

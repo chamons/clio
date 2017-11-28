@@ -86,11 +86,11 @@ namespace clio
 
 			var mergeBase = merge.ValueOrFailure ();
 
-			options.PrintExplain ($"Found merge base for {branchName} at {mergeBase}.");
+			Explain.Print ($"Found merge base for {branchName} at {mergeBase}.");
 
 			var commitToIgnoreOnBranch = ParseSpecificRange (path, mergeBase, $"origin/{branchName}");
 
-			options.PrintExplain ($"Found {commitToIgnoreOnBranch.Count ()} commits on {branchName} after branch.");
+			Explain.Print ($"Found {commitToIgnoreOnBranch.Count ()} commits on {branchName} after branch.");
 
 			return new ValueTuple<IEnumerable<CommitInfo>, string> (commitToIgnoreOnBranch, mergeBase);
 		}
