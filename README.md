@@ -88,7 +88,6 @@ clio [options] path
       --explain              Explain why each commit is considered a bug
       --bugzilla=VALUE       What level should bugzilla queries be made at     
                                (Public, Private, Disable)
-      --sort-bug-list=VALUE  Sort bug list by id number (Defaults to true)
       --additional-bug-info  Print additional information on each bug for list-
                                bugs
       --submodules           Query submodules as well
