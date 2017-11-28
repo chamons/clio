@@ -4,6 +4,7 @@ using System.Linq;
 using System.IO;
 using clio.Model;
 using Optional;
+using Optional.Unsafe;
 
 namespace clio
 {
@@ -13,9 +14,6 @@ namespace clio
 		public string Path { get; private set; }
 		public SearchOptions Options { get; private set; }
 		public SearchRange Range { get; private set; }
-
-		public Option<string> StartHash { get; private set; }
-		public Option<string> EndingHash { get; private set; }
 
 		public clio (string path, SearchRange range, SearchOptions options)
 		{
@@ -70,23 +68,23 @@ namespace clio
 
 		IEnumerable<ParsedCommit> ProcessOldestBranch ()
 		{
-			IEnumerable<ParsedCommit> commitsToIgnore = Enumerable.Empty<ParsedCommit> ();
-
-			Range.OldestBranch.MatchSome (branchName =>
+			if (Range.OldestBranch.HasValue)
 			{
+				var branchName = Range.OldestBranch.ValueOrFailure ();
 				if (branchName.StartsWith ("origin/", StringComparison.InvariantCulture))
 					branchName = branchName.Remove (0, 7);
 
 				var commitInfo = CommitFinder.FindCommitsOnBranchToIgnore (Path, branchName, Options);
 
-				commitsToIgnore = CommitParser.Parse (commitInfo.Item1, Options);
+				IEnumerable<ParsedCommit> commitsToIgnore = CommitParser.Parse (commitInfo.Item1, Options);
 
 				Explain.Print ($"Found {commitsToIgnore.Count ()} bugs on {branchName} after branch to ignore.");
 
 				Range.Oldest = commitInfo.Item2.Some ();
 				Range.IncludeOldest = false;
-			});
-			return commitsToIgnore;
+				return commitsToIgnore;
+			}
+			return Enumerable.Empty<ParsedCommit> ();
 		}
 
 		static void Process (string path, SearchOptions options, SearchRange range, ActionType action, IEnumerable<ParsedCommit> commitsToIgnore)
@@ -95,22 +93,19 @@ namespace clio
 
 			Explain.Print ($"Found {commits.Count ()} commits.");
 
-			if (action == ActionType.ListConsideredCommits)
+			switch (action)
 			{
-				PrintCommits (commits, options);
-				return;
+				case ActionType.ListBugs:
+					PrintCommits (commits);
+					return;
+				case ActionType.ListConsideredCommits:
+					var parsedCommits = CommitParser.Parse (commits, options).ToList ();
+					var bugCollection = BugCollector.ClassifyCommits (parsedCommits, options, commitsToIgnore);
+					PrintBugs (bugCollection, options);
+					return;
+				default:
+					throw new InvalidOperationException ($"Internal Error - Unknown action requested {action}");
 			}
-
-			var parsedCommits = CommitParser.Parse (commits, options).ToList ();
-			var bugCollection = BugCollector.ClassifyCommits (parsedCommits, options, commitsToIgnore);
-
-			if (action == ActionType.ListBugs)
-			{
-				PrintBugs (bugCollection, options);
-				return;
-			}
-
-			throw new InvalidOperationException ($"Internal Error - Unknown action requested {action}");
 		}
 
 		static void PrintBugs (BugCollection bugCollection, SearchOptions options)
@@ -119,14 +114,14 @@ namespace clio
 			{
 				Console.WriteLine ("Bugs:");
 				foreach (var bug in bugCollection.Bugs)
-					PointBug (bug, false, options);
+					PrintBug (bug, false, options);
 			}
 
 			if (bugCollection.PotentialBugs.Count () > 0)
 			{
 				Console.WriteLine ("Potential Bugs:");
 				foreach (var bug in bugCollection.PotentialBugs)
-					PointBug (bug, true, options);
+					PrintBug (bug, true, options);
 			}
 		}
 
@@ -144,7 +139,7 @@ namespace clio
 			return $"* [{bug.ID}](https://bugzilla.xamarin.com/show_bug.cgi?id={bug.ID}) -  {bug.SecondaryTitle}";
 		}
 
-		static void PointBug (BugEntry bug, bool potential, SearchOptions options)
+		static void PrintBug (BugEntry bug, bool potential, SearchOptions options)
 		{
 			if (!potential)
 				Console.WriteLine (FormatBug (bug));
@@ -161,7 +156,7 @@ namespace clio
 			}
 		}
 
-		static void PrintCommits (IEnumerable<CommitInfo> commits, SearchOptions options)
+		static void PrintCommits (IEnumerable<CommitInfo> commits)
 		{
 			foreach (var commit in commits)
 				Console.WriteLine ($"{commit.Hash} {commit.Title}");

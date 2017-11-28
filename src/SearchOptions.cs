@@ -13,7 +13,6 @@ namespace clio
 	public class SearchOptions
 	{
 		public BugzillaLevel Bugzilla { get; set; } = BugzillaLevel.Public;
-
 		public bool AdditionalBugInfo { get; set; } = false;
 		public bool Submodules { get; set; } = false;
 	}

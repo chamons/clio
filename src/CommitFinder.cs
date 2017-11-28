@@ -68,7 +68,7 @@ namespace clio
 				var aCommit = repo.Lookup<Commit> ($"origin/{branchName}");
 				var bCommit = repo.Lookup<Commit> ("origin/master");
 				if (aCommit == null || bCommit == null)
-					return Option.None<string>();
+					return Option.None<string> ();
 
 				var baseCommit = repo.ObjectDatabase.FindMergeBase (aCommit, bCommit);
 				return baseCommit.Sha.SomeNotNull ();
