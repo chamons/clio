@@ -68,7 +68,7 @@ namespace clio
 				var aCommit = repo.Lookup<Commit> ($"origin/{branchName}");
 				var bCommit = repo.Lookup<Commit> ("origin/master");
 				if (aCommit == null || bCommit == null)
-					return Option.None<string>();
+					return Option.None<string> ();
 
 				var baseCommit = repo.ObjectDatabase.FindMergeBase (aCommit, bCommit);
 				return baseCommit.Sha.SomeNotNull ();
@@ -86,11 +86,11 @@ namespace clio
 
 			var mergeBase = merge.ValueOrFailure ();
 
-			options.PrintExplain ($"Found merge base for {branchName} at {mergeBase}.");
+			Explain.Print ($"Found merge base for {branchName} at {mergeBase}.");
 
 			var commitToIgnoreOnBranch = ParseSpecificRange (path, mergeBase, $"origin/{branchName}");
 
-			options.PrintExplain ($"Found {commitToIgnoreOnBranch.Count ()} commits on {branchName} after branch.");
+			Explain.Print ($"Found {commitToIgnoreOnBranch.Count ()} commits on {branchName} after branch.");
 
 			return new ValueTuple<IEnumerable<CommitInfo>, string> (commitToIgnoreOnBranch, mergeBase);
 		}

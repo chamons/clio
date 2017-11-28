@@ -19,7 +19,6 @@ namespace clio
 
 		static Regex[] AllRegex = { FullBuzilla, Buzilla, Bug, Fixes, Short };
 
-
 		static string GetTitle (int id, SearchOptions options)
 		{
 			var checker = GetBugChecker (options);
@@ -47,12 +46,11 @@ namespace clio
 
 		static string StripNewLine (string line) => Regex.Replace (line, @"\r\n?|\n", "");
 
-
 		static ParseResults ParseLine (string line, SearchOptions options)
 		{
 			try
 			{
-				options.IndentExplain ();
+				Explain.Indent ();
 				foreach (Regex regex in AllRegex)
 				{
 					var match = regex.Match (line);
@@ -61,19 +59,19 @@ namespace clio
 						int id;
 						if (int.TryParse (match.Groups[match.Groups.Count - 1].Value, out id))
 						{
-							options.PrintExplain ($"Line \"{StripNewLine (line)}\" matched pattern {regex}.");
+							Explain.Print ($"Line \"{StripNewLine (line)}\" matched pattern {regex}.");
 
-							if (options.IgnoreLowBugs && id < 1000)
+							if (id < 1000)
 								return new ParseResults { Confidence = ParsingConfidence.Invalid };
 
-							options.PrintExplain ($"Had a valid id {id}.");
+							Explain.Print ($"Had a valid id {id}.");
 
 							ParsingConfidence confidence = ParsingConfidence.High;
 
 							if (line.StartsWith ("Context", StringComparison.InvariantCultureIgnoreCase))
 								confidence = ParsingConfidence.Invalid;
 
-							options.PrintExplain ($"Default Confidence was {confidence}.");
+							Explain.Print ($"Default Confidence was {confidence}.");
 
 							string bugzillaSummary = "";
 							if (options.Bugzilla != BugzillaLevel.Disable)
@@ -83,7 +81,7 @@ namespace clio
 								{
 									confidence = ParsingConfidence.Low;
 									bugzillaSummary = "";
-									options.PrintExplain ($"Given low confidence due to lack of a matching bugzilla bug.");
+									Explain.Print ($"Given low confidence due to lack of a matching bugzilla bug.");
 								}
 							}
 
@@ -95,20 +93,20 @@ namespace clio
 			}
 			finally
 			{
-				options.DeindentExplain ();
+				Explain.Deindent ();
 			}
 		}
 
 		public static IEnumerable<ParsedCommit> ParseSingle (CommitInfo commit, SearchOptions options)
 		{
-			options.IndentExplain ();
-			options.PrintExplain ($"Analyzing {commit.Hash}.");
+			Explain.Indent ();
+			Explain.Print ($"Analyzing {commit.Hash}.");
 
 			var textToSearch = commit.Description.SplitLines ();
 
 			foreach (var match in textToSearch.Select (x => ParseLine (x, options)).Where (x => x.Confidence != ParsingConfidence.Invalid))
 				yield return new ParsedCommit (commit, match.Link, match.ID, match.Confidence, match.BugzillaSummary);
-			options.DeindentExplain ();
+			Explain.Deindent ();
 		}
 
 		public static IEnumerable<ParsedCommit> Parse (IEnumerable<CommitInfo> commits, SearchOptions options)

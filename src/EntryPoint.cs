@@ -11,8 +11,7 @@ namespace clio
 	{
 		Help,
 		ListConsideredCommits,
-		ListBugs,
-		GenerateReleaseNotes
+		ListBugs
 	}
 
 	class EntryPoint
@@ -29,23 +28,11 @@ namespace clio
 				{ "h|?|help", "Displays the help", v => requestedAction = ActionType.Help },
 				{ "l|list-commits", "List commits that would be considered", v => requestedAction = ActionType.ListConsideredCommits },
 				{ "b|list-bugs", "List bugs discovered instead of formatting release notes", v => requestedAction = ActionType.ListBugs },
-				{ "f|format-notes=", $"Output formatted release notes of a given type     ({TemplateGenerator.GetTemplateList ()})", v => {
-						if (!TemplateGenerator.ValidateTemplateName (v))
-							Die ($"Unable to find template {v} embedded as a resource.");
-
-						options.Template = v.Some ();
-						requestedAction = ActionType.GenerateReleaseNotes;
-					}},
-
-				{ "o|output=", "Path to output release notes (Defaults to current directory)", o => options.OutputPath = o },
 				{ "oldest=", "Starting hash to consider", s => range.Oldest = s.Some () },
 				{ "newest=", "Ending hash to consider", e => range.Newest = e.Some () },
 				{ "oldest-branch=", "Starting branch to consider. Finds the last commit in master before branch, and ignore all bugs fixed in master that are also fixed in this branch.", s => range.OldestBranch = s.Some () },
-
-				{ "single=", "Analyze just a single commit", e => range.SingleCommit = e.Some () },
 				{ "exclude-oldest", "Exclude oldest item from range considered (included by default)", v => range.IncludeOldest = false },
-				{ "ignore-low-bugs=", "Ignore any bug references to bugs with IDs less than 1000 (Defaults to true)", (bool v) => options.IgnoreLowBugs = v },
-				{ "explain", "Explain why each commit is considered a bug", v => options.Explain = true },
+				{ "explain", "Explain why each commit is considered a bug", v => Explain.Enabled = true },
 				{ "bugzilla=", "What level should bugzilla queries be made at      (Public, Private, Disable)", v =>
 					{
 						switch (v.ToLower (CultureInfo.InvariantCulture))
@@ -64,7 +51,6 @@ namespace clio
 							break;
 						}
 					}},
-				{ "sort-bug-list=", "Sort bug list by id number (Defaults to true)", (bool v) => options.SortBugs = v },
 				{ "additional-bug-info", "Print additional information on each bug for list-bugs", v => options.AdditionalBugInfo = true},
 				{ "submodules", "Query submodules as well", v => options.Submodules = true},
 				new ResponseFileSource (),
@@ -91,12 +77,6 @@ namespace clio
 					Environment.Exit (-1);
 			}
 
-			if (options.Submodules && range.SingleCommit.HasValue)
-				Die ("Submodules requires a range to consider, not a single entry");
-
-			if (options.Submodules && requestedAction == ActionType.GenerateReleaseNotes)
-				Die ("Submodules currently do not support generating release notes");
-
 			var request = new clio (path, range, options);
 			request.Run (requestedAction);	
 		}
@@ -110,7 +90,7 @@ namespace clio
 		static void ShowHelp (OptionSet os)
 		{
 			Console.WriteLine ("clio [options] path");
-			Console.WriteLine ("--list-bugs is the default option when none of (--list-commits, --list-bugs, --format-notes) selected.\n");
+			Console.WriteLine ("--list-bugs is the default option when none of (--list-commits, --list-bugs) selected.\n");
 			os.WriteOptionDescriptions (Console.Out);
 		}
 	}
