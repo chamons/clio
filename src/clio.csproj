@@ -47,7 +47,6 @@
   <ItemGroup>
     <Compile Include="EntryPoint.cs" />
     <Compile Include="CommitFinder.cs" />
-    <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Options.cs" />
     <Compile Include="clio.cs" />
     <Compile Include="CommitParser.cs" />

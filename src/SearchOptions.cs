@@ -13,9 +13,6 @@ namespace clio
 
 	public class SearchOptions
 	{
-		public string OutputPath { get; set; } = Path.Combine (System.Environment.CurrentDirectory, "ReleaseNotes.md");
-		public Option<string> Template { get; set; } = Option.None<string> ();
-
 		public BugzillaLevel Bugzilla { get; set; } = BugzillaLevel.Public;
 
 		public bool IgnoreLowBugs { get; set; } = true;

@@ -138,42 +138,26 @@ namespace clio
 			}
 		}
 
-		public static string FormatBug (BugEntry bug, SearchOptions options)
+		public static string FormatBug (BugEntry bug)
 		{
 			// If bugzilla validation is disabled, all bugs are uncertain
 			if (string.IsNullOrEmpty (bug.Title))
-				return FormatUncertainBug (bug, options);
+				return FormatUncertainBug (bug);
 
-			switch (options.Template.ValueOr (""))
-			{
-				case "Android":
-					return $"* [{bug.ID}](https://bugzilla.xamarin.com/show_bug.cgi?id={bug.ID}):\n\t{bug.Title}" + (String.IsNullOrEmpty (bug.SecondaryTitle) ? "" : $" / {bug.SecondaryTitle}");
-				case "Mac":
-				case "iOS":
-				default:
-					return $"* [{bug.ID}](https://bugzilla.xamarin.com/show_bug.cgi?id={bug.ID}) -  {bug.Title}" + (String.IsNullOrEmpty (bug.SecondaryTitle) ? "" : $" / {bug.SecondaryTitle}");
-			}
+			return $"* [{bug.ID}](https://bugzilla.xamarin.com/show_bug.cgi?id={bug.ID}) -  {bug.Title}" + (String.IsNullOrEmpty (bug.SecondaryTitle) ? "" : $" / {bug.SecondaryTitle}");
 		}
 
-		public static string FormatUncertainBug (BugEntry bug, SearchOptions options)
+		public static string FormatUncertainBug (BugEntry bug)
 		{
-			switch (options.Template.ValueOr (""))
-			{
-				case "Android":
-					return $"* [{bug.ID}](https://bugzilla.xamarin.com/show_bug.cgi?id={bug.ID}):\n\t{bug.SecondaryTitle}";
-				case "Mac":
-				case "iOS":
-				default:
-					return $"* [{bug.ID}](https://bugzilla.xamarin.com/show_bug.cgi?id={bug.ID}) -  {bug.SecondaryTitle}";
-			}
+			return $"* [{bug.ID}](https://bugzilla.xamarin.com/show_bug.cgi?id={bug.ID}) -  {bug.SecondaryTitle}";
 		}
 
 		static void PointBug (BugEntry bug, bool potential, SearchOptions options)
 		{
 			if (!potential)
-				Console.WriteLine (FormatBug (bug, options));
+				Console.WriteLine (FormatBug (bug));
 			else
-				Console.WriteLine (FormatUncertainBug (bug, options));
+				Console.WriteLine (FormatUncertainBug (bug));
 
 			if (options.AdditionalBugInfo)
 			{
