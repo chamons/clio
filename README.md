@@ -74,15 +74,12 @@ clio [options] path
   -l, --list-commits         List commits that would be considered
   -b, --list-bugs            List bugs discovered instead of formatting release
                                notes
-  -o, --output=VALUE         Path to output release notes (Defaults to current
-                               directory)
       --oldest=VALUE         Starting hash to consider
       --newest=VALUE         Ending hash to consider
       --oldest-branch=VALUE  Starting branch to consider. Finds the last commit
                                in master before branch, and ignore all bugs
                                fixed in master that are also fixed in this
                                branch.
-      --single=VALUE         Analyze just a single commit
       --exclude-oldest       Exclude oldest item from range considered (
                                included by default)
       --explain              Explain why each commit is considered a bug
