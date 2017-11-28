@@ -45,18 +45,13 @@ The contents of dist are relocatable where ever you desire.
 
 ```--list-bugs --submodules --oldest-branch:d15-3 --newest=d15-4 xamarin-macios```
 
-**Start release notes for a release based on a built in template**:
-
-```--bugzilla:private --oldest-branch:d15-3 --newest=d15-4 --format-notes:Mac -o:xamarin.mac_3.8.md xamarin-macios/```
-
 
 ## Actions
 
-The three current actions (beyond help) are:
+The two current actions (beyond help) are:
 
 - list-commits: List the commits that are under consideration based upon the path given, --oldest, and --newest
 - list-bugs: Print a markdown formatted table of the bugs found in the commit range in question. A secondary set of "potential" bugs may come after, which will require manual verification.
-- format-notes: Instance up full release notes based upon saved templates and insert the bug list directly. PR are welcome to add additional formats.
 
 ## Bugzilla Validation
 
@@ -73,14 +68,12 @@ By default bugzilla valiation is set to public, which means private bugs will be
 
 ```
 clio [options] path
---list-bugs is the default option when none of (--list-commits, --list-bugs, --format-notes) selected.
+--list-bugs is the default option when none of (--list-commits, --list-bugs) selected.
 
   -h, -?, --help             Displays the help
   -l, --list-commits         List commits that would be considered
   -b, --list-bugs            List bugs discovered instead of formatting release
                                notes
-  -f, --format-notes=VALUE   Output formatted release notes of a given type    
-                               (Mac iOS Android)
   -o, --output=VALUE         Path to output release notes (Defaults to current
                                directory)
       --oldest=VALUE         Starting hash to consider

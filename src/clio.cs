@@ -118,12 +118,6 @@ namespace clio
 				return;
 			}
 
-			if (action == ActionType.GenerateReleaseNotes)
-			{
-				TemplateGenerator.GenerateReleaseNotes (bugCollection, options, range);
-				return;
-			}
-
 			throw new InvalidOperationException ($"Internal Error - Unknown action requested {action}");
 		}
 
@@ -144,12 +138,42 @@ namespace clio
 			}
 		}
 
+		public static string FormatBug (BugEntry bug, SearchOptions options)
+		{
+			// If bugzilla validation is disabled, all bugs are uncertain
+			if (string.IsNullOrEmpty (bug.Title))
+				return FormatUncertainBug (bug, options);
+
+			switch (options.Template.ValueOr (""))
+			{
+				case "Android":
+					return $"* [{bug.ID}](https://bugzilla.xamarin.com/show_bug.cgi?id={bug.ID}):\n\t{bug.Title}" + (String.IsNullOrEmpty (bug.SecondaryTitle) ? "" : $" / {bug.SecondaryTitle}");
+				case "Mac":
+				case "iOS":
+				default:
+					return $"* [{bug.ID}](https://bugzilla.xamarin.com/show_bug.cgi?id={bug.ID}) -  {bug.Title}" + (String.IsNullOrEmpty (bug.SecondaryTitle) ? "" : $" / {bug.SecondaryTitle}");
+			}
+		}
+
+		public static string FormatUncertainBug (BugEntry bug, SearchOptions options)
+		{
+			switch (options.Template.ValueOr (""))
+			{
+				case "Android":
+					return $"* [{bug.ID}](https://bugzilla.xamarin.com/show_bug.cgi?id={bug.ID}):\n\t{bug.SecondaryTitle}";
+				case "Mac":
+				case "iOS":
+				default:
+					return $"* [{bug.ID}](https://bugzilla.xamarin.com/show_bug.cgi?id={bug.ID}) -  {bug.SecondaryTitle}";
+			}
+		}
+
 		static void PointBug (BugEntry bug, bool potential, SearchOptions options)
 		{
 			if (!potential)
-				Console.WriteLine (TemplateGenerator.FormatBug (bug, options));
+				Console.WriteLine (FormatBug (bug, options));
 			else
-				Console.WriteLine (TemplateGenerator.FormatUncertainBug (bug, options));
+				Console.WriteLine (FormatUncertainBug (bug, options));
 
 			if (options.AdditionalBugInfo)
 			{

@@ -11,8 +11,7 @@ namespace clio
 	{
 		Help,
 		ListConsideredCommits,
-		ListBugs,
-		GenerateReleaseNotes
+		ListBugs
 	}
 
 	class EntryPoint
@@ -29,14 +28,6 @@ namespace clio
 				{ "h|?|help", "Displays the help", v => requestedAction = ActionType.Help },
 				{ "l|list-commits", "List commits that would be considered", v => requestedAction = ActionType.ListConsideredCommits },
 				{ "b|list-bugs", "List bugs discovered instead of formatting release notes", v => requestedAction = ActionType.ListBugs },
-				{ "f|format-notes=", $"Output formatted release notes of a given type     ({TemplateGenerator.GetTemplateList ()})", v => {
-						if (!TemplateGenerator.ValidateTemplateName (v))
-							Die ($"Unable to find template {v} embedded as a resource.");
-
-						options.Template = v.Some ();
-						requestedAction = ActionType.GenerateReleaseNotes;
-					}},
-
 				{ "o|output=", "Path to output release notes (Defaults to current directory)", o => options.OutputPath = o },
 				{ "oldest=", "Starting hash to consider", s => range.Oldest = s.Some () },
 				{ "newest=", "Ending hash to consider", e => range.Newest = e.Some () },
@@ -94,9 +85,6 @@ namespace clio
 			if (options.Submodules && range.SingleCommit.HasValue)
 				Die ("Submodules requires a range to consider, not a single entry");
 
-			if (options.Submodules && requestedAction == ActionType.GenerateReleaseNotes)
-				Die ("Submodules currently do not support generating release notes");
-
 			var request = new clio (path, range, options);
 			request.Run (requestedAction);	
 		}
@@ -110,7 +98,7 @@ namespace clio
 		static void ShowHelp (OptionSet os)
 		{
 			Console.WriteLine ("clio [options] path");
-			Console.WriteLine ("--list-bugs is the default option when none of (--list-commits, --list-bugs, --format-notes) selected.\n");
+			Console.WriteLine ("--list-bugs is the default option when none of (--list-commits, --list-bugs) selected.\n");
 			os.WriteOptionDescriptions (Console.Out);
 		}
 	}
