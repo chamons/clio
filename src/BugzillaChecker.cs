@@ -60,6 +60,33 @@ namespace clio
 				return null;
 		}
 
+		public async Task<string> LookupStatus (int number)
+		{
+			Bug bug = await GetBug (number);
+			if (bug != null)
+				return bug.Status;
+			else
+				return null;
+		}
+
+		public async Task<string> LookupTargetMilestone (int number)
+		{
+			Bug bug = await GetBug (number);
+			if (bug != null)
+				return bug.Milestone;
+			else
+				return null;
+		}
+
+		public async Task<string> LookupImportance (int number)
+		{
+			Bug bug = await GetBug (number);
+			if (bug != null)
+				return bug.Severity;
+			else
+				return null;
+		}
+
 		Dictionary<int, Bug> BugCache = new Dictionary<int, Bug> ();
 
 		async Task<Bug> GetBug (int number)

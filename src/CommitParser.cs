@@ -25,6 +25,24 @@ namespace clio
 			return checker.LookupTitle (id).Result;
 		}
 
+		static string GetStatus (int id, SearchOptions options)
+		{
+			var checker = GetBugChecker (options);
+			return checker.LookupStatus (id).Result;
+		}
+
+		static string GetMilestone (int id, SearchOptions options)
+		{
+			var checker = GetBugChecker (options);
+			return checker.LookupTargetMilestone (id).Result;
+		}
+
+		static string GetImportance (int id, SearchOptions options)
+		{
+			var checker = GetBugChecker (options);
+			return checker.LookupImportance (id).Result;
+		}
+
 		static BugzillaChecker _bugChecker;
 		static BugzillaChecker GetBugChecker (SearchOptions options)
 		{
@@ -42,6 +60,20 @@ namespace clio
 			public string Link;
 			public int ID;
 			public string BugzillaSummary;
+			public string TargetMilestone;
+			public string Status;
+			public string Importance;
+
+			public ParseResults (ParsingConfidence confidence, string link, int id)
+			{
+				Confidence = confidence;
+				Link = link;
+				ID = id;
+				BugzillaSummary = "";
+				TargetMilestone = "";
+				Status = "";
+				Importance = "";
+			}
 		}
 
 		static string StripNewLine (string line) => Regex.Replace (line, @"\r\n?|\n", "");
@@ -61,8 +93,11 @@ namespace clio
 						{
 							Explain.Print ($"Line \"{StripNewLine (line)}\" matched pattern {regex}.");
 
-							if (id < 1000)
+							if (id < 1000 || id > 200000)
+							{
+								Explain.Print ($"Had an invalid id {id}.");
 								return new ParseResults { Confidence = ParsingConfidence.Invalid };
+							}
 
 							Explain.Print ($"Had a valid id {id}.");
 
@@ -72,20 +107,28 @@ namespace clio
 								confidence = ParsingConfidence.Invalid;
 
 							Explain.Print ($"Default Confidence was {confidence}.");
-
-							string bugzillaSummary = "";
 							if (options.Bugzilla != BugzillaLevel.Disable)
 							{
-								bugzillaSummary = GetTitle (id, options);
+								var bugzillaSummary = GetTitle (id, options);
 								if (bugzillaSummary == null)
 								{
 									confidence = ParsingConfidence.Low;
-									bugzillaSummary = "";
 									Explain.Print ($"Given low confidence due to lack of a matching bugzilla bug.");
+									return new ParseResults (confidence, match.Value, id);
 								}
-							}
+								var status = GetStatus (id, options);
+								var milestone = GetMilestone (id, options);
+								var importance = GetImportance (id, options);
 
-							return new ParseResults () { Confidence = confidence, Link = match.Value, ID = id, BugzillaSummary = bugzillaSummary };
+								return new ParseResults (confidence, match.Value, id)
+								{
+									BugzillaSummary = bugzillaSummary, 
+									Status = status, 
+									TargetMilestone = milestone, 
+									Importance = importance 
+								};
+							}
+							return new ParseResults (confidence, match.Value, id);
 						}
 					}
 				}
@@ -105,7 +148,7 @@ namespace clio
 			var textToSearch = commit.Description.SplitLines ();
 
 			foreach (var match in textToSearch.Select (x => ParseLine (x, options)).Where (x => x.Confidence != ParsingConfidence.Invalid))
-				yield return new ParsedCommit (commit, match.Link, match.ID, match.Confidence, match.BugzillaSummary);
+				yield return new ParsedCommit (commit, match.Link, match.ID, match.Confidence, match.BugzillaSummary, match.TargetMilestone, match.Status, match.Importance);
 			Explain.Deindent ();
 		}
 

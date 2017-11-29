@@ -39,15 +39,15 @@ namespace clio
 					if (collection.PotentialBugs.Any (x => x.ID == parsedCommit.ID))
 					{
 						collection.PotentialBugs.RemoveAll (x => x.ID == parsedCommit.ID);
-						collection.Bugs.Add (new BugEntry (parsedCommit.ID, parsedCommit.BugzillaSummary, parsedCommit.Commit.Title));
+						collection.Bugs.Add (new BugEntry (parsedCommit.ID, parsedCommit.BugzillaSummary, parsedCommit.Commit.Title, parsedCommit));
 					}
 				}
 				else
 				{
 					if (parsedCommit.Confidence == ParsingConfidence.High)
-						collection.Bugs.Add (new BugEntry (parsedCommit.ID, parsedCommit.BugzillaSummary, parsedCommit.Commit.Title));
+						collection.Bugs.Add (new BugEntry (parsedCommit.ID, parsedCommit.BugzillaSummary, parsedCommit.Commit.Title, parsedCommit));
 					else
-						collection.PotentialBugs.Add (new BugEntry (parsedCommit.ID, parsedCommit.BugzillaSummary, parsedCommit.Commit.Title));
+						collection.PotentialBugs.Add (new BugEntry (parsedCommit.ID, parsedCommit.BugzillaSummary, parsedCommit.Commit.Title, parsedCommit));
 					handledBugs.Add (parsedCommit.ID);
 				}
 			}
