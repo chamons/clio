@@ -14,6 +14,9 @@ namespace clio
 	{
 		public BugzillaLevel Bugzilla { get; set; } = BugzillaLevel.Public;
 		public bool AdditionalBugInfo { get; set; } = false;
+		public bool SplitEnhancementBugs { get; set; } = true;
+		public bool ValidateBugStatus { get; set; } = false;
+		public string ExpectedTargetMilestone { get; set; }
 		public bool Submodules { get; set; } = false;
 	}
 

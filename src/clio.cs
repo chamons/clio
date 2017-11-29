@@ -95,13 +95,17 @@ namespace clio
 
 			switch (action)
 			{
-				case ActionType.ListBugs:
+				case ActionType.ListConsideredCommits:
 					PrintCommits (commits);
 					return;
-				case ActionType.ListConsideredCommits:
+				case ActionType.ListBugs:
 					var parsedCommits = CommitParser.Parse (commits, options).ToList ();
 					var bugCollection = BugCollector.ClassifyCommits (parsedCommits, options, commitsToIgnore);
 					PrintBugs (bugCollection, options);
+
+					if (options.ValidateBugStatus)
+						BugValidator.Validate (bugCollection, options);
+
 					return;
 				default:
 					throw new InvalidOperationException ($"Internal Error - Unknown action requested {action}");
@@ -110,18 +114,34 @@ namespace clio
 
 		static void PrintBugs (BugCollection bugCollection, SearchOptions options)
 		{
-			if (bugCollection.Bugs.Count () > 0)
+			if (options.SplitEnhancementBugs)
 			{
-				Console.WriteLine ("Bugs:");
-				foreach (var bug in bugCollection.Bugs)
-					PrintBug (bug, false, options);
-			}
+				var bugs = bugCollection.Bugs.Where (x => x.BugInfo.Importance != "enhancement");
+				PrintBugList ("Bugs:", false, bugs, options);
 
-			if (bugCollection.PotentialBugs.Count () > 0)
+				var potentialBugs = bugCollection.PotentialBugs.Where (x => x.BugInfo.Importance != "enhancement");
+				PrintBugList ("Potential Bugs:", true, potentialBugs, options);
+
+				var enhancements = bugCollection.Bugs.Where (x => x.BugInfo.Importance == "enhancement");
+				PrintBugList ("Enhancements:", false, enhancements, options);
+
+				var potentialEnhancements = bugCollection.PotentialBugs.Where (x => x.BugInfo.Importance == "enhancement");
+				PrintBugList ("Potential Enhancements:", true, potentialEnhancements, options);
+			}
+			else
 			{
-				Console.WriteLine ("Potential Bugs:");
-				foreach (var bug in bugCollection.PotentialBugs)
-					PrintBug (bug, true, options);
+				PrintBugList ("Bugs:", false, bugCollection.Bugs, options);
+				PrintBugList ("Potential Bugs:", true, bugCollection.PotentialBugs, options);
+			}
+		}
+
+		static void PrintBugList (string title, bool potential, IEnumerable<BugEntry> list, SearchOptions options) 
+		{
+			if (list.Count () > 0)
+			{
+				Console.WriteLine (title);
+				foreach (var bug in list)
+					PrintBug (bug, potential, options);
 			}
 		}
 

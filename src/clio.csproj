@@ -57,6 +57,7 @@
     <Compile Include="SearchOptions.cs" />
     <Compile Include="BugCollector.cs" />
     <Compile Include="Model\BugEntry.cs" />
+    <Compile Include="BugValidator.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
