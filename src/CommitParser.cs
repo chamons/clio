@@ -93,7 +93,7 @@ namespace clio
 						{
 							Explain.Print ($"Line \"{StripNewLine (line)}\" matched pattern {regex}.");
 
-							if (id < 1000 || id > 200000)
+							if (id < 1000 || id > 250000)
 							{
 								Explain.Print ($"Had an invalid id {id}.");
 								return new ParseResults { Confidence = ParsingConfidence.Invalid };
