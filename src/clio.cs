@@ -76,7 +76,7 @@ namespace clio
 
 				var commitInfo = CommitFinder.FindCommitsOnBranchToIgnore (Path, branchName, Options);
 
-				IEnumerable<ParsedCommit> commitsToIgnore = CommitParser.ParseAndValidate (commitInfo.Item1, Options);
+                IEnumerable<ParsedCommit> commitsToIgnore = CommitParser.ParseAndValidateAsync (commitInfo.Item1, Options).Result;
 
 				Explain.Print ($"Found {commitsToIgnore.Count ()} bugs on {branchName} after branch to ignore.");
 
@@ -99,7 +99,7 @@ namespace clio
 					PrintCommits (commits);
 					return;
 				case ActionType.ListBugs:
-					var parsedCommits = CommitParser.ParseAndValidate (commits, options).ToList ();
+                    var parsedCommits = CommitParser.ParseAndValidateAsync (commits, options).Result;
 					var bugCollection = BugCollector.ClassifyCommits (parsedCommits, options, commitsToIgnore);
 					PrintBugs (bugCollection, options);
 

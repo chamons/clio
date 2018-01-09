@@ -4,6 +4,7 @@ using clio;
 using System.Linq;
 using clio.Model;
 using Optional;
+using System.Threading.Tasks;
 
 namespace clio.Tests
 {
@@ -11,13 +12,13 @@ namespace clio.Tests
 	public class BugCollectorTests
 	{
 		[Test]
-		public void BugCollector_HandlesDuplicateBugEntries ()
+		public async Task BugCollector_HandlesDuplicateBugEntries ()
 		{
 			// One commit with certain, one without. Only one copy in final output
 			var options = new SearchOptions () { Bugzilla = BugzillaLevel.Private };
 			var range = new SearchRange { Oldest = "ad26139".Some (), Newest = "6c280ad".Some () };
 			var commits = CommitFinder.Parse (TestDataLocator.GetPath (), range);
-			var parsedCommits = CommitParser.ParseAndValidate (commits, options).ToList ();
+			var parsedCommits = await CommitParser.ParseAndValidateAsync (commits, options);
 
 			var bugCollection = BugCollector.ClassifyCommits (parsedCommits, new SearchOptions ());
 
@@ -26,12 +27,12 @@ namespace clio.Tests
 		}
 
 		[Test]
-		public void BugCollector_SmokeTest ()
+		public async Task BugCollector_SmokeTest ()
 		{
 			var options = new SearchOptions () { Bugzilla = BugzillaLevel.Private };
 			var range = new SearchRange { Oldest = "98fff31".Some (), Newest = "6c280ad".Some () };
 			var commits = CommitFinder.Parse (TestDataLocator.GetPath (), range);
-            var parsedCommits = CommitParser.ParseAndValidate (commits, options).ToList ();
+            var parsedCommits = await CommitParser.ParseAndValidateAsync (commits, options);
 
 			var bugCollection = BugCollector.ClassifyCommits (parsedCommits, options);
 			Assert.AreEqual (2, bugCollection.Bugs.Count);
