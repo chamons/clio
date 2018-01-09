@@ -112,16 +112,28 @@ namespace clio
 					return false;
 				}
 
-				var filter = new CommitFilter
+				if (oldest == newest) 
 				{
-					ExcludeReachableFrom = oldest,
-					IncludeReachableFrom = newest
-				};
+					var commit = repo.Lookup<Commit> (oldest);
+					if (commit == null)
+					{
+						Console.Error.WriteLine ($"Unable to find any commit in range {oldest} to {newest}. Is the order reversed?");
+						return false;
+					}
+				} 
+				else 
+				{
+					var filter = new CommitFilter
+					{
+						ExcludeReachableFrom = oldest,
+						IncludeReachableFrom = newest
+					};
 
-				if (!repo.Commits.QueryBy (filter).Any ())
-				{
-					Console.Error.WriteLine ($"Unable to find any commit in range {oldest} to {newest}. Is the order reversed?");
-					return false;
+					if (!repo.Commits.QueryBy (filter).Any ())
+					{
+						Console.Error.WriteLine ($"Unable to find any commit in range {oldest} to {newest}. Is the order reversed?");
+						return false;
+					}
 				}
 
 				return true;
