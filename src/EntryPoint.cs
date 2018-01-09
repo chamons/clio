@@ -28,6 +28,10 @@ namespace clio
 				{ "h|?|help", "Displays the help", v => requestedAction = ActionType.Help },
 				{ "l|list-commits", "List commits that would be considered", v => requestedAction = ActionType.ListConsideredCommits },
 				{ "b|list-bugs", "List bugs discovered instead of formatting release notes", v => requestedAction = ActionType.ListBugs },
+				{ "commit=", "Single commit to consider", s => {
+						range.Newest = range.Oldest = s.Some ();
+						range.IncludeOldest = true;
+					}},
 				{ "oldest=", "Starting hash to consider", s => range.Oldest = s.Some () },
 				{ "newest=", "Ending hash to consider", e => range.Newest = e.Some () },
 				{ "oldest-branch=", "Starting branch to consider. Finds the last commit in master before branch, and ignore all bugs fixed in master that are also fixed in this branch.", s => range.OldestBranch = s.Some () },
