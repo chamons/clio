@@ -13,6 +13,8 @@ namespace clio
 	public class SearchOptions
 	{
 		public BugzillaLevel Bugzilla { get; set; } = BugzillaLevel.Public;
+        // TODO: turn this into a PAT to get VSTS items
+		public bool Vsts { get; set; }
 		public bool AdditionalBugInfo { get; set; } = false;
 		public bool SplitEnhancementBugs { get; set; } = true;
 		public bool ValidateBugStatus { get; set; } = false;

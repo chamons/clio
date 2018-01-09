@@ -17,7 +17,7 @@ namespace clio
 
 		public static BugCollection ClassifyCommits (IEnumerable<ParsedCommit> commits, SearchOptions options, IEnumerable<ParsedCommit> commitsToIgnore)
 		{
-			var bugsToIgnore = new HashSet<int> (commitsToIgnore.Select (x => x.ID));
+			var bugsToIgnore = new HashSet<int> (commitsToIgnore.Select (x => x.IssueId));
 
 			Explain.Print ($"\nClassifying {commits.Count ()} commits ignoring {commitsToIgnore.Count ()} commit.");
 			Explain.Print ($"\t{String.Join (" ", bugsToIgnore.Select (x => x.ToString ()))}");
@@ -25,9 +25,9 @@ namespace clio
 			BugCollection collection = new BugCollection ();
 			var handledBugs = new HashSet<int> ();
 
-			foreach (var parsedCommit in commits.Where (x => !bugsToIgnore.Contains (x.ID)))
+			foreach (var parsedCommit in commits.Where (x => !bugsToIgnore.Contains (x.IssueId)))
 			{
-				if (handledBugs.Contains (parsedCommit.ID))
+				if (handledBugs.Contains (parsedCommit.IssueId))
 				{
 					// Commits are either high or low to get here. If we're low
 					// then we do not need handling. Either before was low and 
@@ -36,19 +36,19 @@ namespace clio
 						continue;
 
 					// If we were low before, remove and replace with high
-					if (collection.PotentialBugs.Any (x => x.ID == parsedCommit.ID))
+					if (collection.PotentialBugs.Any (x => x.ID == parsedCommit.IssueId))
 					{
-						collection.PotentialBugs.RemoveAll (x => x.ID == parsedCommit.ID);
-						collection.Bugs.Add (new BugEntry (parsedCommit.ID, parsedCommit.BugzillaSummary, parsedCommit.Commit.Title, parsedCommit));
+						collection.PotentialBugs.RemoveAll (x => x.ID == parsedCommit.IssueId);
+						collection.Bugs.Add (new BugEntry (parsedCommit.IssueId, parsedCommit.IssueSummary, parsedCommit.Commit.Title, parsedCommit));
 					}
 				}
 				else
 				{
 					if (parsedCommit.Confidence == ParsingConfidence.High)
-						collection.Bugs.Add (new BugEntry (parsedCommit.ID, parsedCommit.BugzillaSummary, parsedCommit.Commit.Title, parsedCommit));
+						collection.Bugs.Add (new BugEntry (parsedCommit.IssueId, parsedCommit.IssueSummary, parsedCommit.Commit.Title, parsedCommit));
 					else
-						collection.PotentialBugs.Add (new BugEntry (parsedCommit.ID, parsedCommit.BugzillaSummary, parsedCommit.Commit.Title, parsedCommit));
-					handledBugs.Add (parsedCommit.ID);
+						collection.PotentialBugs.Add (new BugEntry (parsedCommit.IssueId, parsedCommit.IssueSummary, parsedCommit.Commit.Title, parsedCommit));
+					handledBugs.Add (parsedCommit.IssueId);
 				}
 			}
 

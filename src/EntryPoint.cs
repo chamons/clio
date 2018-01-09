@@ -55,6 +55,22 @@ namespace clio
 							break;
 						}
 					}},
+				{ "vsts=", "Search for VSTS work items", v =>
+					{
+						switch (v.ToLower (CultureInfo.InvariantCulture))
+						{
+                            // TODO: make this a PAT instead
+							case "true":
+								options.Vsts = true;
+								break;
+							case "false":
+								options.Vsts = false;
+								break;
+							default:
+                                Die ($"Unknown value for --vsts {v}");
+							break;
+						}
+					}},
 				{ "additional-bug-info", "Print additional information on each bug for list-bugs", v => options.AdditionalBugInfo = true},
 				{ "split-enhancement=", "Split out enhancement bugs from others in listing (defaults to true)", (bool v) => options.SplitEnhancementBugs = v},
 				{ "validate-bug-status", "Validate bugzilla status for referenced bugs and report discrepancies (Not closed, not matching milestone)", v => options.ValidateBugStatus = true},

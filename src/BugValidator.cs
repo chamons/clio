@@ -29,14 +29,14 @@ namespace clio
 		{
 			foreach (var bug in bugs.Bugs)
 			{
-				switch (bug.BugInfo.Status)
+				switch (bug.BugInfo.IssueStatus)
 				{
 					case "CLOSED":
 					case "VERIFIED":
 					case "RESOLVED":
 						break;
 					default:
-						Explain.Print ($"{bug.ID} status may not be set correctly: {bug.BugInfo.Status}.");
+						Explain.Print ($"{bug.ID} status may not be set correctly: {bug.BugInfo.IssueStatus}.");
 						break;
 				}
 			}
@@ -46,14 +46,14 @@ namespace clio
 		{
 			string targetMilestone = options.ExpectedTargetMilestone ?? GuessTargetMilestone (bugs);
 
-			var unmatchingBugs = bugs.Bugs.Where (x => x.BugInfo.TargetMilestone != targetMilestone);
+			var unmatchingBugs = bugs.Bugs.Where (x => x.BugInfo.IssueTargetMilestone != targetMilestone);
 			if (unmatchingBugs.Any ())
 			{
 				Explain.Print ($"The following bugs do not match the expected {targetMilestone}:");
 				Explain.Indent ();
 
 				foreach (var bug in unmatchingBugs)
-					Explain.Print ($"{bug.ID} - {bug.BugInfo.TargetMilestone}");
+					Explain.Print ($"{bug.ID} - {bug.BugInfo.IssueTargetMilestone}");
 			}
 			Explain.Deindent ();
 		}
@@ -64,10 +64,10 @@ namespace clio
 			var targetMilestoneCount = new Dictionary<string, int> ();
 			foreach (var bug in bugs.Bugs)
 			{
-				if (targetMilestoneCount.ContainsKey (bug.BugInfo.TargetMilestone))
-					targetMilestoneCount[bug.BugInfo.TargetMilestone] += 1;
+				if (targetMilestoneCount.ContainsKey (bug.BugInfo.IssueTargetMilestone))
+					targetMilestoneCount[bug.BugInfo.IssueTargetMilestone] += 1;
 				else
-					targetMilestoneCount[bug.BugInfo.TargetMilestone] = 1;
+					targetMilestoneCount[bug.BugInfo.IssueTargetMilestone] = 1;
 			}
 			var targetMilestones = targetMilestoneCount.Keys.OrderByDescending (x => targetMilestoneCount[x]).ToList ();
 

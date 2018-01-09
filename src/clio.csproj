@@ -53,11 +53,19 @@
     <Compile Include="Model\ParsedCommit.cs" />
     <Compile Include="Model\CommitInfo.cs" />
     <Compile Include="Extensions.cs" />
-    <Compile Include="BugzillaChecker.cs" />
     <Compile Include="SearchOptions.cs" />
     <Compile Include="BugCollector.cs" />
     <Compile Include="Model\BugEntry.cs" />
     <Compile Include="BugValidator.cs" />
+    <Compile Include="BaseCommitParser.cs" />
+    <Compile Include="Providers\BugzillaChecker.cs" />
+    <Compile Include="Providers\BugzillaCommitParser.cs" />
+    <Compile Include="Providers\VstsCommitParser.cs" />
+    <Compile Include="Model\IIssue.cs" />
+    <Compile Include="IssueSource.cs" />
+    <Compile Include="Model\ParsingConfidence.cs" />
+    <Compile Include="Model\ICommitParser.cs" />
+    <Compile Include="Providers\IssueValidator.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
@@ -65,6 +73,7 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Model\" />
+    <Folder Include="Providers\" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\external\libbz\libbz\libbz.csproj">

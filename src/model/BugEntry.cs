@@ -9,7 +9,7 @@ namespace clio.Model
 		public string SecondaryTitle { get; private set; }
 		public ParsedCommit BugInfo { get; private set; }
 
-		public BugEntry (int id, string title, string secondaryTitle, ParsedCommit bugInfo)
+		public BugEntry ( int id, string title, string secondaryTitle, ParsedCommit bugInfo)
 		{
 			ID = id;
 			Title = title.Replace ('`', '`');

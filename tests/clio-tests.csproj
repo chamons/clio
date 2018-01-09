@@ -43,8 +43,9 @@
   <ItemGroup>
     <Compile Include="CommitFinder.cs" />
     <Compile Include="TestDataLocator.cs" />
-    <Compile Include="CommitParser.cs" />
     <Compile Include="BugCollector.cs" />
+    <Compile Include="BugzillaCommitParserTests.cs" />
+    <Compile Include="VstsCommitParserTests.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

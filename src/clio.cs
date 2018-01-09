@@ -76,7 +76,7 @@ namespace clio
 
 				var commitInfo = CommitFinder.FindCommitsOnBranchToIgnore (Path, branchName, Options);
 
-				IEnumerable<ParsedCommit> commitsToIgnore = CommitParser.Parse (commitInfo.Item1, Options);
+				IEnumerable<ParsedCommit> commitsToIgnore = CommitParser.ParseAndValidate (commitInfo.Item1, Options);
 
 				Explain.Print ($"Found {commitsToIgnore.Count ()} bugs on {branchName} after branch to ignore.");
 
@@ -99,7 +99,7 @@ namespace clio
 					PrintCommits (commits);
 					return;
 				case ActionType.ListBugs:
-					var parsedCommits = CommitParser.Parse (commits, options).ToList ();
+					var parsedCommits = CommitParser.ParseAndValidate (commits, options).ToList ();
 					var bugCollection = BugCollector.ClassifyCommits (parsedCommits, options, commitsToIgnore);
 					PrintBugs (bugCollection, options);
 
@@ -116,16 +116,16 @@ namespace clio
 		{
 			if (options.SplitEnhancementBugs)
 			{
-				var bugs = bugCollection.Bugs.Where (x => x.BugInfo.Importance != "enhancement");
+				var bugs = bugCollection.Bugs.Where (x => x.BugInfo.IssueImportance != "enhancement");
 				PrintBugList ("Bugs:", false, bugs, options);
 
-				var potentialBugs = bugCollection.PotentialBugs.Where (x => x.BugInfo.Importance != "enhancement");
+				var potentialBugs = bugCollection.PotentialBugs.Where (x => x.BugInfo.IssueImportance != "enhancement");
 				PrintBugList ("Potential Bugs:", true, potentialBugs, options);
 
-				var enhancements = bugCollection.Bugs.Where (x => x.BugInfo.Importance == "enhancement");
+				var enhancements = bugCollection.Bugs.Where (x => x.BugInfo.IssueImportance == "enhancement");
 				PrintBugList ("Enhancements:", false, enhancements, options);
 
-				var potentialEnhancements = bugCollection.PotentialBugs.Where (x => x.BugInfo.Importance == "enhancement");
+				var potentialEnhancements = bugCollection.PotentialBugs.Where (x => x.BugInfo.IssueImportance == "enhancement");
 				PrintBugList ("Potential Enhancements:", true, potentialEnhancements, options);
 			}
 			else

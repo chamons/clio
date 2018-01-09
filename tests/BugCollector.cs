@@ -17,7 +17,7 @@ namespace clio.Tests
 			var options = new SearchOptions () { Bugzilla = BugzillaLevel.Private };
 			var range = new SearchRange { Oldest = "ad26139".Some (), Newest = "6c280ad".Some () };
 			var commits = CommitFinder.Parse (TestDataLocator.GetPath (), range);
-			var parsedCommits = CommitParser.Parse (commits, options).ToList ();
+			var parsedCommits = CommitParser.ParseAndValidate (commits, options).ToList ();
 
 			var bugCollection = BugCollector.ClassifyCommits (parsedCommits, new SearchOptions ());
 
@@ -31,7 +31,7 @@ namespace clio.Tests
 			var options = new SearchOptions () { Bugzilla = BugzillaLevel.Private };
 			var range = new SearchRange { Oldest = "98fff31".Some (), Newest = "6c280ad".Some () };
 			var commits = CommitFinder.Parse (TestDataLocator.GetPath (), range);
-			var parsedCommits = CommitParser.Parse (commits, options).ToList ();
+            var parsedCommits = CommitParser.ParseAndValidate (commits, options).ToList ();
 
 			var bugCollection = BugCollector.ClassifyCommits (parsedCommits, options);
 			Assert.AreEqual (2, bugCollection.Bugs.Count);
