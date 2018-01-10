@@ -24,7 +24,7 @@ namespace clio
 				{ "b|list-bugs", "List bugs discovered instead of formatting release notes", v => requestedAction = ActionType.ListBugs },
 				{ "x|export-bugs", "Export bugs discovered instead of formatting release notes", v => requestedAction = ActionType.ExportBugs },
 				{ "output-file=", "Output file for export-bugs", v => outputFile = v },
-				{ "commit=", "Single commit to consider", s => {
+				{ "commit=", "Single commit to consider, sets --oldest and --newest to the same value", s => {
 						range.Newest = range.Oldest = s.Some ();
 						range.IncludeOldest = true;
 					}},
@@ -92,6 +92,12 @@ namespace clio
 
 			if (options.ValidateBugStatus && options.Bugzilla == BugzillaLevel.Disable)
 				Die ("Unable to Validate Bug Status with Bugzilla support disabled.");
+
+			if (requestedAction == ActionType.ExportBugs && string.IsNullOrEmpty(outputFile))
+				Die ("You must specify --outputfile= with --export-bugs.");
+
+			if (requestedAction != ActionType.ExportBugs && !string.IsNullOrEmpty (outputFile))
+				Die ("--outputfile= can only be specified with --export-bugs.");
 
 			if (range.Oldest.HasValue && range.Newest.HasValue)
 			{
