@@ -3,18 +3,18 @@ using clio.Model;
 
 namespace clio.Providers
 {
-    public class VstsChecker : BaseIssueValidator
+    public class VstsIssueValidator : BaseIssueValidator
     {
-        public VstsChecker(SearchOptions options) : base(IssueSource.Vsts, options)
+        public VstsIssueValidator(SearchOptions options) : base(IssueSource.Vsts, options)
         {
             //Client = new BugzillaClient (new Uri (@"https://bugzilla.xamarin.com/jsonrpc.cgi"));
         }
 
-        public override async Task SetupAsync()
+        protected override async Task SetupAsync()
         {
         }
 
-        protected override async Task<IIssue> GetIssueAsync(ParsedCommit commit)
+        public override async Task<IIssue> GetIssueAsync(int issueId)
         {
             return null;
         }

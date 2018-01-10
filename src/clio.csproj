@@ -57,14 +57,14 @@
     <Compile Include="BugCollector.cs" />
     <Compile Include="Model\BugEntry.cs" />
     <Compile Include="BugValidator.cs" />
-    <Compile Include="Providers\BugzillaChecker.cs" />
+    <Compile Include="Providers\BugzillaIssueValidator.cs" />
     <Compile Include="Providers\BugzillaCommitParser.cs" />
     <Compile Include="Providers\VstsCommitParser.cs" />
     <Compile Include="Model\IIssue.cs" />
     <Compile Include="Model\ParsingConfidence.cs" />
     <Compile Include="Model\ICommitParser.cs" />
     <Compile Include="Providers\BugzillaIssue.cs" />
-    <Compile Include="Providers\VstsChecker.cs" />
+    <Compile Include="Providers\VstsIssueValidator.cs" />
     <Compile Include="Model\IssueSource.cs" />
     <Compile Include="Model\NullIssue.cs" />
     <Compile Include="Providers\BaseCommitParser.cs" />

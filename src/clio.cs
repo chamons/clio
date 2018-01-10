@@ -171,9 +171,8 @@ namespace clio
 
 			if (options.AdditionalBugInfo)
 			{
-				BugzillaChecker checker = new BugzillaChecker (options);
-				checker.SetupAsync ().Wait ();
-				string additionalInfo = checker.LookupAdditionalInfo (bug.ID).Result;
+				var checker = new BugzillaIssueValidator (options);
+                string additionalInfo = checker.GetIssueAsync ((int)bug.ID).Result.MoreInfo;
 				if (additionalInfo != null)
 					Console.WriteLine ($"\t{additionalInfo}");
 			}

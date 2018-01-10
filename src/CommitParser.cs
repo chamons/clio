@@ -25,6 +25,9 @@ namespace clio
                 .ValidateAsync(options);
 		}
 
+        /// <summary>
+        /// Validates the commits and returns a new enumerable containing updated confidences for each commit.
+        /// </summary>
         public static async Task<IEnumerable<ParsedCommit>> ValidateAsync(this IEnumerable<ParsedCommit> commits, SearchOptions options)
         {
             var tasks = new List<Task<IEnumerable<ParsedCommit>>>();
@@ -55,10 +58,12 @@ namespace clio
         static IEnumerable<IIssueValidator> GetValidators(SearchOptions options)
         {
             // TODO: use options to determine whether to validate issues found or not
+            // for example, we can skip validation altogether and still have high confidence
+            // for bugs that match the full url for example
 
             //yield return VstsCommitParser.Instance;
 
-            yield return new BugzillaChecker(options);
+            yield return new BugzillaIssueValidator(options);
         }
 	}
 }

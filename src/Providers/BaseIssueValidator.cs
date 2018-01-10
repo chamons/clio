@@ -4,6 +4,9 @@ using clio.Model;
 
 namespace clio.Providers
 {
+    /// <summary>
+    /// Base issue validation implementation
+    /// </summary>
     public abstract class BaseIssueValidator : IIssueValidator
     {
         public BaseIssueValidator(IssueSource issueSource, SearchOptions options)
@@ -16,21 +19,25 @@ namespace clio.Providers
 
         protected SearchOptions Options { get; private set; }
 
-        public abstract Task SetupAsync();
+        protected abstract Task SetupAsync();
 
         /// <summary>
         /// Validates commits and assigns an issue to the commit if validated.
         /// </summary>
         public async Task<IEnumerable<ParsedCommit>> ValidateIssuesAsync(IEnumerable<ParsedCommit> commits)
         {
+            await this.SetupAsync().ConfigureAwait(false);
+
             var results = new List<ParsedCommit>();
             foreach (var commit in commits)
             {
+                // we will only check issues that match our source
                 if (commit.IssueSource == this.IssueSource)
                 {
-                    var issue = await this.GetIssueAsync(commit);
+                    var issue = await this.GetIssueAsync(commit.IssueId).ConfigureAwait(false);
                     if (issue != null)
                     {
+                        // can we get the issue, lets update our confidence
                         results.Add(new ParsedCommit(commit, issue, ParsingConfidence.High));
                     }
                     else
@@ -38,12 +45,18 @@ namespace clio.Providers
                         // it's a bug, we think, but we can't identify it
                         results.Add(new ParsedCommit(commit, ParsingConfidence.Low));
                     }
+                } 
+                else
+                {
+                    // do we actually need to do this, can we just skip issues that are not
+                    // for us?
+                    results.Add(new ParsedCommit(commit, commit.Confidence)); 
                 }
             }
 
             return results;
         }
 
-        protected abstract Task<IIssue> GetIssueAsync(ParsedCommit commit);
+        public abstract Task<IIssue> GetIssueAsync(int issueId);
     }
 }

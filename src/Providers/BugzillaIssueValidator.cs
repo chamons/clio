@@ -10,7 +10,7 @@ namespace clio.Providers
     /// <summary>
     /// Validates bugzilla bug entries
     /// </summary>
-    public class BugzillaChecker : BaseIssueValidator
+    public class BugzillaIssueValidator : BaseIssueValidator
 	{
         static string LoginFilePath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), ".bugzilla");
 
@@ -18,16 +18,19 @@ namespace clio.Providers
         BugzillaClient Client;
         bool signedIn;
 
-        public BugzillaChecker (SearchOptions options) : base (IssueSource.Bugzilla, options)
+        public BugzillaIssueValidator (SearchOptions options) : base (IssueSource.Bugzilla, options)
 		{
 			Client = new BugzillaClient (new Uri (@"https://bugzilla.xamarin.com/jsonrpc.cgi"));
 		}
 
-        protected override async Task<IIssue> GetIssueAsync(ParsedCommit commit)
+        public override async Task<IIssue> GetIssueAsync(int issueId)
         {
-            await this.SetupAsync();
+            if (!signedIn) 
+            {
+                await this.SetupAsync().ConfigureAwait(false);
+            }
 
-            Bug bug = await GetBug(commit.IssueId);
+            Bug bug = await GetBug(issueId).ConfigureAwait(false);
             if (bug != null) {
                 return new BugzillaIssue(bug);
             }
@@ -35,7 +38,7 @@ namespace clio.Providers
             return null;
         }
 
-		public override async Task SetupAsync ()
+		protected override async Task SetupAsync ()
 		{
 			if (Options.Bugzilla != BugzillaLevel.Private)
 				return;
@@ -44,50 +47,8 @@ namespace clio.Providers
                 return;
             
 			var login = GetLogin ();
-			await Client.LoginAsync (login.Item1, login.Item2);
+            await Client.LoginAsync (login.Item1, login.Item2).ConfigureAwait(false);
             signedIn = true;
-		}
-
-		public async Task<string> LookupTitle (int number)
-		{
-			Bug bug = await GetBug (number);
-			return bug != null ? bug.Summary : null;
-		}
-
-		public async Task<string> LookupAdditionalInfo (int number)
-		{
-			Bug bug = await GetBug (number);
-			if (bug != null)
-				return $"({bug.Product}) - {bug.Milestone} {bug.Status}";
-			else
-				return null;
-		}
-
-		public async Task<string> LookupStatus (int number)
-		{
-			Bug bug = await GetBug (number);
-			if (bug != null)
-				return bug.Status;
-			else
-				return null;
-		}
-
-		public async Task<string> LookupTargetMilestone (int number)
-		{
-			Bug bug = await GetBug (number);
-			if (bug != null)
-				return bug.Milestone;
-			else
-				return null;
-		}
-
-		public async Task<string> LookupImportance (int number)
-		{
-			Bug bug = await GetBug (number);
-			if (bug != null)
-				return bug.Severity;
-			else
-				return null;
 		}
 
         ValueTuple<string, string> GetLogin()
