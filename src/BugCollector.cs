@@ -24,14 +24,15 @@ namespace clio
 			var bugsToIgnore = new Dictionary<IssueSource, HashSet<int>> ();
 			var handledBugs = new Dictionary<IssueSource, HashSet<int>> ();
 
+			Explain.Print ($"\nClassifying {commits.Count ()} commits ignoring {commitsToIgnore.Count ()} commit.");
 			foreach (var source in Enum.GetValues (typeof (IssueSource)).OfType<IssueSource> ())
 			{
 				bugsToIgnore[source] = new HashSet<int> (commitsToIgnore.Where (x => x.IssueSource == source).Select (x => x.IssueId));
 				handledBugs[source] = new HashSet<int> ();
-			}
 
-			Explain.Print ($"\nClassifying {commits.Count ()} commits ignoring {commitsToIgnore.Count ()} commit.");
-			Explain.Print ($"\t{String.Join (" ", bugsToIgnore.Select (x => x.ToString ()))}");
+				if (source != IssueSource.None && bugsToIgnore[source].Count > 0)
+					Explain.Print ($"\t{source} {String.Join (" ", bugsToIgnore[source].Select (x => x.ToString ()))}");
+			}
 
 			BugCollection collection = new BugCollection ();
 
@@ -73,6 +74,8 @@ namespace clio
 					handledBugs[parsedCommit.IssueSource].Add (parsedCommit.IssueId);
 				}
 			}
+
+			Explain.Print ($"\nClassified {collection.Bugs.Count ()} bug(s) and {collection.PotentialBugs.Count ()} potential bug(s).");
 
 			return new BugCollection (collection.Bugs.OrderBy (x => x.IssueInfo.IssueSource).OrderBy (x => x.Id),
 									  collection.PotentialBugs.OrderBy (x => x.IssueInfo.IssueSource).OrderBy (x => x.Id));

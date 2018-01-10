@@ -41,14 +41,24 @@ namespace clio.Providers
 		public IEnumerable<ParsedCommit> ParseSingle (CommitInfo commit)
 		{
 			Explain.Indent ();
-			Explain.Print ($"Analyzing {commit.Hash}.");
+			Explain.Print ($"{this.IssueSource} analyzing {commit.Hash}.");
 
 			var textToSearch = commit.Description.SplitLines ();
 
-			foreach (var match in textToSearch.Select (x => ParseLine (x))
-					 .Where (x => x.Confidence != ParsingConfidence.Invalid))
+			try
 			{
-				yield return new ParsedCommit (this.IssueSource, commit, match.Link, match.ID, match.Confidence);
+				Explain.Indent ();
+
+				Explain.Print ($"Checking regexes for bug mentions");
+				foreach (var match in textToSearch.Select (x => ParseLine (x))
+						 .Where (x => x.Confidence != ParsingConfidence.Invalid))
+				{
+					yield return new ParsedCommit (this.IssueSource, commit, match.Link, match.ID, match.Confidence);
+				}
+			}
+			finally
+			{
+				Explain.Deindent ();
 			}
 
 			Explain.Deindent ();
@@ -93,7 +103,7 @@ namespace clio.Providers
 						return new ParseResults { Confidence = ParsingConfidence.Invalid };
 					}
 
-					Explain.Print ($"Default Confidence was {confidence}.");
+					Explain.Print ($"Confidence was {confidence}.");
 					return new ParseResults (confidence, match.Value, id);
 				}
 			}
@@ -105,43 +115,32 @@ namespace clio.Providers
 
 		ParseResults ParseLine (string line)
 		{
-			try
+			// check high quality regexes first, for example, ones that reference the 
+			// full url of the bug
+
+			foreach (Regex regex in this.HighBugRegexes)
 			{
-				Explain.Indent ();
-
-				// check high quality regexes first, for example, ones that reference the 
-				// full url of the bug
-
-				Explain.Print ($"Checking regexes for full bug url matches etc");
-				foreach (Regex regex in this.HighBugRegexes)
+				var result = ProcessLine (regex, line, ParsingConfidence.High);
+				if (result.Confidence == ParsingConfidence.High)
 				{
-					var result = ProcessLine (regex, line, ParsingConfidence.High);
-					if (result.Confidence == ParsingConfidence.High)
-					{
-						// we found one with high confidence, lets go
-						return result;
-					}
+					// we found one with high confidence, lets go
+					return result;
 				}
-
-				// so now, lets look for more generic bug mentions
-				Explain.Print ($"Checking regexes for generic bug mentions");
-				foreach (Regex regex in this.LikelyBugRegexes)
-				{
-					var result = ProcessLine (regex, line, ParsingConfidence.Likely);
-					if (result.Confidence == ParsingConfidence.Likely)
-					{
-						// we found one with likely confidence, lets go
-						return result;
-					}
-				}
-
-				// nothing found
-				return new ParseResults { Confidence = ParsingConfidence.Invalid };
 			}
-			finally
+
+			// so now, lets look for more generic bug mentions
+			foreach (Regex regex in this.LikelyBugRegexes)
 			{
-				Explain.Deindent ();
+				var result = ProcessLine (regex, line, ParsingConfidence.Likely);
+				if (result.Confidence == ParsingConfidence.Likely)
+				{
+					// we found one with likely confidence, lets go
+					return result;
+				}
 			}
+
+			// nothing found
+			return new ParseResults { Confidence = ParsingConfidence.Invalid };
 		}
 
 		struct ParseResults
