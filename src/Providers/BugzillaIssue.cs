@@ -15,6 +15,8 @@ namespace clio.Providers
             this.Importance = bug.Severity;
         }
 
+		public IssueSource IssueSource => IssueSource.Bugzilla;
+
         public int Id { get; }
 
         public string Title { get; }

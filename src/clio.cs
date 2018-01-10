@@ -119,16 +119,16 @@ namespace clio
             // TODO: this is bugzilla specific
 			if (options.SplitEnhancementBugs)
 			{
-				var bugs = bugCollection.Bugs.Where (x => x.BugInfo.Issue.Importance != "enhancement");
+				var bugs = bugCollection.Bugs.Where (x => x.IssueInfo.Importance != "enhancement");
 				PrintBugList ("Bugs:", false, bugs, options);
 
-				var potentialBugs = bugCollection.PotentialBugs.Where (x => x.BugInfo.Issue.Importance != "enhancement");
+				var potentialBugs = bugCollection.PotentialBugs.Where (x => x.IssueInfo.Importance != "enhancement");
 				PrintBugList ("Potential Bugs:", true, potentialBugs, options);
 
-				var enhancements = bugCollection.Bugs.Where (x => x.BugInfo.Issue.Importance == "enhancement");
+				var enhancements = bugCollection.Bugs.Where (x => x.IssueInfo.Importance == "enhancement");
 				PrintBugList ("Enhancements:", false, enhancements, options);
 
-				var potentialEnhancements = bugCollection.PotentialBugs.Where (x => x.BugInfo.Issue.Importance == "enhancement");
+				var potentialEnhancements = bugCollection.PotentialBugs.Where (x => x.IssueInfo.Importance == "enhancement");
 				PrintBugList ("Potential Enhancements:", true, potentialEnhancements, options);
 			}
 			else
@@ -154,12 +154,12 @@ namespace clio
 			if (string.IsNullOrEmpty (bug.Title))
 				return FormatUncertainBug (bug);
 
-			return $"* [{bug.ID}](https://bugzilla.xamarin.com/show_bug.cgi?id={bug.ID}) -  {bug.Title}" + (String.IsNullOrEmpty (bug.SecondaryTitle) ? "" : $" / {bug.SecondaryTitle}");
+			return $"* [{bug.Id}](https://bugzilla.xamarin.com/show_bug.cgi?id={bug.Id}) -  {bug.Title}" + (String.IsNullOrEmpty (bug.SecondaryTitle) ? "" : $" / {bug.SecondaryTitle}");
 		}
 
 		public static string FormatUncertainBug (BugEntry bug)
 		{
-			return $"* [{bug.ID}](https://bugzilla.xamarin.com/show_bug.cgi?id={bug.ID}) -  {bug.SecondaryTitle}";
+			return $"* [{bug.Id}](https://bugzilla.xamarin.com/show_bug.cgi?id={bug.Id}) -  {bug.SecondaryTitle}";
 		}
 
 		static void PrintBug (BugEntry bug, bool potential, SearchOptions options)
@@ -172,7 +172,7 @@ namespace clio
 			if (options.AdditionalBugInfo)
 			{
 				var checker = new BugzillaIssueValidator (options);
-                string additionalInfo = checker.GetIssueAsync ((int)bug.ID).Result.MoreInfo;
+                string additionalInfo = checker.GetIssueAsync ((int)bug.Id).Result.MoreInfo;
 				if (additionalInfo != null)
 					Console.WriteLine ($"\t{additionalInfo}");
 			}

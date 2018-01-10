@@ -14,6 +14,8 @@
             this.Importance = string.Empty;
         }
 
+		public IssueSource IssueSource => IssueSource.None;
+
         public int Id { get; }
 
         public string Title { get; }

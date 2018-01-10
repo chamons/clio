@@ -5,6 +5,7 @@
     /// </summary>
     public enum IssueSource
     {
+		None,
         Bugzilla,
         Vsts,
         GitHub

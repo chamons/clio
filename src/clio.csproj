@@ -70,6 +70,7 @@
     <Compile Include="Providers\BaseCommitParser.cs" />
     <Compile Include="Model\IIssueValidator.cs" />
     <Compile Include="Providers\BaseIssueValidator.cs" />
+    <Compile Include="Model\BugCollection.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

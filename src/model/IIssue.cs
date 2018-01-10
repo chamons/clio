@@ -6,6 +6,11 @@ namespace clio.Model
     /// </summary>
     public interface IIssue
     {
+		/// <summary>
+		/// Gets the issue source for this issue
+		/// </summary>
+		IssueSource IssueSource { get; }
+
         /// <summary>
         /// Gets the identifier of the issue
         /// </summary>
