@@ -26,7 +26,7 @@ namespace clio
 		public async Task Run (ActionType action, string outputFile)
 		{
 			// This can mutate Range so must be done first.
-			var commitsToIgnore = ProcessOldestBranch ();
+			var commitsToIgnore = await ProcessOldestBranchAsync ().ConfigureAwait (false);
 
 			await ProcessAsync (Path, Options, Range, action, commitsToIgnore, outputFile).ConfigureAwait (false);
 
@@ -67,7 +67,7 @@ namespace clio
 			}
 		}
 
-		IEnumerable<ParsedCommit> ProcessOldestBranch ()
+		async Task<IEnumerable<ParsedCommit>> ProcessOldestBranchAsync ()
 		{
 			if (Range.OldestBranch.HasValue)
 			{
@@ -77,7 +77,7 @@ namespace clio
 
 				var commitInfo = CommitFinder.FindCommitsOnBranchToIgnore (Path, branchName, Options);
 
-				IEnumerable<ParsedCommit> commitsToIgnore = CommitParser.ParseAndValidateAsync (commitInfo.Item1, Options).Result;
+				IEnumerable<ParsedCommit> commitsToIgnore = await CommitParser.ParseAndValidateAsync (commitInfo.Item1, Options).ConfigureAwait (false);
 
 				Explain.Print ($"Found {commitsToIgnore.Count ()} bugs on {branchName} after branch to ignore.");
 
