@@ -1,7 +1,8 @@
 ﻿using System;
 using System.Text.RegularExpressions;
+using clio.Model;
 
-namespace clio
+namespace clio.Providers
 {
     public sealed class VstsCommitParser : BaseCommitParser
     {

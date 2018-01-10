@@ -1,16 +1,16 @@
 ﻿using System.Threading.Tasks;
 using clio.Model;
 
-namespace clio
+namespace clio.Providers
 {
-    public class VstsChecker : IssueValidator
+    public class VstsChecker : BaseIssueValidator
     {
         public VstsChecker(SearchOptions options) : base(IssueSource.Vsts, options)
         {
             //Client = new BugzillaClient (new Uri (@"https://bugzilla.xamarin.com/jsonrpc.cgi"));
         }
 
-        public override async Task Setup()
+        public override async Task SetupAsync()
         {
         }
 

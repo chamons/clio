@@ -4,9 +4,8 @@ using System.Linq;
 using clio.Model;
 using Optional.Linq;
 using System.Text.RegularExpressions;
-using System.Threading.Tasks;
 
-namespace clio
+namespace clio.Providers
 {
     /// <summary>
     /// Base commit parser implementation

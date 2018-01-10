@@ -1,7 +1,7 @@
 ﻿using clio.Model;
 using CodeRinseRepeat.Bugzilla;
 
-namespace clio
+namespace clio.Providers
 {
     public sealed class BugzillaIssue : IIssue
     {
@@ -10,6 +10,9 @@ namespace clio
             this.Id = (int)bug.Id;
             this.Title = bug.Summary;
             this.MoreInfo = $"({bug.Product}) - {bug.Milestone} {bug.Status}";
+            this.TargetMilestone = bug.Milestone;
+            this.Status = bug.Status;
+            this.Importance = bug.Severity;
         }
 
         public int Id { get; }
@@ -17,5 +20,11 @@ namespace clio
         public string Title { get; }
 
         public string MoreInfo { get; }
+
+        public string TargetMilestone { get; }
+
+        public string Status { get; }
+
+        public string Importance { get; }
     }
 }

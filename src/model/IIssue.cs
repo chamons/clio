@@ -20,5 +20,20 @@ namespace clio.Model
         /// Gets the description of the issue
         /// </summary>
         string MoreInfo { get; }
+
+        /// <summary>
+        /// Gets the target milestone of the issue
+        /// </summary>
+        string TargetMilestone { get; }
+
+        /// <summary>
+        /// Gets the status of the issue.
+        /// </summary>
+        string Status { get; }
+
+        /// <summary>
+        /// Gets the importance of the issue
+        /// </summary>
+        string Importance { get; }
     }
 }

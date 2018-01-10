@@ -5,12 +5,12 @@ using System.Threading.Tasks;
 using clio.Model;
 using CodeRinseRepeat.Bugzilla;
 
-namespace clio
+namespace clio.Providers
 {
     /// <summary>
     /// Validates bugzilla bug entries
     /// </summary>
-    public class BugzillaChecker : IssueValidator
+    public class BugzillaChecker : BaseIssueValidator
 	{
         static string LoginFilePath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), ".bugzilla");
 
@@ -25,7 +25,7 @@ namespace clio
 
         protected override async Task<IIssue> GetIssueAsync(ParsedCommit commit)
         {
-            await this.Setup();
+            await this.SetupAsync();
 
             Bug bug = await GetBug(commit.IssueId);
             if (bug != null) {
@@ -35,7 +35,7 @@ namespace clio
             return null;
         }
 
-		public override async Task Setup ()
+		public override async Task SetupAsync ()
 		{
 			if (Options.Bugzilla != BugzillaLevel.Private)
 				return;

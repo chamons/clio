@@ -5,6 +5,7 @@ using System.IO;
 using clio.Model;
 using Optional;
 using Optional.Unsafe;
+using clio.Providers;
 
 namespace clio
 {
@@ -115,18 +116,19 @@ namespace clio
 
 		static void PrintBugs (BugCollection bugCollection, SearchOptions options)
 		{
+            // TODO: this is bugzilla specific
 			if (options.SplitEnhancementBugs)
 			{
-				var bugs = bugCollection.Bugs.Where (x => x.BugInfo.IssueImportance != "enhancement");
+				var bugs = bugCollection.Bugs.Where (x => x.BugInfo.Issue.Importance != "enhancement");
 				PrintBugList ("Bugs:", false, bugs, options);
 
-				var potentialBugs = bugCollection.PotentialBugs.Where (x => x.BugInfo.IssueImportance != "enhancement");
+				var potentialBugs = bugCollection.PotentialBugs.Where (x => x.BugInfo.Issue.Importance != "enhancement");
 				PrintBugList ("Potential Bugs:", true, potentialBugs, options);
 
-				var enhancements = bugCollection.Bugs.Where (x => x.BugInfo.IssueImportance == "enhancement");
+				var enhancements = bugCollection.Bugs.Where (x => x.BugInfo.Issue.Importance == "enhancement");
 				PrintBugList ("Enhancements:", false, enhancements, options);
 
-				var potentialEnhancements = bugCollection.PotentialBugs.Where (x => x.BugInfo.IssueImportance == "enhancement");
+				var potentialEnhancements = bugCollection.PotentialBugs.Where (x => x.BugInfo.Issue.Importance == "enhancement");
 				PrintBugList ("Potential Enhancements:", true, potentialEnhancements, options);
 			}
 			else
@@ -170,7 +172,7 @@ namespace clio
 			if (options.AdditionalBugInfo)
 			{
 				BugzillaChecker checker = new BugzillaChecker (options);
-				checker.Setup ().Wait ();
+				checker.SetupAsync ().Wait ();
 				string additionalInfo = checker.LookupAdditionalInfo (bug.ID).Result;
 				if (additionalInfo != null)
 					Console.WriteLine ($"\t{additionalInfo}");

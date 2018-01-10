@@ -6,6 +6,7 @@ using clio.Model;
 using Optional;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using clio.Providers;
 
 namespace clio.Tests
 {

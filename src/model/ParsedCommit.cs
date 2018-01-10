@@ -1,66 +1,69 @@
 ﻿using System;
 namespace clio.Model
 {
-    // CommitInfo with metadata from bugzilla and heuristics applied 
+    /// <summary>
+    /// A commit that has been parsed and associated with an issue found in the commit message
+    /// </summary>
     public struct ParsedCommit
     {
-        public IssueSource BugSource { get; }
+        /// <summary>
+        /// Gets the source of the issue that was found in the commit
+        /// </summary>
+        public IssueSource IssueSource { get; }
+
+        /// <summary>
+        /// Gets the commit info for the commit
+        /// </summary>
         public CommitInfo Commit { get; }
+
+        /// <summary>
+        /// Gets the link that was used to denote the bug in the commit
+        /// </summary>
         public string Link { get; }
+
+        /// <summary>
+        /// Gets the IssueId that was found in the commit
+        /// </summary>
         public int IssueId { get; }
+
+        /// <summary>
+        /// Gets a value indicating the level of confidence that the issue does indeed relate to the commit.
+        /// </summary>
         public ParsingConfidence Confidence { get; }
 
+        /// <summary>
+        /// Gets the issue that was found with IssueId from the IssueSource
+        /// </summary>
         public IIssue Issue { get; }
 
-        // TODO: remove these fields
-        public string IssueSummary { get; }
-        public string IssueTargetMilestone { get; }
-        public string IssueStatus { get; }
-        public string IssueImportance { get; }
-
-        public ParsedCommit(IssueSource bugSource, CommitInfo commit, string link, int id, ParsingConfidence confidence)
+        public ParsedCommit(IssueSource issueSource, CommitInfo commit, string link, int id, ParsingConfidence confidence)
         {
-            BugSource = bugSource;
+            IssueSource = issueSource;
             Commit = commit;
             Link = link;
             IssueId = id;
             Confidence = confidence;
-            Issue = null;
-
-            IssueSummary = string.Empty;
-            IssueTargetMilestone = string.Empty;
-            IssueStatus = string.Empty;
-            IssueImportance = string.Empty;
+            Issue = NullIssue.Instance;
         }
 
         public ParsedCommit(ParsedCommit commit, IIssue issue, ParsingConfidence confidence)
         {
-            BugSource = commit.BugSource;
+            IssueSource = commit.IssueSource;
             Commit = commit.Commit;
             Link = commit.Link;
             IssueId = commit.IssueId;
             Confidence = confidence;
-            Issue = issue;
-
-            IssueSummary = issue?.Title ?? string.Empty;
-            IssueTargetMilestone = string.Empty;
-            IssueStatus = string.Empty;
-            IssueImportance = string.Empty;
+            Issue = issue ?? NullIssue.Instance;
         }
 
         public ParsedCommit(ParsedCommit commit, ParsingConfidence confidence)
         {
-            BugSource = commit.BugSource;
+            IssueSource = commit.IssueSource;
             Commit = commit.Commit;
             Link = commit.Link;
             IssueId = commit.IssueId;
             Confidence = confidence;
-            Issue = commit.Issue;
-
-            IssueSummary = commit.Issue?.Title ?? string.Empty;
-            IssueTargetMilestone = string.Empty;
-            IssueStatus = string.Empty;
-            IssueImportance = string.Empty;
+            Issue = commit.Issue ?? NullIssue.Instance;
         }
     }
 }

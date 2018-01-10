@@ -1,7 +1,8 @@
 ﻿using System;
 using System.Text.RegularExpressions;
+using clio.Model;
 
-namespace clio
+namespace clio.Providers
 {
     public sealed class BugzillaCommitParser : BaseCommitParser
     {
@@ -17,45 +18,9 @@ namespace clio
         {
         }
 
-        //static BugzillaChecker _bugChecker;
-
-        //protected override BugzillaChecker GetBugChecker(SearchOptions options)
-        //{
-        //    if (_bugChecker == null)
-        //    {
-        //        _bugChecker = new BugzillaChecker(options);
-        //        _bugChecker.Setup().Wait();
-        //    }
-        //    return _bugChecker;
-        //}
-
         protected override bool ValidateBugNumber(int bugNumber)
         {
             return (bugNumber >= 1000 && bugNumber <= 250000);
         }
-
-        //protected override async Task InternalDetermineConfidence(ParsedCommit commit)
-        //{
-        //    // TODO: split out confidence into an abstract online bug thing
-
-        //    //var bugzillaSummary = GetTitle(commit.ID, options);
-        //    //if (bugzillaSummary == null)
-        //    //{
-        //    //    confidence = ParsingConfidence.Low;
-        //    //    Explain.Print($"Given low confidence due to lack of a matching bugzilla bug.");
-        //    //    return new ParseResults(confidence, match.Value, id);
-        //    //}
-        //    //var status = GetStatus(id, options);
-        //    //var milestone = GetMilestone(id, options);
-        //    //var importance = GetImportance(id, options);
-
-        //    //return new ParseResults(confidence, match.Value, id)
-        //    //{
-        //    //    Summary = bugzillaSummary,
-        //    //    Status = status,
-        //    //    TargetMilestone = milestone,
-        //    //    Importance = importance
-        //    //};
-        //}
     }
 }

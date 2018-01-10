@@ -2,11 +2,11 @@
 using System.Threading.Tasks;
 using clio.Model;
 
-namespace clio
+namespace clio.Providers
 {
-    public abstract class IssueValidator
+    public abstract class BaseIssueValidator : IIssueValidator
     {
-        public IssueValidator(IssueSource issueSource, SearchOptions options)
+        public BaseIssueValidator(IssueSource issueSource, SearchOptions options)
         {
             this.IssueSource = issueSource;
             this.Options = options;
@@ -16,7 +16,7 @@ namespace clio
 
         protected SearchOptions Options { get; private set; }
 
-        public abstract Task Setup();
+        public abstract Task SetupAsync();
 
         /// <summary>
         /// Validates commits and assigns an issue to the commit if validated.
@@ -26,14 +26,14 @@ namespace clio
             var results = new List<ParsedCommit>();
             foreach (var commit in commits)
             {
-                if (commit.BugSource == this.IssueSource)
+                if (commit.IssueSource == this.IssueSource)
                 {
                     var issue = await this.GetIssueAsync(commit);
                     if (issue != null)
                     {
                         results.Add(new ParsedCommit(commit, issue, ParsingConfidence.High));
                     }
-                    else 
+                    else
                     {
                         // it's a bug, we think, but we can't identify it
                         results.Add(new ParsedCommit(commit, ParsingConfidence.Low));

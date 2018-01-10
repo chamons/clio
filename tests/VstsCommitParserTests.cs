@@ -2,6 +2,7 @@
 using clio.Model;
 using System.Linq;
 using NUnit.Framework;
+using clio.Providers;
 
 namespace clio.Tests
 {
