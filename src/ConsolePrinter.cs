@@ -82,8 +82,7 @@ namespace clio
 
 			if (options.AdditionalBugInfo)
 			{
-				var checker = new BugzillaIssueValidator (options);
-				string additionalInfo = checker.GetIssueAsync ((int)bug.Id).Result.MoreInfo;
+				string additionalInfo = bug.IssueInfo.MoreInfo;
 				if (additionalInfo != null)
 					Console.WriteLine ($"\t{additionalInfo}");
 			}
