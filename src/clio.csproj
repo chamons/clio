@@ -66,6 +66,8 @@
     <Compile Include="Model\ParsingConfidence.cs" />
     <Compile Include="Model\ICommitParser.cs" />
     <Compile Include="Providers\IssueValidator.cs" />
+    <Compile Include="Providers\BugzillaIssue.cs" />
+    <Compile Include="Providers\VstsChecker.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

@@ -7,15 +7,13 @@ namespace clio
     {
         static Regex FullBuzilla = new Regex(@"htt.*?://bugzilla\.xamarin\.com[^=]+(=)(\d*)", RegexOptions.Compiled | RegexOptions.IgnoreCase);
         static Regex Buzilla = new Regex(@"bugzilla\s*(#)?(\d*)", RegexOptions.Compiled | RegexOptions.IgnoreCase);
-        static Regex Bug = new Regex(@"bug\s*(#)?(\d*)", RegexOptions.Compiled | RegexOptions.IgnoreCase);
-        static Regex Fixes = new Regex(@"fix(es)?\s*(#)?(\d*)", RegexOptions.Compiled | RegexOptions.IgnoreCase);
-        static Regex Short = new Regex(@"bxc\s*(#)?(\d*)", RegexOptions.Compiled | RegexOptions.IgnoreCase);
+        static Regex ShortBuzilla = new Regex(@"bxc\s*(#)?(\d*)", RegexOptions.Compiled | RegexOptions.IgnoreCase);
 
-        static Regex[] AllRegex = { FullBuzilla, Buzilla, Bug, Fixes, Short };
+        static Regex[] AllRegex = { FullBuzilla, Buzilla, ShortBuzilla };
 
         public static readonly BaseCommitParser Instance = new BugzillaCommitParser(AllRegex);
 
-        private BugzillaCommitParser(Regex[] bugRegexes) : base(IssueSource.Bugzilla, bugRegexes)
+        private BugzillaCommitParser(Regex[] bugRegexes) : base(IssueSource.Bugzilla, bugRegexes, DefaultLikelyBugRegexes)
         {
         }
 

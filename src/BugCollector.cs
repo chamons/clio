@@ -29,6 +29,10 @@ namespace clio
 			{
 				if (handledBugs.Contains (parsedCommit.IssueId))
 				{
+
+                    // TODO: update this to handle likely bugs
+
+
 					// Commits are either high or low to get here. If we're low
 					// then we do not need handling. Either before was low and 
 					// we are good, or it was high and we are good
@@ -44,7 +48,7 @@ namespace clio
 				}
 				else
 				{
-					if (parsedCommit.Confidence == ParsingConfidence.High)
+                    if (parsedCommit.Confidence == ParsingConfidence.High || parsedCommit.Confidence == ParsingConfidence.Likely)
 						collection.Bugs.Add (new BugEntry (parsedCommit.IssueId, parsedCommit.IssueSummary, parsedCommit.Commit.Title, parsedCommit));
 					else
 						collection.PotentialBugs.Add (new BugEntry (parsedCommit.IssueId, parsedCommit.IssueSummary, parsedCommit.Commit.Title, parsedCommit));

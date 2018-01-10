@@ -7,40 +7,9 @@ using CodeRinseRepeat.Bugzilla;
 
 namespace clio
 {
-    public class VstsChecker : IssueValidator
-	{
-        public VstsChecker (SearchOptions options) : base (IssueSource.Vsts, options)
-		{
-			//Client = new BugzillaClient (new Uri (@"https://bugzilla.xamarin.com/jsonrpc.cgi"));
-		}
-
-		public override async Task Setup ()
-		{
-		}
-
-        protected override async Task<IIssue> GetIssueAsync(ParsedCommit commit)
-        {
-            return null;
-        }
-
-    }
-
-    public sealed class BugzillaIssue : IIssue
-    {
-        public BugzillaIssue(Bug bug)
-        {
-            this.Id = (int)bug.Id;
-            this.Title = bug.Summary;
-            this.MoreInfo = $"({bug.Product}) - {bug.Milestone} {bug.Status}";
-        }
-
-        public int Id { get; }
-
-        public string Title { get; }
-
-        public string MoreInfo { get; }
-    }
-
+    /// <summary>
+    /// Validates bugzilla bug entries
+    /// </summary>
     public class BugzillaChecker : IssueValidator
 	{
         static string LoginFilePath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), ".bugzilla");

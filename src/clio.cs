@@ -22,6 +22,7 @@ namespace clio
 			Options = options;
 		}
 
+        // TODO: make this async and block on call site
 		public void Run (ActionType action)
 		{
 			// This can mutage Range so must be done first.

@@ -7,14 +7,13 @@ namespace clio
     {
         // TODO: these are not case insensitive, they should be...
         static Regex FullVsts = new Regex(@"htt.*?:\/\/devdiv\.visualstudio\.com\/DevDiv\/_workitems\/edit\/(\d*)", RegexOptions.Compiled | RegexOptions.IgnoreCase);
-        static Regex Fixes = new Regex(@"fix(es)?[:]*\s*(#)?(\d*)", RegexOptions.Compiled | RegexOptions.IgnoreCase);
         static Regex Vsts = new Regex(@"vsts[:]*\s*(#)?(\d*)", RegexOptions.Compiled | RegexOptions.IgnoreCase);
 
-        static Regex[] AllRegex = { FullVsts, Fixes };
+        static Regex[] AllRegex = { FullVsts, Vsts };
 
         public static readonly BaseCommitParser Instance = new VstsCommitParser(AllRegex);
 
-        private VstsCommitParser(Regex[] bugRegexes) : base(IssueSource.Vsts, bugRegexes)
+        private VstsCommitParser(Regex[] bugRegexes) : base(IssueSource.Vsts, bugRegexes, DefaultLikelyBugRegexes)
         {
         }
 
