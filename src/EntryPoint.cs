@@ -7,12 +7,6 @@ using Optional.Unsafe;
 
 namespace clio
 {
-	public enum ActionType
-	{
-		Help,
-		ListConsideredCommits,
-		ListBugs
-	}
 
 	class EntryPoint
 	{
@@ -104,7 +98,7 @@ namespace clio
 			}
 
 			var request = new clio (path, range, options);
-			request.Run (requestedAction);
+			request.Run (requestedAction).Wait ();
 		}
 
 		public static void Die (string v)

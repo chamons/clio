@@ -40,5 +40,15 @@ namespace clio.Model
 		/// Gets the importance of the issue
 		/// </summary>
 		string Importance { get; }
+
+		/// <summary>
+		/// Gets a value indicating whether this issue is an enhancement.
+		/// </summary>
+		bool IsEnhancement { get; }
+
+		/// <summary>
+		/// Gets the url for the issue
+		/// </summary>
+		string IssueUrl { get; }
 	}
 }

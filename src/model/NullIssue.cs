@@ -27,5 +27,9 @@
 		public string Status { get; }
 
 		public string Importance { get; }
+
+		public bool IsEnhancement => false;
+
+		public string IssueUrl => string.Empty;
 	}
 }

@@ -5,7 +5,7 @@ using System.IO;
 using clio.Model;
 using Optional;
 using Optional.Unsafe;
-using clio.Providers;
+using System.Threading.Tasks;
 
 namespace clio
 {
@@ -23,13 +23,12 @@ namespace clio
 			Options = options;
 		}
 
-		// TODO: make this async and block on call site
-		public void Run (ActionType action)
+		public async Task Run (ActionType action)
 		{
-			// This can mutage Range so must be done first.
+			// This can mutate Range so must be done first.
 			var commitsToIgnore = ProcessOldestBranch ();
 
-			Process (Path, Options, Range, action, commitsToIgnore);
+			await ProcessAsync (Path, Options, Range, action, commitsToIgnore).ConfigureAwait (false);
 
 			if (Options.Submodules)
 			{
@@ -60,7 +59,7 @@ namespace clio
 					SearchRange submoduleRange = new SearchRange () { Oldest = initialHash.Some (), Newest = finalHash.Some () };
 
 					Explain.Indent ();
-					Process (System.IO.Path.Combine (Path, submodule), Options, submoduleRange, action, Enumerable.Empty<ParsedCommit> ());
+					await ProcessAsync (System.IO.Path.Combine (Path, submodule), Options, submoduleRange, action, Enumerable.Empty<ParsedCommit> ()).ConfigureAwait (false);
 					Explain.Deindent ();
 				}
 
@@ -89,7 +88,7 @@ namespace clio
 			return Enumerable.Empty<ParsedCommit> ();
 		}
 
-		static void Process (string path, SearchOptions options, SearchRange range, ActionType action, IEnumerable<ParsedCommit> commitsToIgnore)
+		static async Task ProcessAsync (string path, SearchOptions options, SearchRange range, ActionType action, IEnumerable<ParsedCommit> commitsToIgnore)
 		{
 			IEnumerable<CommitInfo> commits = CommitFinder.Parse (path, range);
 
@@ -98,92 +97,24 @@ namespace clio
 			switch (action)
 			{
 				case ActionType.ListConsideredCommits:
-					PrintCommits (commits);
+					ConsolePrinter.PrintCommits (commits);
 					return;
 				case ActionType.ListBugs:
-					var parsedCommits = CommitParser.ParseAndValidateAsync (commits, options).Result;
+					var parsedCommits = await CommitParser.ParseAndValidateAsync (commits, options).ConfigureAwait (false);
 					var bugCollection = BugCollector.ClassifyCommits (parsedCommits, options, commitsToIgnore);
-					PrintBugs (bugCollection, options);
+
+					ConsolePrinter.PrintBugs (bugCollection, options);
 
 					if (options.ValidateBugStatus)
 						BugValidator.Validate (bugCollection, options);
 
 					return;
+				case ActionType.ExportBugs:
+					// TODO: export
+					return;
 				default:
 					throw new InvalidOperationException ($"Internal Error - Unknown action requested {action}");
 			}
-		}
-
-		static void PrintBugs (BugCollection bugCollection, SearchOptions options)
-		{
-			// TODO: this is bugzilla specific
-			if (options.SplitEnhancementBugs)
-			{
-				var bugs = bugCollection.Bugs.Where (x => x.IssueInfo.Importance != "enhancement");
-				PrintBugList ("Bugs:", false, bugs, options);
-
-				var potentialBugs = bugCollection.PotentialBugs.Where (x => x.IssueInfo.Importance != "enhancement");
-				PrintBugList ("Potential Bugs:", true, potentialBugs, options);
-
-				var enhancements = bugCollection.Bugs.Where (x => x.IssueInfo.Importance == "enhancement");
-				PrintBugList ("Enhancements:", false, enhancements, options);
-
-				var potentialEnhancements = bugCollection.PotentialBugs.Where (x => x.IssueInfo.Importance == "enhancement");
-				PrintBugList ("Potential Enhancements:", true, potentialEnhancements, options);
-			}
-			else
-			{
-				PrintBugList ("Bugs:", false, bugCollection.Bugs, options);
-				PrintBugList ("Potential Bugs:", true, bugCollection.PotentialBugs, options);
-			}
-		}
-
-		static void PrintBugList (string title, bool potential, IEnumerable<BugEntry> list, SearchOptions options)
-		{
-			if (list.Count () > 0)
-			{
-				Console.WriteLine (title);
-				foreach (var bug in list)
-					PrintBug (bug, potential, options);
-			}
-		}
-
-		public static string FormatBug (BugEntry bug)
-		{
-			// If bugzilla validation is disabled, all bugs are uncertain
-			if (string.IsNullOrEmpty (bug.Title))
-				return FormatUncertainBug (bug);
-
-			return $"* [{bug.Id}](https://bugzilla.xamarin.com/show_bug.cgi?id={bug.Id}) -  {bug.Title}" + (String.IsNullOrEmpty (bug.SecondaryTitle) ? "" : $" / {bug.SecondaryTitle}");
-		}
-
-		public static string FormatUncertainBug (BugEntry bug)
-		{
-			return $"* [{bug.Id}](https://bugzilla.xamarin.com/show_bug.cgi?id={bug.Id}) -  {bug.SecondaryTitle}";
-		}
-
-		static void PrintBug (BugEntry bug, bool potential, SearchOptions options)
-		{
-			if (!potential)
-				Console.WriteLine (FormatBug (bug));
-			else
-				Console.WriteLine (FormatUncertainBug (bug));
-
-			if (options.AdditionalBugInfo)
-			{
-				var checker = new BugzillaIssueValidator (options);
-				string additionalInfo = checker.GetIssueAsync ((int)bug.Id).Result.MoreInfo;
-				if (additionalInfo != null)
-					Console.WriteLine ($"\t{additionalInfo}");
-			}
-		}
-
-		static void PrintCommits (IEnumerable<CommitInfo> commits)
-		{
-			foreach (var commit in commits)
-				Console.WriteLine ($"{commit.Hash} {commit.Title}");
-
-			Explain.Print ($"Only listing of commits was requested. Exiting.");
 		}
 	}
 }

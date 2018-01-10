@@ -13,6 +13,8 @@ namespace clio.Providers
 			this.TargetMilestone = bug.Milestone;
 			this.Status = bug.Status;
 			this.Importance = bug.Severity;
+			this.IsEnhancement = bug.Severity == "enhancement";
+			this.IssueUrl = $"https://bugzilla.xamarin.com/show_bug.cgi?id={this.Id}";
 		}
 
 		public IssueSource IssueSource => IssueSource.Bugzilla;
@@ -28,5 +30,9 @@ namespace clio.Providers
 		public string Status { get; }
 
 		public string Importance { get; }
+
+		public bool IsEnhancement { get; }
+
+		public string IssueUrl { get; }
 	}
 }

@@ -71,6 +71,8 @@
     <Compile Include="Model\IIssueValidator.cs" />
     <Compile Include="Providers\BaseIssueValidator.cs" />
     <Compile Include="Model\BugCollection.cs" />
+    <Compile Include="ActionType.cs" />
+    <Compile Include="ConsolePrinter.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
