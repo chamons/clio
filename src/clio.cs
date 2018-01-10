@@ -124,12 +124,8 @@ namespace clio
 		static async Task ExportAsync(IEnumerable<CommitInfo> commits, SearchOptions options, IEnumerable<ParsedCommit> commitsToIgnore, string outputFile)
 		{
 			var parsedCommits = await CommitParser.ParseAndValidateAsync (commits, options).ConfigureAwait (false);
-			var bugCollection = BugCollector.ClassifyCommits (parsedCommits, options, commitsToIgnore);
 
-			if (options.ValidateBugStatus)
-				BugValidator.Validate (bugCollection, options);
-
-			XmlPrinter.ExportBugs (bugCollection, options, outputFile);
+			XmlPrinter.ExportBugs (parsedCommits, options, outputFile);
 		}
 	}
 }

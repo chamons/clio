@@ -15,7 +15,8 @@ namespace clio.Providers
 
 		public override async Task<IIssue> GetIssueAsync (int issueId)
 		{
-			return null;
+			// TODO: GetIssueAsync
+			return new VstsIssue (issueId);
 		}
 	}
 }

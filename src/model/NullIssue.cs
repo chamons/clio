@@ -30,5 +30,7 @@
 		public bool IsEnhancement => false;
 
 		public string IssueUrl => string.Empty;
+
+		public bool IsClosed => false;
 	}
 }

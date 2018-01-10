@@ -76,6 +76,7 @@
     <Compile Include="ActionType.cs" />
     <Compile Include="ConsolePrinter.cs" />
     <Compile Include="XmlPrinter.cs" />
+    <Compile Include="Providers\VstsIssue.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

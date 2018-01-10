@@ -15,19 +15,20 @@ namespace clio
 		/// <summary>
 		/// Exports the given bug collection to an xml file
 		/// </summary>
-		public static void ExportBugs (BugCollection bugCollection, SearchOptions options, string outputFile)
+		public static void ExportBugs (IEnumerable<ParsedCommit> parsedCommits, SearchOptions options, string outputFile)
 		{
 			XDocument xml = new XDocument ();
 			var root = new XElement ("Bugs");
 			xml.Add (root);
 
-			foreach (var bug in bugCollection.Bugs) {
+			foreach (var commit in parsedCommits) {
 				var b = new XElement ("Bug");
 				root.Add (b);
 
-				b.Add (new XElement ("IssueSource", bug.IssueInfo.IssueSource));
-				b.Add (new XElement ("Id", bug.Id));
-				b.Add (new XElement ("Title", bug.Title));
+				b.Add (new XElement ("IssueSource", commit.IssueSource));
+				b.Add (new XElement ("Id", commit.IssueId));
+				b.Add (new XElement ("Confidence", commit.Confidence));
+				b.Add (new XElement ("Title", commit.Issue.Title));
 				// TODO: complete this...
 			}
 

@@ -50,5 +50,10 @@ namespace clio.Model
 		/// Gets the url for the issue
 		/// </summary>
 		string IssueUrl { get; }
+
+		/// <summary>
+		/// Gets a value indicating whether this issue is closed.
+		/// </summary>
+		bool IsClosed { get; }
 	}
 }

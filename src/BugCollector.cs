@@ -30,7 +30,7 @@ namespace clio
 				bugsToIgnore[source] = new HashSet<int> (commitsToIgnore.Where (x => x.IssueSource == source).Select (x => x.IssueId));
 				handledBugs[source] = new HashSet<int> ();
 
-				if (source != IssueSource.None && bugsToIgnore[source].Count > 0)
+				if (bugsToIgnore[source].Count > 0)
 					Explain.Print ($"\t{source} {String.Join (" ", bugsToIgnore[source].Select (x => x.ToString ()))}");
 			}
 

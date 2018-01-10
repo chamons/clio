@@ -15,6 +15,16 @@ namespace clio.Providers
 			this.Importance = bug.Severity;
 			this.IsEnhancement = bug.Severity == "enhancement";
 			this.IssueUrl = $"https://bugzilla.xamarin.com/show_bug.cgi?id={this.Id}";
+			switch (bug.Status) {
+				case "CLOSED":
+				case "VERIFIED":
+				case "RESOLVED":
+					this.IsClosed = true;
+					break;
+				default:
+					this.IsClosed = false;
+					break;
+			}
 		}
 
 		public IssueSource IssueSource => IssueSource.Bugzilla;
@@ -34,5 +44,7 @@ namespace clio.Providers
 		public bool IsEnhancement { get; }
 
 		public string IssueUrl { get; }
+
+		public bool IsClosed { get; }
 	}
 }
