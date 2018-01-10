@@ -2,11 +2,10 @@
 {
 	public sealed class NullIssue : IIssue
 	{
-		public static readonly NullIssue Instance = new NullIssue ();
-
-		private NullIssue ()
+		public NullIssue (IssueSource issueSource, int id)
 		{
-			this.Id = 0;
+			this.IssueSource = issueSource;
+			this.Id = id;
 			this.Title = string.Empty;
 			this.MoreInfo = string.Empty;
 			this.TargetMilestone = string.Empty;
@@ -14,7 +13,7 @@
 			this.Importance = string.Empty;
 		}
 
-		public IssueSource IssueSource => IssueSource.None;
+		public IssueSource IssueSource { get; }
 
 		public int Id { get; }
 

@@ -65,12 +65,12 @@ namespace clio
 			if (string.IsNullOrEmpty (bug.Title))
 				return FormatUncertainBug (bug);
 
-			return $"* [{bug.Id}]({bug.IssueInfo.IssueUrl}) -  {bug.Title}" + (String.IsNullOrEmpty (bug.SecondaryTitle) ? "" : $" / {bug.SecondaryTitle}");
+			return $"* {bug.IssueInfo.IssueSource} [{bug.Id}]({bug.IssueInfo.IssueUrl}) -  {bug.Title}" + (String.IsNullOrEmpty (bug.SecondaryTitle) ? "" : $" / {bug.SecondaryTitle}");
 		}
 
 		static string FormatUncertainBug (BugEntry bug)
 		{
-			return $"* [{bug.Id}]({bug.IssueInfo.IssueUrl}) -  {bug.SecondaryTitle}";
+			return $"* {bug.IssueInfo.IssueSource} [{bug.Id}]({bug.IssueInfo.IssueUrl}) -  {bug.SecondaryTitle}";
 		}
 
 		static void PrintBug (BugEntry bug, bool potential, SearchOptions options)

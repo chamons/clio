@@ -7,7 +7,6 @@ using Optional.Unsafe;
 
 namespace clio
 {
-
 	class EntryPoint
 	{
 		public static void Main (string[] args)
@@ -16,12 +15,15 @@ namespace clio
 			SearchOptions options = new SearchOptions ();
 			SearchRange range = new SearchRange ();
 			ActionType requestedAction = ActionType.ListBugs;
+			string outputFile = null;
 
 			OptionSet os = new OptionSet ()
 			{
 				{ "h|?|help", "Displays the help", v => requestedAction = ActionType.Help },
 				{ "l|list-commits", "List commits that would be considered", v => requestedAction = ActionType.ListConsideredCommits },
 				{ "b|list-bugs", "List bugs discovered instead of formatting release notes", v => requestedAction = ActionType.ListBugs },
+				{ "x|export-bugs", "Export bugs discovered instead of formatting release notes", v => requestedAction = ActionType.ExportBugs },
+				{ "output-file=", "Output file for export-bugs", v => outputFile = v },
 				{ "commit=", "Single commit to consider", s => {
 						range.Newest = range.Oldest = s.Some ();
 						range.IncludeOldest = true;
@@ -98,7 +100,7 @@ namespace clio
 			}
 
 			var request = new clio (path, range, options);
-			request.Run (requestedAction).Wait ();
+			request.Run (requestedAction, outputFile).Wait ();
 		}
 
 		public static void Die (string v)

@@ -43,7 +43,7 @@ namespace clio.Model
 			Link = link;
 			IssueId = id;
 			Confidence = confidence;
-			Issue = NullIssue.Instance;
+			Issue = new NullIssue ( issueSource, id);
 		}
 
 		public ParsedCommit (ParsedCommit commit, IIssue issue, ParsingConfidence confidence)
@@ -53,7 +53,7 @@ namespace clio.Model
 			Link = commit.Link;
 			IssueId = commit.IssueId;
 			Confidence = confidence;
-			Issue = issue ?? NullIssue.Instance;
+			Issue = issue ?? new NullIssue (commit.IssueSource, commit.IssueId);
 		}
 
 		public ParsedCommit (ParsedCommit commit, ParsingConfidence confidence)
@@ -63,7 +63,7 @@ namespace clio.Model
 			Link = commit.Link;
 			IssueId = commit.IssueId;
 			Confidence = confidence;
-			Issue = commit.Issue ?? NullIssue.Instance;
+			Issue = commit.Issue ?? new NullIssue (commit.IssueSource, commit.IssueId);
 		}
 	}
 }
