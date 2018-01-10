@@ -24,9 +24,10 @@ namespace clio
 			var bugsToIgnore = new Dictionary<IssueSource, HashSet<int>> ();
 			var handledBugs = new Dictionary<IssueSource, HashSet<int>> ();
 
-			foreach (var source in Enum.GetValues (typeof (IssueSource)).OfType<IssueSource>()) {
-				bugsToIgnore [source] = new HashSet<int> (commitsToIgnore.Where(x => x.IssueSource == source).Select (x => x.IssueId));
-				handledBugs [source] = new HashSet<int> ();
+			foreach (var source in Enum.GetValues (typeof (IssueSource)).OfType<IssueSource> ())
+			{
+				bugsToIgnore[source] = new HashSet<int> (commitsToIgnore.Where (x => x.IssueSource == source).Select (x => x.IssueId));
+				handledBugs[source] = new HashSet<int> ();
 			}
 
 			Explain.Print ($"\nClassifying {commits.Count ()} commits ignoring {commitsToIgnore.Count ()} commit.");
@@ -39,15 +40,17 @@ namespace clio
 			// if we see a bug a second time, only update the instance in the list
 			// if the confidence is higher than what we have already
 
-			foreach (var parsedCommit in commits.Where (x => !bugsToIgnore [x.IssueSource].Contains (x.IssueId)))
+			foreach (var parsedCommit in commits.Where (x => !bugsToIgnore[x.IssueSource].Contains (x.IssueId)))
 			{
 				// have we handled this bug, for this issue source, before?
-				if (handledBugs [parsedCommit.IssueSource].Contains (parsedCommit.IssueId))
+				if (handledBugs[parsedCommit.IssueSource].Contains (parsedCommit.IssueId))
 				{
 					// if so, then update if we have a higher confidence
-					if (parsedCommit.Confidence == ParsingConfidence.High || parsedCommit.Confidence == ParsingConfidence.Likely) {
+					if (parsedCommit.Confidence == ParsingConfidence.High || parsedCommit.Confidence == ParsingConfidence.Likely)
+					{
 						// we should update by removing it from PotentialBugs and adding to Bugs
-						if (collection.PotentialBugs.Any (x => x.IssueInfo.IssueSource == parsedCommit.IssueSource && x.Id == parsedCommit.IssueId)) {
+						if (collection.PotentialBugs.Any (x => x.IssueInfo.IssueSource == parsedCommit.IssueSource && x.Id == parsedCommit.IssueId))
+						{
 							collection.PotentialBugs.RemoveAll (x => x.IssueInfo.IssueSource == parsedCommit.IssueSource && x.Id == parsedCommit.IssueId);
 							collection.Bugs.Add (new BugEntry (parsedCommit));
 						}
@@ -58,18 +61,21 @@ namespace clio
 					// we have not seen this issue before, lets add it to the collection
 
 					// Low goes into PotentialBugs, otherwise (High and Likely) go into Bugs
-					if (parsedCommit.Confidence == ParsingConfidence.Low) {
+					if (parsedCommit.Confidence == ParsingConfidence.Low)
+					{
 						collection.PotentialBugs.Add (new BugEntry (parsedCommit));
-					} else {
+					}
+					else
+					{
 						collection.Bugs.Add (new BugEntry (parsedCommit));
 					}
 
-					handledBugs [parsedCommit.IssueSource].Add (parsedCommit.IssueId);
+					handledBugs[parsedCommit.IssueSource].Add (parsedCommit.IssueId);
 				}
 			}
 
-			return new BugCollection (collection.Bugs.OrderBy (x => x.IssueInfo.IssueSource).OrderBy (x => x.Id), 
-			                          collection.PotentialBugs.OrderBy (x => x.IssueInfo.IssueSource).OrderBy (x => x.Id));
+			return new BugCollection (collection.Bugs.OrderBy (x => x.IssueInfo.IssueSource).OrderBy (x => x.Id),
+									  collection.PotentialBugs.OrderBy (x => x.IssueInfo.IssueSource).OrderBy (x => x.Id));
 		}
 	}
 }

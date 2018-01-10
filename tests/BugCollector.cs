@@ -32,11 +32,11 @@ namespace clio.Tests
 			var options = new SearchOptions () { Bugzilla = BugzillaLevel.Private };
 			var range = new SearchRange { Oldest = "98fff31".Some (), Newest = "6c280ad".Some () };
 			var commits = CommitFinder.Parse (TestDataLocator.GetPath (), range);
-            var parsedCommits = await CommitParser.ParseAndValidateAsync (commits, options);
+			var parsedCommits = await CommitParser.ParseAndValidateAsync (commits, options);
 
 			var bugCollection = BugCollector.ClassifyCommits (parsedCommits, options);
 			Assert.AreEqual (2, bugCollection.Bugs.Count);
 			Assert.AreEqual (3, bugCollection.PotentialBugs.Count);
-		}	
+		}
 	}
 }

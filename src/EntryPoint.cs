@@ -67,7 +67,7 @@ namespace clio
 								options.Vsts = false;
 								break;
 							default:
-                                Die ($"Unknown value for --vsts {v}");
+								Die ($"Unknown value for --vsts {v}");
 							break;
 						}
 					}},
@@ -104,7 +104,7 @@ namespace clio
 			}
 
 			var request = new clio (path, range, options);
-			request.Run (requestedAction);	
+			request.Run (requestedAction);
 		}
 
 		public static void Die (string v)

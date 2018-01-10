@@ -5,7 +5,7 @@ namespace clio.Model
 	/// <summary>
 	/// A collection of bugs, grouped by confidence
 	/// </summary>
-	public class BugCollection 
+	public class BugCollection
 	{
 		public BugCollection ()
 		{

@@ -112,7 +112,7 @@ namespace clio
 					return false;
 				}
 
-				if (oldest == newest) 
+				if (oldest == newest)
 				{
 					var commit = repo.Lookup<Commit> (oldest);
 					if (commit == null)
@@ -120,8 +120,8 @@ namespace clio
 						Console.Error.WriteLine ($"Unable to find any commit in range {oldest} to {newest}. Is the order reversed?");
 						return false;
 					}
-				} 
-				else 
+				}
+				else
 				{
 					var filter = new CommitFilter
 					{
@@ -147,7 +147,7 @@ namespace clio
 			// This assumes submodules did not drastically change over a single release
 			using (var repo = new Repository (path))
 			{
-				var commit = repo.Lookup <Commit> (hash);
+				var commit = repo.Lookup<Commit> (hash);
 
 				foreach (var submodule in repo.Submodules.Select (x => x.Path))
 				{

@@ -23,7 +23,7 @@ namespace clio
 			Options = options;
 		}
 
-        // TODO: make this async and block on call site
+		// TODO: make this async and block on call site
 		public void Run (ActionType action)
 		{
 			// This can mutage Range so must be done first.
@@ -78,7 +78,7 @@ namespace clio
 
 				var commitInfo = CommitFinder.FindCommitsOnBranchToIgnore (Path, branchName, Options);
 
-                IEnumerable<ParsedCommit> commitsToIgnore = CommitParser.ParseAndValidateAsync (commitInfo.Item1, Options).Result;
+				IEnumerable<ParsedCommit> commitsToIgnore = CommitParser.ParseAndValidateAsync (commitInfo.Item1, Options).Result;
 
 				Explain.Print ($"Found {commitsToIgnore.Count ()} bugs on {branchName} after branch to ignore.");
 
@@ -101,7 +101,7 @@ namespace clio
 					PrintCommits (commits);
 					return;
 				case ActionType.ListBugs:
-                    var parsedCommits = CommitParser.ParseAndValidateAsync (commits, options).Result;
+					var parsedCommits = CommitParser.ParseAndValidateAsync (commits, options).Result;
 					var bugCollection = BugCollector.ClassifyCommits (parsedCommits, options, commitsToIgnore);
 					PrintBugs (bugCollection, options);
 
@@ -116,7 +116,7 @@ namespace clio
 
 		static void PrintBugs (BugCollection bugCollection, SearchOptions options)
 		{
-            // TODO: this is bugzilla specific
+			// TODO: this is bugzilla specific
 			if (options.SplitEnhancementBugs)
 			{
 				var bugs = bugCollection.Bugs.Where (x => x.IssueInfo.Importance != "enhancement");
@@ -138,7 +138,7 @@ namespace clio
 			}
 		}
 
-		static void PrintBugList (string title, bool potential, IEnumerable<BugEntry> list, SearchOptions options) 
+		static void PrintBugList (string title, bool potential, IEnumerable<BugEntry> list, SearchOptions options)
 		{
 			if (list.Count () > 0)
 			{
@@ -172,7 +172,7 @@ namespace clio
 			if (options.AdditionalBugInfo)
 			{
 				var checker = new BugzillaIssueValidator (options);
-                string additionalInfo = checker.GetIssueAsync ((int)bug.Id).Result.MoreInfo;
+				string additionalInfo = checker.GetIssueAsync ((int)bug.Id).Result.MoreInfo;
 				if (additionalInfo != null)
 					Console.WriteLine ($"\t{additionalInfo}");
 			}
