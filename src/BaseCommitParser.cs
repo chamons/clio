@@ -104,32 +104,6 @@ namespace clio
 
         static string StripNewLine(string line) => Regex.Replace(line, @"\r\n?|\n", "");
 
-        //protected abstract BugzillaChecker GetBugChecker(SearchOptions options);
-
-        //protected string GetTitle(int id, SearchOptions options)
-        //{
-        //    var checker = GetBugChecker(options);
-        //    return checker.LookupTitle(id).Result;
-        //}
-
-        //protected string GetStatus(int id, SearchOptions options)
-        //{
-        //    var checker = GetBugChecker(options);
-        //    return checker.LookupStatus(id).Result;
-        //}
-
-        //protected string GetMilestone(int id, SearchOptions options)
-        //{
-        //    var checker = GetBugChecker(options);
-        //    return checker.LookupTargetMilestone(id).Result;
-        //}
-
-        //protected string GetImportance(int id, SearchOptions options)
-        //{
-        //    var checker = GetBugChecker(options);
-        //    return checker.LookupImportance(id).Result;
-        //}
-
         ParseResults ParseLine(string line)
         {
             try
