@@ -27,7 +27,8 @@ namespace clio
 				bugElement.Add (new XElement ("Id", commit.IssueId));
 				bugElement.Add (new XElement ("Confidence", commit.Confidence));
 				bugElement.Add (new XElement ("Title", commit.Issue.Title));
-				bugElement.Add (new XElement ("Link", commit.Link));
+				bugElement.Add (new XElement ("IssueReference", commit.Link));
+				bugElement.Add (new XElement ("IssueUrl", commit.Issue.IssueUrl));
 
 				// add the commit info
 				var commitElement = new XElement ("Commit");

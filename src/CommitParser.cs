@@ -50,20 +50,19 @@ namespace clio
 
 		static IEnumerable<ICommitParser> GetCommitParsers (SearchOptions options)
 		{
-			// TODO: use options to determine which commit parsers to use
-			yield return VstsCommitParser.Instance;
-			yield return BugzillaCommitParser.Instance;
+			if (!options.IgnoreVsts)
+				yield return VstsCommitParser.Instance;
+			if (!options.IgnoreBugzilla)
+				yield return BugzillaCommitParser.Instance;
 		}
 
 		static IEnumerable<IIssueValidator> GetValidators (SearchOptions options)
 		{
-			// TODO: use options to determine whether to validate issues found or not
-			// for example, we can skip validation altogether and still have high confidence
-			// for bugs that match the full url for example
+			if (options.Vsts != VstsLevel.Disable)
+				yield return new VstsIssueValidator (options);
 
-			//yield return VstsCommitParser.Instance;
-
-			yield return new BugzillaIssueValidator (options);
+			if (options.Bugzilla != BugzillaLevel.Disable)
+				yield return new BugzillaIssueValidator (options);
 		}
 	}
 }

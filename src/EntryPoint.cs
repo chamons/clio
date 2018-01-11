@@ -33,7 +33,7 @@ namespace clio
 				{ "oldest-branch=", "Starting branch to consider. Finds the last commit in master before branch, and ignore all bugs fixed in master that are also fixed in this branch.", s => range.OldestBranch = s.Some () },
 				{ "exclude-oldest", "Exclude oldest item from range considered (included by default)", v => range.IncludeOldest = false },
 				{ "explain", "Explain why each commit is considered a bug", v => Explain.Enabled = true },
-				{ "bugzilla=", "What level should bugzilla queries be made at      (Public, Private, Disable)", v =>
+				{ "bugzilla=", "Determines how Bugzilla issues should be validated (public, private, disable). The default is `public`", v =>
 					{
 						switch (v.ToLower (CultureInfo.InvariantCulture))
 						{
@@ -51,22 +51,24 @@ namespace clio
 							break;
 						}
 					}},
-				{ "vsts=", "Search for VSTS work items", v =>
+				{ "vsts=", "Determines if VSTS issues should be validated or not (enable, disable). The default is `disable`", v =>
 					{
 						switch (v.ToLower (CultureInfo.InvariantCulture))
 						{
-                            // TODO: make this a PAT instead
-							case "true":
-								options.Vsts = true;
+							case "enable":
+								options.Vsts = VstsLevel.Enable;
 								break;
-							case "false":
-								options.Vsts = false;
+							case "disable":
+								options.Vsts = VstsLevel.Disable;
 								break;
 							default:
 								Die ($"Unknown value for --vsts {v}");
 							break;
 						}
 					}},
+				{ "vsts-pat=", "Sets the PAT required to access VSTS issues", v => options.VstsPAT = v},
+				{ "ignore-bugzilla", "Ignores Bugilla issues and does not attempt to parse commits for Bugzilla issues", v => options.IgnoreBugzilla = true},
+				{ "ignore-vsts", "Ignores VSTS issues and does not attempt to parse commits for VSTS issues", v => options.IgnoreVsts = true},
 				{ "additional-bug-info", "Print additional information on each bug for list-bugs", v => options.AdditionalBugInfo = true},
 				{ "split-enhancement=", "Split out enhancement bugs from others in listing (defaults to true)", (bool v) => options.SplitEnhancementBugs = v},
 				{ "validate-bug-status", "Validate bugzilla status for referenced bugs and report discrepancies (Not closed, not matching milestone)", v => options.ValidateBugStatus = true},
