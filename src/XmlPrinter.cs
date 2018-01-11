@@ -1,9 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Xml.Linq;
 using clio.Model;
-using clio.Providers;
 
 namespace clio
 {
@@ -22,80 +20,24 @@ namespace clio
 			xml.Add (root);
 
 			foreach (var commit in parsedCommits) {
-				var b = new XElement ("Bug");
-				root.Add (b);
+				var bugElement = new XElement ("Bug");
+				root.Add (bugElement);
 
-				b.Add (new XElement ("IssueSource", commit.IssueSource));
-				b.Add (new XElement ("Id", commit.IssueId));
-				b.Add (new XElement ("Confidence", commit.Confidence));
-				b.Add (new XElement ("Title", commit.Issue.Title));
-				// TODO: complete this...
+				bugElement.Add (new XElement ("IssueSource", commit.IssueSource));
+				bugElement.Add (new XElement ("Id", commit.IssueId));
+				bugElement.Add (new XElement ("Confidence", commit.Confidence));
+				bugElement.Add (new XElement ("Title", commit.Issue.Title));
+				bugElement.Add (new XElement ("Link", commit.Link));
+
+				// add the commit info
+				var commitElement = new XElement ("Commit");
+				bugElement.Add (commitElement);
+				commitElement.Add (new XElement ("Hash", commit.Commit.Hash));
+				commitElement.Add (new XElement ("Title", commit.Commit.Title));
+				commitElement.Add (new XElement ("Description", commit.Commit.Description));
 			}
 
 			xml.Save (outputFile);
-
-
-
-
-			//if (options.SplitEnhancementBugs)
-			//{
-			//	var bugs = bugCollection.Bugs.Where (x => !x.IssueInfo.IsEnhancement);
-			//	PrintBugList ("Bugs:", false, bugs, options);
-
-			//	var potentialBugs = bugCollection.PotentialBugs.Where (x => !x.IssueInfo.IsEnhancement);
-			//	PrintBugList ("Potential Bugs:", true, potentialBugs, options);
-
-			//	var enhancements = bugCollection.Bugs.Where (x => x.IssueInfo.IsEnhancement);
-			//	PrintBugList ("Enhancements:", false, enhancements, options);
-
-			//	var potentialEnhancements = bugCollection.PotentialBugs.Where (x => x.IssueInfo.IsEnhancement);
-			//	PrintBugList ("Potential Enhancements:", true, potentialEnhancements, options);
-			//}
-			//else
-			//{
-			//	PrintBugList ("Bugs:", false, bugCollection.Bugs, options);
-			//	PrintBugList ("Potential Bugs:", true, bugCollection.PotentialBugs, options);
-			//}
-		}
-
-		static void PrintBugList (string title, bool potential, IEnumerable<BugEntry> list, SearchOptions options)
-		{
-			if (list.Count () > 0)
-			{
-				Console.WriteLine (title);
-				foreach (var bug in list)
-					PrintBug (bug, potential, options);
-			}
-		}
-
-		static string FormatBug (BugEntry bug)
-		{
-			// If bugzilla validation is disabled, all bugs are uncertain
-			if (string.IsNullOrEmpty (bug.Title))
-				return FormatUncertainBug (bug);
-
-			return $"* [{bug.Id}]({bug.IssueInfo.IssueUrl}) -  {bug.Title}" + (String.IsNullOrEmpty (bug.SecondaryTitle) ? "" : $" / {bug.SecondaryTitle}");
-		}
-
-		static string FormatUncertainBug (BugEntry bug)
-		{
-			return $"* [{bug.Id}]({bug.IssueInfo.IssueUrl}) -  {bug.SecondaryTitle}";
-		}
-
-		static void PrintBug (BugEntry bug, bool potential, SearchOptions options)
-		{
-			if (!potential)
-				Console.WriteLine (FormatBug (bug));
-			else
-				Console.WriteLine (FormatUncertainBug (bug));
-
-			if (options.AdditionalBugInfo)
-			{
-				var checker = new BugzillaIssueValidator (options);
-				string additionalInfo = checker.GetIssueAsync ((int)bug.Id).Result.MoreInfo;
-				if (additionalInfo != null)
-					Console.WriteLine ($"\t{additionalInfo}");
-			}
 		}
 	}
 }
