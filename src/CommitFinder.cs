@@ -75,6 +75,15 @@ namespace clio
 			}
 		}
 
+		public static Option<string> FindFirstParent (string path, string commit)
+		{
+			using (var repo = new Repository (path))
+			{
+				var aCommit = repo.Lookup<Commit> (commit);
+				return aCommit.Parents.FirstOrDefault ().Sha.Some ();
+			}
+		}
+
 		public static ValueTuple<IEnumerable<CommitInfo>, string> FindCommitsOnBranchToIgnore (string path, string branchName, SearchOptions options)
 		{
 			var merge = FindMergeBase (path, branchName);

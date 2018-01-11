@@ -33,9 +33,20 @@ namespace clio
 			if (Options.Submodules)
 			{
 				string oldest = Range.Oldest.ValueOr ("");
+				string newest = Range.Newest.ValueOr ("HEAD");
+
+				// look one commit back for single commit ranges when examining submodules
+				if (oldest == newest)
+				{
+					var oldestParent = CommitFinder.FindFirstParent (Path, oldest);
+					if (oldestParent.HasValue)
+					{
+						oldest = oldestParent.ValueOr(string.Empty);
+					}
+				}
+
 				var initialSubmoduleStatus = CommitFinder.FindSubmodulesStatus (Path, oldest);
 
-				string newest = Range.Newest.ValueOr ("HEAD");
 				var finalSubmoduleStatus = CommitFinder.FindSubmodulesStatus (Path, newest);
 
 				Explain.Print ($"Processing {initialSubmoduleStatus.Count} submodules for change as well");
