@@ -34,6 +34,42 @@ namespace clio.Tests
 		}
 
 		[Test]
+		public void ParseFixesVsts ()
+		{
+			var commitInfo = new CommitInfo ("hash", "title", "title \nfixes VSTS 549249");
+
+			var results = VstsCommitParser.Instance.ParseSingle (commitInfo).ToList ();
+
+			Assert.AreEqual (1, results.Count, "did not find any vsts work items");
+			Assert.AreEqual (549249, results[0].IssueId, "did not parse to correct vsts id");
+			Assert.AreEqual (ParsingConfidence.High, results[0].Confidence, "Did not determine the correct confidence");
+		}
+
+		[Test]
+		public void ParseFixesVstsBug ()
+		{
+			var commitInfo = new CommitInfo ("hash", "title", "title \nfixes VSTS bug 549249");
+
+			var results = VstsCommitParser.Instance.ParseSingle (commitInfo).ToList ();
+
+			Assert.AreEqual (1, results.Count, "did not find any vsts work items");
+			Assert.AreEqual (549249, results[0].IssueId, "did not parse to correct vsts id");
+			Assert.AreEqual (ParsingConfidence.High, results[0].Confidence, "Did not determine the correct confidence");
+		}
+
+		[Test]
+		public void ParseVstsBug ()
+		{
+			var commitInfo = new CommitInfo ("hash", "title", "title \nVSTS bug 549249");
+
+			var results = VstsCommitParser.Instance.ParseSingle (commitInfo).ToList ();
+
+			Assert.AreEqual (1, results.Count, "did not find any vsts work items");
+			Assert.AreEqual (549249, results[0].IssueId, "did not parse to correct vsts id");
+			Assert.AreEqual (ParsingConfidence.High, results[0].Confidence, "Did not determine the correct confidence");
+		}
+
+		[Test]
 		public void ParseFixesWithColon ()
 		{
 			var commitInfo = new CommitInfo ("hash", "title", "title \nfixes: 549249");

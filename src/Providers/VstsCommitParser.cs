@@ -8,8 +8,9 @@ namespace clio.Providers
 	{
 		static Regex FullVsts = new Regex (@"htt.*?:\/\/devdiv\.visualstudio\.com\/DevDiv\/_workitems\/edit\/(\d*)", RegexOptions.Compiled | RegexOptions.IgnoreCase);
 		static Regex Vsts = new Regex (@"vsts[:]*\s*(#)?(\d*)", RegexOptions.Compiled | RegexOptions.IgnoreCase);
+		static Regex VstsBug = new Regex (@"vsts\s*bug[:]*\s*(#)?(\d*)", RegexOptions.Compiled | RegexOptions.IgnoreCase);
 
-		static Regex[] AllRegex = { FullVsts, Vsts };
+		static Regex[] AllRegex = { FullVsts, Vsts, VstsBug };
 
 		public static readonly BaseCommitParser Instance = new VstsCommitParser (AllRegex);
 
