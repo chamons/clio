@@ -42,6 +42,8 @@ namespace clio
 					if (oldestParent.HasValue)
 					{
 						oldest = oldestParent.ValueOr(string.Empty);
+						// TODO: not sure, but it seems to include the commit from the oldest, I think we need to exclude 
+						// that commit  but not sure if this is for all cases or just the single commit case
 					}
 				}
 
