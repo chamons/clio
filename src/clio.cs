@@ -42,8 +42,6 @@ namespace clio
 					if (oldestParent.HasValue)
 					{
 						oldest = oldestParent.ValueOr(string.Empty);
-						// TODO: not sure, but it seems to include the commit from the oldest, I think we need to exclude 
-						// that commit  but not sure if this is for all cases or just the single commit case
 					}
 				}
 
@@ -69,6 +67,8 @@ namespace clio
 
 					Explain.Print ($"Processing {submodule} submodule from {initialHash} to {finalHash}.");
 
+					// TOOD: I think we should set IncludeOldest to false here otherwise we will always report the first commit 
+					// again when we probably don't want that
 					SearchRange submoduleRange = new SearchRange () { Oldest = initialHash.Some (), Newest = finalHash.Some () };
 
 					Explain.Indent ();
