@@ -4,18 +4,19 @@ namespace clio.Providers
 {
 	public sealed class VstsIssue : IIssue
 	{
-		public VstsIssue (int issueId)
+		public VstsIssue (int issueId, VisualStudioBug bug)
 		{
-			// TODO: VstsIssue
 			this.Id = issueId;
-			this.Title = string.Empty;
-			this.MoreInfo = string.Empty;
-			this.TargetMilestone = string.Empty;
-			this.Status = string.Empty;
-			this.Importance = string.Empty;
-			this.IsEnhancement = false;
+			this.Title = bug.Fields ["System.Title"];
+			this.MoreInfo = $"{bug.Fields["System.AreaPath"]} - {bug.Fields["Microsoft.DevDiv.Milestone"]} {bug.Fields["System.State"]}";
+			this.TargetMilestone = bug.Fields["Microsoft.DevDiv.Milestone"];
+			this.Status = bug.Fields["System.State"];
+			this.Importance = bug.Fields["Microsoft.VSTS.Common.Priority"];
+			// TODO: is UserStory the correct or only workitem type we want to call an enhancement?
+			this.IsEnhancement = bug.Fields["System.WorkItemType"] == "UserStory";
 			this.IssueUrl = $"https://devdiv.visualstudio.com/DevDiv/_workitems/edit/{this.Id}";
-			this.IsClosed = false;
+			// TODO: is "closed" the only status to define a bug / work item as closed?
+			this.IsClosed = this.Status == "Closed";
 		}
 
 		public IssueSource IssueSource => IssueSource.Vsts;

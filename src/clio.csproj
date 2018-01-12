@@ -45,6 +45,12 @@
     </Reference>
     <Reference Include="System.Xml" />
     <Reference Include="System.Xml.Linq" />
+    <Reference Include="System.Net.Http" />
+    <Reference Include="System.Net" />
+    <Reference Include="Newtonsoft.Json">
+      <HintPath>..\packages\Newtonsoft.Json.10.0.3\lib\net45\Newtonsoft.Json.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Runtime.Serialization" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="EntryPoint.cs" />
@@ -77,6 +83,8 @@
     <Compile Include="ConsolePrinter.cs" />
     <Compile Include="XmlPrinter.cs" />
     <Compile Include="Providers\VstsIssue.cs" />
+    <Compile Include="Providers\VisualStudioService.cs" />
+    <Compile Include="Providers\HttpService.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

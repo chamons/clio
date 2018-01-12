@@ -31,7 +31,9 @@ namespace clio.Providers
 			var results = new List<ParsedCommit> ();
 			foreach (var commit in commits)
 			{
-				// we will only check issues that match our source
+				// we will only check issues that match our source and drop any that are not for us
+				// if we return issues not for us then we end up creating duplicates when we merge the
+				// result sets
 				if (commit.IssueSource == this.IssueSource)
 				{
 					var issue = await this.GetIssueAsync (commit.IssueId).ConfigureAwait (false);
@@ -45,12 +47,6 @@ namespace clio.Providers
 						// it's a bug, we think, but we can't identify it
 						results.Add (new ParsedCommit (commit, ParsingConfidence.Low));
 					}
-				}
-				else
-				{
-					// do we actually need to do this, can we just skip issues that are not
-					// for us?
-					results.Add (new ParsedCommit (commit, commit.Confidence));
 				}
 			}
 

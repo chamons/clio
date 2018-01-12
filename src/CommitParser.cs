@@ -58,10 +58,10 @@ namespace clio
 
 		static IEnumerable<IIssueValidator> GetValidators (SearchOptions options)
 		{
-			if (options.Vsts != VstsLevel.Disable)
+			if (options.Vsts != VstsLevel.Disable && !options.IgnoreVsts)
 				yield return new VstsIssueValidator (options);
 
-			if (options.Bugzilla != BugzillaLevel.Disable)
+			if (options.Bugzilla != BugzillaLevel.Disable && !options.IgnoreBugzilla)
 				yield return new BugzillaIssueValidator (options);
 		}
 	}
