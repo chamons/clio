@@ -31,6 +31,10 @@ namespace clio.Providers
 
 		string GetLoginPat ()
 		{
+			if (!string.IsNullOrEmpty(this.Options.VstsPAT)) {
+				return this.Options.VstsPAT;
+			}
+
 			string login = Environment.GetEnvironmentVariable ("VSTS_PAT");
 
 			if (login != null) {
