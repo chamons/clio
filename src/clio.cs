@@ -32,12 +32,15 @@ namespace clio
 
 			if (Options.Submodules)
 			{
+				bool excludeOldestInSubmodules = false;
+
 				string oldest = Range.Oldest.ValueOr ("");
 				string newest = Range.Newest.ValueOr ("HEAD");
 
 				// look one commit back for single commit ranges when examining submodules
 				if (oldest == newest)
 				{
+					excludeOldestInSubmodules = true;
 					var oldestParent = CommitFinder.FindFirstParent (Path, oldest);
 					if (oldestParent.HasValue)
 					{
@@ -69,7 +72,11 @@ namespace clio
 
 					// TOOD: I think we should set IncludeOldest to false here otherwise we will always report the first commit 
 					// again when we probably don't want that
-					SearchRange submoduleRange = new SearchRange () { Oldest = initialHash.Some (), Newest = finalHash.Some () };
+					SearchRange submoduleRange = new SearchRange () { 
+						IncludeOldest = !excludeOldestInSubmodules,
+						Oldest = initialHash.Some (), 
+						Newest = finalHash.Some () 
+					};
 
 					Explain.Indent ();
 					await ProcessAsync (System.IO.Path.Combine (Path, submodule), Options, submoduleRange, action, Enumerable.Empty<ParsedCommit> (), outputFile).ConfigureAwait (false);
