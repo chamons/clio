@@ -85,6 +85,7 @@
     <Compile Include="Providers\VstsIssue.cs" />
     <Compile Include="Providers\VisualStudioService.cs" />
     <Compile Include="Providers\HttpService.cs" />
+    <Compile Include="Providers\DefaultIssueValidator.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

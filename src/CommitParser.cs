@@ -58,11 +58,17 @@ namespace clio
 
 		static IEnumerable<IIssueValidator> GetValidators (SearchOptions options)
 		{
-			if (options.Vsts != VstsLevel.Disable && !options.IgnoreVsts)
+			if (options.Vsts != VstsLevel.Disable && !options.IgnoreVsts) {
 				yield return new VstsIssueValidator (options);
+			} else {
+				yield return new DefaultIssueValidator (IssueSource.Vsts, options);
+			}
 
-			if (options.Bugzilla != BugzillaLevel.Disable && !options.IgnoreBugzilla)
+			if (options.Bugzilla != BugzillaLevel.Disable && !options.IgnoreBugzilla) {
 				yield return new BugzillaIssueValidator (options);
+			} else {
+				yield return new DefaultIssueValidator (IssueSource.Bugzilla, options);
+			}
 		}
 	}
 }
