@@ -43,9 +43,9 @@ namespace clio.Providers
 					throw;
 				}
 			}
-			catch
+			catch (Exception ex)
 			{
-				// TODO: log errors somehow
+				Explain.Print ($"VSTS bug validation is enabled but there was an error retrieving the work item: {ex.Message}");
 				return null;
 			}
 		}
