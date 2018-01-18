@@ -1,20 +1,27 @@
 ﻿using System;
+
 namespace clio.Model
 {
-	// Processed result of ParsedCommits
+	// 
+	/// <summary>
+	/// The processed result of a ParsedCommit
+	/// </summary>
 	public struct BugEntry
 	{
-		public int ID { get; private set; }
-		public string Title { get; private set; }
-		public string SecondaryTitle { get; private set; }
-		public ParsedCommit BugInfo { get; private set; }
+		public int Id { get; private set; }
 
-		public BugEntry (int id, string title, string secondaryTitle, ParsedCommit bugInfo)
+		public string Title { get; private set; }
+
+		public string SecondaryTitle { get; private set; }
+
+		public IIssue IssueInfo { get; private set; }
+
+		public BugEntry (ParsedCommit parsedCommit)
 		{
-			ID = id;
-			Title = title.Replace ('`', '`');
-			SecondaryTitle = secondaryTitle.Replace ('`', '`');
-			BugInfo = bugInfo;
+			Id = parsedCommit.IssueId;
+			Title = parsedCommit.Issue.Title?.Replace ('`', '`') ?? string.Empty;
+			SecondaryTitle = parsedCommit.Commit.Title?.Replace ('`', '`') ?? string.Empty;
+			IssueInfo = parsedCommit.Issue;
 		}
 	}
 }

@@ -1,165 +1,74 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using clio.Model;
-using Optional;
-using Optional.Linq;
-using Optional.Unsafe;
-using System;
-using System.Text.RegularExpressions;
+using clio.Providers;
 
 namespace clio
 {
 	public static class CommitParser
 	{
-		static Regex FullBuzilla = new Regex (@"htt.*?://bugzilla\.xamarin\.com[^=]+(=)(\d*)", RegexOptions.Compiled | RegexOptions.IgnoreCase);
-		static Regex Buzilla = new Regex (@"bugzilla\s*(#)?(\d*)", RegexOptions.Compiled | RegexOptions.IgnoreCase);
-		static Regex Bug = new Regex (@"bug\s*(#)?(\d*)", RegexOptions.Compiled | RegexOptions.IgnoreCase);
-		static Regex Fixes = new Regex (@"fix(es)?\s*(#)?(\d*)", RegexOptions.Compiled | RegexOptions.IgnoreCase);
-		static Regex Short = new Regex (@"bxc\s*(#)?(\d*)", RegexOptions.Compiled | RegexOptions.IgnoreCase);
-
-		static Regex[] AllRegex = { FullBuzilla, Buzilla, Bug, Fixes, Short };
-
-		static string GetTitle (int id, SearchOptions options)
+		/// <summary>
+		/// Parses and validates bugs mentioned in commit messages
+		/// </summary>
+		public static Task<IEnumerable<ParsedCommit>> ParseAndValidateAsync (IEnumerable<CommitInfo> commits, SearchOptions options)
 		{
-			var checker = GetBugChecker (options);
-			return checker.LookupTitle (id).Result;
+			// enumerate these now
+			var allCommits = commits.ToList ();
+
+			// grab all the issues that we can find (these will all be >= Low confidence
+			var parsedCommits = GetCommitParsers (options)
+				.SelectMany (parser => allCommits.SelectMany (commit => parser.ParseSingle (commit)))
+				.ToList ();
+
+			return parsedCommits
+				.ValidateAsync (options);
 		}
 
-		static string GetStatus (int id, SearchOptions options)
+		/// <summary>
+		/// Validates the commits and returns a new enumerable containing updated confidences for each commit.
+		/// </summary>
+		public static async Task<IEnumerable<ParsedCommit>> ValidateAsync (this IEnumerable<ParsedCommit> commits, SearchOptions options)
 		{
-			var checker = GetBugChecker (options);
-			return checker.LookupStatus (id).Result;
-		}
+			var tasks = new List<Task<IEnumerable<ParsedCommit>>> ();
 
-		static string GetMilestone (int id, SearchOptions options)
-		{
-			var checker = GetBugChecker (options);
-			return checker.LookupTargetMilestone (id).Result;
-		}
+			// enumerate these now
+			var allCommits = commits.ToList ();
 
-		static string GetImportance (int id, SearchOptions options)
-		{
-			var checker = GetBugChecker (options);
-			return checker.LookupImportance (id).Result;
-		}
-
-		static BugzillaChecker _bugChecker;
-		static BugzillaChecker GetBugChecker (SearchOptions options)
-		{
-			if (_bugChecker == null)
+			// fire off validation tasks for each of the validators for each of the commits
+			foreach (var validator in GetValidators (options))
 			{
-				_bugChecker = new BugzillaChecker (options);
-				_bugChecker.Setup ().Wait ();
+				tasks.Add (validator.ValidateIssuesAsync (allCommits));
 			}
-			return _bugChecker;
+
+			// await everything
+			await Task.WhenAll (tasks).ConfigureAwait (false);
+
+			// unfold into a single list
+			return tasks.SelectMany (t => t.Result).ToList ();
 		}
 
-		struct ParseResults
+		static IEnumerable<ICommitParser> GetCommitParsers (SearchOptions options)
 		{
-			public ParsingConfidence Confidence;
-			public string Link;
-			public int ID;
-			public string BugzillaSummary;
-			public string TargetMilestone;
-			public string Status;
-			public string Importance;
+			if (!options.IgnoreVsts)
+				yield return VstsCommitParser.Instance;
+			if (!options.IgnoreBugzilla)
+				yield return BugzillaCommitParser.Instance;
+		}
 
-			public ParseResults (ParsingConfidence confidence, string link, int id)
-			{
-				Confidence = confidence;
-				Link = link;
-				ID = id;
-				BugzillaSummary = "";
-				TargetMilestone = "";
-				Status = "";
-				Importance = "";
+		static IEnumerable<IIssueValidator> GetValidators (SearchOptions options)
+		{
+			if (options.Vsts != VstsLevel.Disable && !options.IgnoreVsts) {
+				yield return new VstsIssueValidator (options);
+			} else {
+				yield return new DefaultIssueValidator (IssueSource.Vsts, options);
 			}
-		}
 
-		static string StripNewLine (string line) => Regex.Replace (line, @"\r\n?|\n", "");
-
-		static ParseResults ParseLine (string line, SearchOptions options)
-		{
-			try
-			{
-				Explain.Indent ();
-				foreach (Regex regex in AllRegex)
-				{
-					var match = regex.Match (line);
-					if (match.Success)
-					{
-						int id;
-						if (int.TryParse (match.Groups[match.Groups.Count - 1].Value, out id))
-						{
-							Explain.Print ($"Line \"{StripNewLine (line)}\" matched pattern {regex}.");
-
-							if (id < 1000 || id > 250000)
-							{
-								Explain.Print ($"Had an invalid id {id}.");
-								return new ParseResults { Confidence = ParsingConfidence.Invalid };
-							}
-
-							Explain.Print ($"Had a valid id {id}.");
-
-							ParsingConfidence confidence = ParsingConfidence.High;
-
-							if (line.StartsWith ("Context", StringComparison.InvariantCultureIgnoreCase))
-								confidence = ParsingConfidence.Invalid;
-
-							Explain.Print ($"Default Confidence was {confidence}.");
-							if (options.Bugzilla != BugzillaLevel.Disable)
-							{
-								var bugzillaSummary = GetTitle (id, options);
-								if (bugzillaSummary == null)
-								{
-									confidence = ParsingConfidence.Low;
-									Explain.Print ($"Given low confidence due to lack of a matching bugzilla bug.");
-									return new ParseResults (confidence, match.Value, id);
-								}
-								var status = GetStatus (id, options);
-								var milestone = GetMilestone (id, options);
-								var importance = GetImportance (id, options);
-
-								return new ParseResults (confidence, match.Value, id)
-								{
-									BugzillaSummary = bugzillaSummary, 
-									Status = status, 
-									TargetMilestone = milestone, 
-									Importance = importance 
-								};
-							}
-							return new ParseResults (confidence, match.Value, id);
-						}
-					}
-				}
-				return new ParseResults { Confidence = ParsingConfidence.Invalid };
-			}
-			finally
-			{
-				Explain.Deindent ();
-			}
-		}
-
-		public static IEnumerable<ParsedCommit> ParseSingle (CommitInfo commit, SearchOptions options)
-		{
-			Explain.Indent ();
-			Explain.Print ($"Analyzing {commit.Hash}.");
-
-			var textToSearch = commit.Description.SplitLines ();
-
-			foreach (var match in textToSearch.Select (x => ParseLine (x, options)).Where (x => x.Confidence != ParsingConfidence.Invalid))
-				yield return new ParsedCommit (commit, match.Link, match.ID, match.Confidence, match.BugzillaSummary, match.TargetMilestone, match.Status, match.Importance);
-			Explain.Deindent ();
-		}
-
-		public static IEnumerable<ParsedCommit> Parse (IEnumerable<CommitInfo> commits, SearchOptions options)
-		{
-			foreach (var commit in commits)
-			{
-				foreach (var parsedCommit in ParseSingle (commit, options))
-					yield return parsedCommit;
+			if (options.Bugzilla != BugzillaLevel.Disable && !options.IgnoreBugzilla) {
+				yield return new BugzillaIssueValidator (options);
+			} else {
+				yield return new DefaultIssueValidator (IssueSource.Bugzilla, options);
 			}
 		}
 	}
 }
- 

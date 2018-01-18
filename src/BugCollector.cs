@@ -5,57 +5,80 @@ using clio.Model;
 
 namespace clio
 {
-	public class BugCollection
-	{
-		public List<BugEntry> Bugs { get; set; } = new List<BugEntry> ();
-		public List<BugEntry> PotentialBugs { get; set; } = new List<BugEntry> ();
-	}
-
+	/// <summary>
+	/// Collects bugs into BugCollections
+	/// </summary>
 	public static class BugCollector
 	{
+		/// <summary>
+		/// Classifies the commits into a BugCollection
+		/// </summary>
 		public static BugCollection ClassifyCommits (IEnumerable<ParsedCommit> commits, SearchOptions options) => ClassifyCommits (commits, options, Enumerable.Empty<ParsedCommit> ());
 
+		/// <summary>
+		/// Classifies the commits into a BugCollection, ignoring any commits from commitsToIgnore
+		/// </summary>
 		public static BugCollection ClassifyCommits (IEnumerable<ParsedCommit> commits, SearchOptions options, IEnumerable<ParsedCommit> commitsToIgnore)
 		{
-			var bugsToIgnore = new HashSet<int> (commitsToIgnore.Select (x => x.ID));
+			// build hashsets for each issue source
+			var bugsToIgnore = new Dictionary<IssueSource, HashSet<int>> ();
+			var handledBugs = new Dictionary<IssueSource, HashSet<int>> ();
 
 			Explain.Print ($"\nClassifying {commits.Count ()} commits ignoring {commitsToIgnore.Count ()} commit.");
-			Explain.Print ($"\t{String.Join (" ", bugsToIgnore.Select (x => x.ToString ()))}");
+			foreach (var source in Enum.GetValues (typeof (IssueSource)).OfType<IssueSource> ())
+			{
+				bugsToIgnore[source] = new HashSet<int> (commitsToIgnore.Where (x => x.IssueSource == source).Select (x => x.IssueId));
+				handledBugs[source] = new HashSet<int> ();
+
+				if (bugsToIgnore[source].Count > 0)
+					Explain.Print ($"\t{source} {String.Join (" ", bugsToIgnore[source].Select (x => x.ToString ()))}");
+			}
 
 			BugCollection collection = new BugCollection ();
-			var handledBugs = new HashSet<int> ();
 
-			foreach (var parsedCommit in commits.Where (x => !bugsToIgnore.Contains (x.ID)))
+			// for each commit, classify the bug into one of the 2 bug lists
+			// adding just 1 instance of a bug to either of the lists
+			// if we see a bug a second time, only update the instance in the list
+			// if the confidence is higher than what we have already
+
+			foreach (var parsedCommit in commits.Where (x => !bugsToIgnore[x.IssueSource].Contains (x.IssueId)))
 			{
-				if (handledBugs.Contains (parsedCommit.ID))
+				// have we handled this bug, for this issue source, before?
+				if (handledBugs[parsedCommit.IssueSource].Contains (parsedCommit.IssueId))
 				{
-					// Commits are either high or low to get here. If we're low
-					// then we do not need handling. Either before was low and 
-					// we are good, or it was high and we are good
-					if (parsedCommit.Confidence != ParsingConfidence.High)
-						continue;
-
-					// If we were low before, remove and replace with high
-					if (collection.PotentialBugs.Any (x => x.ID == parsedCommit.ID))
+					// if so, then update if we have a higher confidence
+					if (parsedCommit.Confidence == ParsingConfidence.High || parsedCommit.Confidence == ParsingConfidence.Likely)
 					{
-						collection.PotentialBugs.RemoveAll (x => x.ID == parsedCommit.ID);
-						collection.Bugs.Add (new BugEntry (parsedCommit.ID, parsedCommit.BugzillaSummary, parsedCommit.Commit.Title, parsedCommit));
+						// we should update by removing it from PotentialBugs and adding to Bugs
+						if (collection.PotentialBugs.Any (x => x.IssueInfo.IssueSource == parsedCommit.IssueSource && x.Id == parsedCommit.IssueId))
+						{
+							collection.PotentialBugs.RemoveAll (x => x.IssueInfo.IssueSource == parsedCommit.IssueSource && x.Id == parsedCommit.IssueId);
+							collection.Bugs.Add (new BugEntry (parsedCommit));
+						}
 					}
 				}
 				else
 				{
-					if (parsedCommit.Confidence == ParsingConfidence.High)
-						collection.Bugs.Add (new BugEntry (parsedCommit.ID, parsedCommit.BugzillaSummary, parsedCommit.Commit.Title, parsedCommit));
+					// we have not seen this issue before, lets add it to the collection
+
+					// Low goes into PotentialBugs, otherwise (High and Likely) go into Bugs
+					if (parsedCommit.Confidence == ParsingConfidence.Low)
+					{
+						collection.PotentialBugs.Add (new BugEntry (parsedCommit));
+					}
 					else
-						collection.PotentialBugs.Add (new BugEntry (parsedCommit.ID, parsedCommit.BugzillaSummary, parsedCommit.Commit.Title, parsedCommit));
-					handledBugs.Add (parsedCommit.ID);
+					{
+						collection.Bugs.Add (new BugEntry (parsedCommit));
+					}
+
+					handledBugs[parsedCommit.IssueSource].Add (parsedCommit.IssueId);
 				}
 			}
 
-			collection.Bugs = collection.Bugs.OrderBy (x => x.ID).ToList ();
-			collection.PotentialBugs = collection.PotentialBugs.OrderBy (x => x.ID).ToList ();
+			Explain.Print ($"\nClassified {collection.Bugs.Count ()} bug(s) and {collection.PotentialBugs.Count ()} potential bug(s).");
 
-			return collection;
+			return new BugCollection (collection.Bugs.OrderBy (x => x.IssueInfo.IssueSource).OrderBy (x => x.Id),
+									  collection.PotentialBugs.OrderBy (x => x.IssueInfo.IssueSource).OrderBy (x => x.Id));
 		}
 	}
 }

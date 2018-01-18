@@ -1,11 +1,18 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using clio.Model;
 
 namespace clio
 {
+	/// <summary>
+	/// Validates bug milestones and statuses
+	/// </summary>
 	public static class BugValidator
 	{
+		/// <summary>
+		/// Validates the bugs in the bug collection and emits information to the console
+		/// </summary>
 		public static void Validate (BugCollection bugs, SearchOptions options)
 		{
 			bool explainStatus = Explain.Enabled;
@@ -29,32 +36,38 @@ namespace clio
 		{
 			foreach (var bug in bugs.Bugs)
 			{
-				switch (bug.BugInfo.Status)
-				{
-					case "CLOSED":
-					case "VERIFIED":
-					case "RESOLVED":
-						break;
-					default:
-						Explain.Print ($"{bug.ID} status may not be set correctly: {bug.BugInfo.Status}.");
-						break;
+				if (!bug.IssueInfo.IsClosed) {
+					Explain.Print ($"{bug.IssueInfo.IssueSource} {bug.Id} status may not be set correctly: {bug.IssueInfo.Status}.");
 				}
 			}
 		}
 
 		static void ProcessTargetMilestones (BugCollection bugs, SearchOptions options)
 		{
-			string targetMilestone = options.ExpectedTargetMilestone ?? GuessTargetMilestone (bugs);
+			foreach (var source in Enum.GetValues (typeof (IssueSource)).OfType<IssueSource> ())
+			{
+				var sourceBugs = new BugCollection (bugs.Bugs.Where (x => x.IssueInfo.IssueSource == source),
+				                                    bugs.PotentialBugs.Where (x => x.IssueInfo.IssueSource == source));
+				
+				ProcessTargetMilestones (sourceBugs, options.ExpectedTargetMilestone);
+			}
+		}
 
-			var unmatchingBugs = bugs.Bugs.Where (x => x.BugInfo.TargetMilestone != targetMilestone);
+		static void ProcessTargetMilestones (BugCollection bugs, string expectedTargetMilestone)
+		{
+			string targetMilestone = expectedTargetMilestone ?? GuessTargetMilestone (bugs);
+
+			var unmatchingBugs = bugs.Bugs.Where (x => x.IssueInfo.TargetMilestone != targetMilestone);
 			if (unmatchingBugs.Any ())
 			{
 				Explain.Print ($"The following bugs do not match the expected {targetMilestone}:");
 				Explain.Indent ();
 
 				foreach (var bug in unmatchingBugs)
-					Explain.Print ($"{bug.ID} - {bug.BugInfo.TargetMilestone}");
+					Explain.Print ($"{bug.IssueInfo.IssueSource} {bug.Id} - {bug.IssueInfo.TargetMilestone}");
 			}
+
+			// TODO: is this an unmatched Deindent??
 			Explain.Deindent ();
 		}
 
@@ -64,10 +77,10 @@ namespace clio
 			var targetMilestoneCount = new Dictionary<string, int> ();
 			foreach (var bug in bugs.Bugs)
 			{
-				if (targetMilestoneCount.ContainsKey (bug.BugInfo.TargetMilestone))
-					targetMilestoneCount[bug.BugInfo.TargetMilestone] += 1;
+				if (targetMilestoneCount.ContainsKey (bug.IssueInfo.TargetMilestone))
+					targetMilestoneCount[bug.IssueInfo.TargetMilestone] += 1;
 				else
-					targetMilestoneCount[bug.BugInfo.TargetMilestone] = 1;
+					targetMilestoneCount[bug.IssueInfo.TargetMilestone] = 1;
 			}
 			var targetMilestones = targetMilestoneCount.Keys.OrderByDescending (x => targetMilestoneCount[x]).ToList ();
 

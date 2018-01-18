@@ -5,6 +5,7 @@ using System.IO;
 using clio.Model;
 using Optional;
 using Optional.Unsafe;
+using System.Threading.Tasks;
 
 namespace clio
 {
@@ -22,19 +23,33 @@ namespace clio
 			Options = options;
 		}
 
-		public void Run (ActionType action)
+		public async Task Run (ActionType action, string outputFile)
 		{
-			// This can mutage Range so must be done first.
-			var commitsToIgnore = ProcessOldestBranch ();
+			// This can mutate Range so must be done first.
+			var commitsToIgnore = await ProcessOldestBranchAsync ().ConfigureAwait (false);
 
-			Process (Path, Options, Range, action, commitsToIgnore);
+			await ProcessAsync (Path, Options, Range, action, commitsToIgnore, outputFile).ConfigureAwait (false);
 
 			if (Options.Submodules)
 			{
+				bool excludeOldestInSubmodules = false;
+
 				string oldest = Range.Oldest.ValueOr ("");
+				string newest = Range.Newest.ValueOr ("HEAD");
+
+				// look one commit back for single commit ranges when examining submodules
+				if (oldest == newest)
+				{
+					excludeOldestInSubmodules = true;
+					var oldestParent = CommitFinder.FindFirstParent (Path, oldest);
+					if (oldestParent.HasValue)
+					{
+						oldest = oldestParent.ValueOr(string.Empty);
+					}
+				}
+
 				var initialSubmoduleStatus = CommitFinder.FindSubmodulesStatus (Path, oldest);
 
-				string newest = Range.Newest.ValueOr ("HEAD");
 				var finalSubmoduleStatus = CommitFinder.FindSubmodulesStatus (Path, newest);
 
 				Explain.Print ($"Processing {initialSubmoduleStatus.Count} submodules for change as well");
@@ -55,10 +70,16 @@ namespace clio
 
 					Explain.Print ($"Processing {submodule} submodule from {initialHash} to {finalHash}.");
 
-					SearchRange submoduleRange = new SearchRange () { Oldest = initialHash.Some (), Newest = finalHash.Some () };
+					// TOOD: I think we should set IncludeOldest to false here otherwise we will always report the first commit 
+					// again when we probably don't want that
+					SearchRange submoduleRange = new SearchRange () { 
+						IncludeOldest = !excludeOldestInSubmodules,
+						Oldest = initialHash.Some (), 
+						Newest = finalHash.Some () 
+					};
 
 					Explain.Indent ();
-					Process (System.IO.Path.Combine (Path, submodule), Options, submoduleRange, action, Enumerable.Empty<ParsedCommit> ());
+					await ProcessAsync (System.IO.Path.Combine (Path, submodule), Options, submoduleRange, action, Enumerable.Empty<ParsedCommit> (), outputFile).ConfigureAwait (false);
 					Explain.Deindent ();
 				}
 
@@ -66,7 +87,7 @@ namespace clio
 			}
 		}
 
-		IEnumerable<ParsedCommit> ProcessOldestBranch ()
+		async Task<IEnumerable<ParsedCommit>> ProcessOldestBranchAsync ()
 		{
 			if (Range.OldestBranch.HasValue)
 			{
@@ -76,7 +97,7 @@ namespace clio
 
 				var commitInfo = CommitFinder.FindCommitsOnBranchToIgnore (Path, branchName, Options);
 
-				IEnumerable<ParsedCommit> commitsToIgnore = CommitParser.Parse (commitInfo.Item1, Options);
+				IEnumerable<ParsedCommit> commitsToIgnore = await CommitParser.ParseAndValidateAsync (commitInfo.Item1, Options).ConfigureAwait (false);
 
 				Explain.Print ($"Found {commitsToIgnore.Count ()} bugs on {branchName} after branch to ignore.");
 
@@ -87,7 +108,7 @@ namespace clio
 			return Enumerable.Empty<ParsedCommit> ();
 		}
 
-		static void Process (string path, SearchOptions options, SearchRange range, ActionType action, IEnumerable<ParsedCommit> commitsToIgnore)
+		static async Task ProcessAsync (string path, SearchOptions options, SearchRange range, ActionType action, IEnumerable<ParsedCommit> commitsToIgnore, string outputFile)
 		{
 			IEnumerable<CommitInfo> commits = CommitFinder.Parse (path, range);
 
@@ -96,92 +117,35 @@ namespace clio
 			switch (action)
 			{
 				case ActionType.ListConsideredCommits:
-					PrintCommits (commits);
+					ConsolePrinter.PrintCommits (commits);
 					return;
 				case ActionType.ListBugs:
-					var parsedCommits = CommitParser.Parse (commits, options).ToList ();
-					var bugCollection = BugCollector.ClassifyCommits (parsedCommits, options, commitsToIgnore);
-					PrintBugs (bugCollection, options);
-
-					if (options.ValidateBugStatus)
-						BugValidator.Validate (bugCollection, options);
-
+					await ListBugsAsync (commits, options, commitsToIgnore).ConfigureAwait (false);
+					return;
+				case ActionType.ExportBugs:
+					await ExportAsync (commits, options, commitsToIgnore, outputFile).ConfigureAwait (false);
 					return;
 				default:
 					throw new InvalidOperationException ($"Internal Error - Unknown action requested {action}");
 			}
 		}
 
-		static void PrintBugs (BugCollection bugCollection, SearchOptions options)
+		static async Task ListBugsAsync (IEnumerable<CommitInfo> commits, SearchOptions options, IEnumerable<ParsedCommit> commitsToIgnore)
 		{
-			if (options.SplitEnhancementBugs)
-			{
-				var bugs = bugCollection.Bugs.Where (x => x.BugInfo.Importance != "enhancement");
-				PrintBugList ("Bugs:", false, bugs, options);
+			var parsedCommits = await CommitParser.ParseAndValidateAsync (commits, options).ConfigureAwait (false);
+			var bugCollection = BugCollector.ClassifyCommits (parsedCommits, options, commitsToIgnore);
 
-				var potentialBugs = bugCollection.PotentialBugs.Where (x => x.BugInfo.Importance != "enhancement");
-				PrintBugList ("Potential Bugs:", true, potentialBugs, options);
+			ConsolePrinter.PrintBugs (bugCollection, options);
 
-				var enhancements = bugCollection.Bugs.Where (x => x.BugInfo.Importance == "enhancement");
-				PrintBugList ("Enhancements:", false, enhancements, options);
-
-				var potentialEnhancements = bugCollection.PotentialBugs.Where (x => x.BugInfo.Importance == "enhancement");
-				PrintBugList ("Potential Enhancements:", true, potentialEnhancements, options);
-			}
-			else
-			{
-				PrintBugList ("Bugs:", false, bugCollection.Bugs, options);
-				PrintBugList ("Potential Bugs:", true, bugCollection.PotentialBugs, options);
-			}
+			if (options.ValidateBugStatus)
+				BugValidator.Validate (bugCollection, options);
 		}
 
-		static void PrintBugList (string title, bool potential, IEnumerable<BugEntry> list, SearchOptions options) 
+		static async Task ExportAsync(IEnumerable<CommitInfo> commits, SearchOptions options, IEnumerable<ParsedCommit> commitsToIgnore, string outputFile)
 		{
-			if (list.Count () > 0)
-			{
-				Console.WriteLine (title);
-				foreach (var bug in list)
-					PrintBug (bug, potential, options);
-			}
-		}
+			var parsedCommits = await CommitParser.ParseAndValidateAsync (commits, options).ConfigureAwait (false);
 
-		public static string FormatBug (BugEntry bug)
-		{
-			// If bugzilla validation is disabled, all bugs are uncertain
-			if (string.IsNullOrEmpty (bug.Title))
-				return FormatUncertainBug (bug);
-
-			return $"* [{bug.ID}](https://bugzilla.xamarin.com/show_bug.cgi?id={bug.ID}) -  {bug.Title}" + (String.IsNullOrEmpty (bug.SecondaryTitle) ? "" : $" / {bug.SecondaryTitle}");
-		}
-
-		public static string FormatUncertainBug (BugEntry bug)
-		{
-			return $"* [{bug.ID}](https://bugzilla.xamarin.com/show_bug.cgi?id={bug.ID}) -  {bug.SecondaryTitle}";
-		}
-
-		static void PrintBug (BugEntry bug, bool potential, SearchOptions options)
-		{
-			if (!potential)
-				Console.WriteLine (FormatBug (bug));
-			else
-				Console.WriteLine (FormatUncertainBug (bug));
-
-			if (options.AdditionalBugInfo)
-			{
-				BugzillaChecker checker = new BugzillaChecker (options);
-				checker.Setup ().Wait ();
-				string additionalInfo = checker.LookupAdditionalInfo (bug.ID).Result;
-				if (additionalInfo != null)
-					Console.WriteLine ($"\t{additionalInfo}");
-			}
-		}
-
-		static void PrintCommits (IEnumerable<CommitInfo> commits)
-		{
-			foreach (var commit in commits)
-				Console.WriteLine ($"{commit.Hash} {commit.Title}");
-
-			Explain.Print ($"Only listing of commits was requested. Exiting.");
+			XmlPrinter.ExportBugs (parsedCommits, options, outputFile);
 		}
 	}
 }

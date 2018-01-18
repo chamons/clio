@@ -75,6 +75,15 @@ namespace clio
 			}
 		}
 
+		public static Option<string> FindFirstParent (string path, string commit)
+		{
+			using (var repo = new Repository (path))
+			{
+				var aCommit = repo.Lookup<Commit> (commit);
+				return aCommit.Parents.FirstOrDefault ().Sha.Some ();
+			}
+		}
+
 		public static ValueTuple<IEnumerable<CommitInfo>, string> FindCommitsOnBranchToIgnore (string path, string branchName, SearchOptions options)
 		{
 			var merge = FindMergeBase (path, branchName);
@@ -112,16 +121,28 @@ namespace clio
 					return false;
 				}
 
-				var filter = new CommitFilter
+				if (oldest == newest)
 				{
-					ExcludeReachableFrom = oldest,
-					IncludeReachableFrom = newest
-				};
+					var commit = repo.Lookup<Commit> (oldest);
+					if (commit == null)
+					{
+						Console.Error.WriteLine ($"Unable to find any commit in range {oldest} to {newest}. Is the order reversed?");
+						return false;
+					}
+				}
+				else
+				{
+					var filter = new CommitFilter
+					{
+						ExcludeReachableFrom = oldest,
+						IncludeReachableFrom = newest
+					};
 
-				if (!repo.Commits.QueryBy (filter).Any ())
-				{
-					Console.Error.WriteLine ($"Unable to find any commit in range {oldest} to {newest}. Is the order reversed?");
-					return false;
+					if (!repo.Commits.QueryBy (filter).Any ())
+					{
+						Console.Error.WriteLine ($"Unable to find any commit in range {oldest} to {newest}. Is the order reversed?");
+						return false;
+					}
 				}
 
 				return true;
@@ -135,7 +156,7 @@ namespace clio
 			// This assumes submodules did not drastically change over a single release
 			using (var repo = new Repository (path))
 			{
-				var commit = repo.Lookup <Commit> (hash);
+				var commit = repo.Lookup<Commit> (hash);
 
 				foreach (var submodule in repo.Submodules.Select (x => x.Path))
 				{

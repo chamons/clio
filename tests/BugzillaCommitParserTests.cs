@@ -5,21 +5,24 @@ using System.Linq;
 using clio.Model;
 using Optional;
 using System.Collections.Generic;
+using System.Threading.Tasks;
+using clio.Providers;
 
 namespace clio.Tests
 {
 	[TestFixture]
-	public class CommitParserTests
+	public class BugzillaCommitParserTests
 	{
-		void TestConfidenceOfCommit (string hash, string expectedUrl, ParsingConfidence expectedConfidence) => TestConfidenceOfCommit (hash, expectedUrl, expectedConfidence, Option.None<SearchOptions> ());
-		
-		void TestConfidenceOfCommit (string hash, string expectedUrl, ParsingConfidence expectedConfidence, Option<SearchOptions> options)
+		Task TestConfidenceOfCommit (string hash, string expectedUrl, ParsingConfidence expectedConfidence) => TestConfidenceOfCommit (hash, expectedUrl, expectedConfidence, Option.None<SearchOptions> ());
+
+		async Task TestConfidenceOfCommit (string hash, string expectedUrl, ParsingConfidence expectedConfidence, Option<SearchOptions> options)
 		{
 			var commit = CommitFinder.ParseSingle (TestDataLocator.GetPath (), hash);
 			Assert.IsTrue (commit.HasValue);
-			commit.MatchSome (c =>
+			commit.MatchSome (async c =>
 			{
-				var parsedCommits = CommitParser.ParseSingle (c, options.ValueOr (new SearchOptions () { Bugzilla = BugzillaLevel.Private }));
+				var parsedCommits = await BugzillaCommitParser.Instance.ParseSingle (c)
+														.ValidateAsync (options.ValueOr (new SearchOptions () { Bugzilla = BugzillaLevel.Private }));
 
 				Assert.AreEqual (1, parsedCommits.Count (), $"{hash} did not parse into one bug commit");
 				var parsedCommit = parsedCommits.First ();
@@ -29,32 +32,35 @@ namespace clio.Tests
 			});
 		}
 
-		void TestCommitHasNoBug (string hash) => TestCommitHasNoBug (hash, Option.None <SearchOptions> ());
+		Task TestCommitHasNoBug (string hash) => TestCommitHasNoBug (hash, Option.None<SearchOptions> ());
 
-		void TestCommitHasNoBug (string hash, Option<SearchOptions> options)
+		async Task TestCommitHasNoBug (string hash, Option<SearchOptions> options)
 		{
 			var commit = CommitFinder.ParseSingle (TestDataLocator.GetPath (), hash);
 			Assert.True (commit.HasValue);
-			commit.MatchSome (c => {
-				var parsedCommits = CommitParser.ParseSingle (c, options.ValueOr (new SearchOptions ()));
-				Assert.Zero (parsedCommits.Count ());
-			});
+			commit.MatchSome (async c =>
+			 {
+				 var parsedCommits = await BugzillaCommitParser.Instance.ParseSingle (c)
+														 .ValidateAsync (options.ValueOr (new SearchOptions ()));
+				 Assert.Zero (parsedCommits.Count ());
+			 });
 		}
 
-		void TestMultipleCommits (string hash, List<string> expectedUrls) => TestMultipleCommits (hash, expectedUrls, Option.None<SearchOptions> ());
+		Task TestMultipleCommits (string hash, List<string> expectedUrls) => TestMultipleCommits (hash, expectedUrls, Option.None<SearchOptions> ());
 
-		void TestMultipleCommits (string hash, List<string> expectedUrls, Option<SearchOptions> options)
+		async Task TestMultipleCommits (string hash, List<string> expectedUrls, Option<SearchOptions> options)
 		{
 			var commit = CommitFinder.ParseSingle (TestDataLocator.GetPath (), hash);
 			Assert.IsTrue (commit.HasValue);
-			commit.MatchSome (c =>
+			commit.MatchSome (async c =>
 			{
-				var parsedCommits = CommitParser.ParseSingle (c, options.ValueOr (new SearchOptions ())).ToList ();
-				Assert.AreEqual (parsedCommits.Count(), expectedUrls.Count);
+				var parsedCommits = await BugzillaCommitParser.Instance.ParseSingle (c)
+														.ValidateAsync (options.ValueOr (new SearchOptions ()));
+				Assert.AreEqual (parsedCommits.Count (), expectedUrls.Count);
 				Assert.True (new HashSet<string> (parsedCommits.Select (x => x.Link)).SetEquals (expectedUrls));
 			});
 		}
-		
+
 		[Test]
 		public void CommitParser_FindsNonExistantBugzilla_GivesLow ()
 		{
@@ -104,10 +110,11 @@ namespace clio.Tests
 		}
 
 		[Test]
-		public void CommitParser_SmokeTestAllCommits ()
+		public async Task CommitParser_SmokeTestAllCommits ()
 		{
 			var commits = CommitFinder.Parse (TestDataLocator.GetPath (), new SearchRange ());
-			var parsedCommits = CommitParser.Parse (commits, new SearchOptions ());
+			var parsedCommits = await CommitParser.ParseAndValidateAsync (commits, new SearchOptions ());
+
 			Assert.NotZero (commits.Count ());
 			foreach (var parsedCommit in parsedCommits)
 			{
@@ -117,17 +124,17 @@ namespace clio.Tests
 		}
 
 		[Test]
-		public void LowNumberBugs_NeverShowUp ()
+		public async Task LowNumberBugs_NeverShowUp ()
 		{
 			SearchOptions options = new SearchOptions () { Bugzilla = BugzillaLevel.Private };
-			TestCommitHasNoBug ("261dab610e5f29c77877c68ff8abe7852bf617e4", options.Some ());
+			await TestCommitHasNoBug ("261dab610e5f29c77877c68ff8abe7852bf617e4", options.Some ());
 		}
 
 		[Test]
 		public void CommitWithMultipleBugs_ShowsAllBugs ()
 		{
 			TestMultipleCommits ("cc3924fcc86fdf30a34b58d52f4dc124c6117a8b",
-			                     new List<string> { "https://bugzilla.xamarin.com/show_bug.cgi?id=57808", "https://bugzilla.xamarin.com/show_bug.cgi?id=56653", "https://bugzilla.xamarin.com/show_bug.cgi?id=55561" });
+								 new List<string> { "https://bugzilla.xamarin.com/show_bug.cgi?id=57808", "https://bugzilla.xamarin.com/show_bug.cgi?id=56653", "https://bugzilla.xamarin.com/show_bug.cgi?id=55561" });
 
 			TestMultipleCommits ("f47157f09c065ef504c9c5278a4aedd2b9570ddc",
 								 new List<string> { "https://bugzilla.xamarin.com/show_bug.cgi?id=33052", "https://bugzilla.xamarin.com/show_bug.cgi?id=55477", "https://bugzilla.xamarin.com/show_bug.cgi?id=56867",
