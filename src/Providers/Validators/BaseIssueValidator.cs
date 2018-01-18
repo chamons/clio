@@ -2,7 +2,7 @@
 using System.Threading.Tasks;
 using clio.Model;
 
-namespace clio.Providers
+namespace clio.Providers.Validators
 {
 	/// <summary>
 	/// Base issue validation implementation

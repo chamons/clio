@@ -2,7 +2,8 @@
 using System.Linq;
 using System.Threading.Tasks;
 using clio.Model;
-using clio.Providers;
+using clio.Providers.Parsers;
+using clio.Providers.Validators;
 
 namespace clio
 {

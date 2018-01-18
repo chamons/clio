@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 using clio.Model;
 using CodeRinseRepeat.Bugzilla;
 
-namespace clio.Providers
+namespace clio.Providers.Validators
 {
 	/// <summary>
 	/// Validates bugzilla bug entries
@@ -67,7 +67,7 @@ namespace clio.Providers
 					return new ValueTuple<string, string> (loginText[0], loginText[1]);
 			}
 
-			throw new InvalidOperationException ("Unable to determine bugzilla login infomration. Please set BUGZILLA_LOGIN/BUGZILLA_PASSWORD environmental variable, create ~/.bugzilla with two lines, or pass --disable-bugzilla");
+			throw new InvalidOperationException ("Unable to determine bugzilla login information. Please set BUGZILLA_LOGIN/BUGZILLA_PASSWORD environmental variable, create ~/.bugzilla with two lines, or pass --disable-bugzilla");
 		}
 
 		async Task<Bug> GetBug (int number)

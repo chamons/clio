@@ -2,7 +2,7 @@
 using System.Text.RegularExpressions;
 using clio.Model;
 
-namespace clio.Providers
+namespace clio.Providers.Parsers
 {
 	public sealed class BugzillaCommitParser : BaseCommitParser
 	{
