@@ -65,7 +65,6 @@ namespace clio
 
 			PostProcessCollection (collection);
 
-
 			Explain.Print ($"\nClassified {collection.Bugs.Count ()} bug(s) and {collection.PotentialBugs.Count ()} potential bug(s).");
 
 			return new BugCollection (collection.Bugs.OrderBy (x => x.IssueInfo.IssueSource).OrderBy (x => x.Id),

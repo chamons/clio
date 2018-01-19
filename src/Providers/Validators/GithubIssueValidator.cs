@@ -1,8 +1,8 @@
-﻿using System;
-using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
+
 using clio.Model;
-using Octokit;
 using clio.Providers.Issues;
+using Octokit;
 
 namespace clio.Providers.Validators
 {

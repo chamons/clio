@@ -115,7 +115,6 @@ namespace clio
 			}
 
 			var request = new clio (path, range, options);
-
 			request.Run (requestedAction, outputFile).Wait ();
 		}
 
