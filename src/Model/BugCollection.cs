@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 
 namespace clio.Model
 {
@@ -20,11 +21,17 @@ namespace clio.Model
 		/// <summary>
 		/// Gets the list of bugs that have high or likely confidence
 		/// </summary>
-		public List<BugEntry> Bugs { get; } = new List<BugEntry> ();
+		public List<BugEntry> Bugs { get; private set; } = new List<BugEntry> ();
 
 		/// <summary>
 		/// Gets the list of bugs that have low confidence
 		/// </summary>
-		public List<BugEntry> PotentialBugs { get; } = new List<BugEntry> ();
+		public List<BugEntry> PotentialBugs { get; private set; } = new List<BugEntry> ();
+
+		public void Demote (IEnumerable<BugEntry> bugs)
+		{
+			Bugs = Bugs.Except (bugs).ToList ();
+			PotentialBugs.AddRange (bugs);
+		}
 	}
 }
