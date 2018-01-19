@@ -1,6 +1,6 @@
 ﻿using clio.Model;
 
-namespace clio.Providers
+namespace clio.Providers.Issues
 {
 	public sealed class VstsIssue : IIssue
 	{

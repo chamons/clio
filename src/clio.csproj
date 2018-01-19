@@ -69,11 +69,9 @@
     <Compile Include="Model\BugEntry.cs" />
     <Compile Include="BugValidator.cs" />
     <Compile Include="Model\Issue.cs" />
-    <Compile Include="Providers\BugzillaIssue.cs" />
     <Compile Include="Model\BugCollection.cs" />
     <Compile Include="ConsolePrinter.cs" />
     <Compile Include="XmlPrinter.cs" />
-    <Compile Include="Providers\VstsIssue.cs" />
     <Compile Include="Providers\VisualStudioService.cs" />
     <Compile Include="Providers\HttpService.cs" />
     <Compile Include="Providers\Parsers\BaseCommitParser.cs" />
@@ -84,6 +82,9 @@
     <Compile Include="Providers\Validators\VstsIssueValidator.cs" />
     <Compile Include="Providers\Validators\GithubIssueValidator.cs" />
     <Compile Include="Providers\Parsers\GithubCommitParser.cs" />
+    <Compile Include="Providers\Issues\BugzillaIssue.cs" />
+    <Compile Include="Providers\Issues\VstsIssue.cs" />
+    <Compile Include="Providers\Issues\GithubIssue.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
@@ -94,6 +95,7 @@
     <Folder Include="Providers\" />
     <Folder Include="Providers\Parsers\" />
     <Folder Include="Providers\Validators\" />
+    <Folder Include="Providers\Issues\" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\external\libbz\libbz\libbz.csproj">

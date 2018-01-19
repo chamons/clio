@@ -4,6 +4,7 @@ using System.IO;
 using System.Threading.Tasks;
 using clio.Model;
 using CodeRinseRepeat.Bugzilla;
+using clio.Providers.Issues;
 
 namespace clio.Providers.Validators
 {

@@ -2,6 +2,7 @@
 using System.IO;
 using System.Threading.Tasks;
 using clio.Model;
+using clio.Providers.Issues;
 
 namespace clio.Providers.Validators
 {
