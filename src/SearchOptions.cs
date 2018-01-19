@@ -28,6 +28,7 @@ namespace clio
 	{
 		public bool IgnoreBugzilla { get; set; }
 		public bool IgnoreVsts { get; set; }
+		public bool IgnoreGithub { get; set; }
 
 		public BugzillaLevel Bugzilla { get; set; } = BugzillaLevel.Public;
 		public VstsLevel Vsts { get; set; } = VstsLevel.Disable;

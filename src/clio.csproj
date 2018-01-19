@@ -82,6 +82,8 @@
     <Compile Include="Providers\Validators\BaseIssueValidator.cs" />
     <Compile Include="Providers\Validators\BugzillaIssueValidator.cs" />
     <Compile Include="Providers\Validators\VstsIssueValidator.cs" />
+    <Compile Include="Providers\Validators\GithubIssueValidator.cs" />
+    <Compile Include="Providers\Parsers\GithubCommitParser.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
