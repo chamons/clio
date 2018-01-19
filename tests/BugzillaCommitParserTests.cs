@@ -11,6 +11,7 @@ using clio.Providers.Parsers;
 
 namespace clio.Tests
 {
+	// TODO - This should be rewritten in the CommitInfo style
 	[TestFixture]
 	public class BugzillaCommitParserTests
 	{
