@@ -17,5 +17,10 @@ namespace clio
 		{
 			return item.Split (new char[] { '\n' }, StringSplitOptions.RemoveEmptyEntries);
 		}
+
+		public static IEnumerable<string> Split (this string item, char character)
+		{
+			return item.Split (new char [] { character }, 1, StringSplitOptions.None);
+		}
 	}
 }

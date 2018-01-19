@@ -1,7 +1,7 @@
 ﻿using clio.Model;
 using CodeRinseRepeat.Bugzilla;
 
-namespace clio.Providers
+namespace clio.Providers.Issues
 {
 	public sealed class BugzillaIssue : IIssue
 	{

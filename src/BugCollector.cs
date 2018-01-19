@@ -63,10 +63,21 @@ namespace clio
 				}
 			}
 
+			PostProcessCollection (collection);
+
 			Explain.Print ($"\nClassified {collection.Bugs.Count ()} bug(s) and {collection.PotentialBugs.Count ()} potential bug(s).");
 
 			return new BugCollection (collection.Bugs.OrderBy (x => x.IssueInfo.IssueSource).OrderBy (x => x.Id),
 									  collection.PotentialBugs.OrderBy (x => x.IssueInfo.IssueSource).OrderBy (x => x.Id));
+		}
+
+		static void PostProcessCollection (BugCollection collection)
+		{
+			var bugzillaIds = new HashSet<int> (collection.Bugs.Where (x => x.IssueInfo.IssueSource == IssueSource.Bugzilla).Select (x => x.Id));
+			var overlappingBugs = collection.Bugs.Where (x => x.IssueInfo.IssueSource != IssueSource.Bugzilla && bugzillaIds.Contains (x.Id)).ToList ();
+
+			// If bugzilla and another provider both find an issue, demote the bugzilla copy to PotentialBug
+			collection.Demote (overlappingBugs);
 		}
 	}
 }

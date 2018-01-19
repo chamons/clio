@@ -67,6 +67,10 @@ namespace clio
 						}
 					}},
 				{ "vsts-pat=", "Sets the PAT required to access VSTS issues", v => options.VstsPAT = v},
+				{ "github=", "Project to search issues of, such as xamarin/xamarin-macios. Must be '/' seperated", v => {
+						options.IgnoreGithub = false;
+						options.GithubLocation = v;
+					}},
 				{ "ignore-bugzilla", "Ignores Bugilla issues and does not attempt to parse commits for Bugzilla issues", v => options.IgnoreBugzilla = true},
 				{ "ignore-vsts", "Ignores VSTS issues and does not attempt to parse commits for VSTS issues", v => options.IgnoreVsts = true},
 				{ "additional-bug-info", "Print additional information on each bug for list-bugs", v => options.AdditionalBugInfo = true},
@@ -91,6 +95,9 @@ namespace clio
 			{
 				Console.Error.WriteLine ("Could not parse the command line arguments: {0}", e.Message);
 			}
+
+			if (!options.IgnoreGithub && !options.GithubLocation.Contains ("/"))
+					Die ("--github formatted incorrectly");
 
 			if (options.ValidateBugStatus && options.Bugzilla == BugzillaLevel.Disable)
 				Die ("Unable to Validate Bug Status with Bugzilla support disabled.");

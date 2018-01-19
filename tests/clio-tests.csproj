@@ -46,6 +46,7 @@
     <Compile Include="BugCollector.cs" />
     <Compile Include="BugzillaCommitParserTests.cs" />
     <Compile Include="VstsCommitParserTests.cs" />
+    <Compile Include="GithubCommitParserTests.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
