@@ -71,7 +71,6 @@
     <Compile Include="Model\Issue.cs" />
     <Compile Include="Providers\BugzillaIssue.cs" />
     <Compile Include="Model\BugCollection.cs" />
-    <Compile Include="ActionType.cs" />
     <Compile Include="ConsolePrinter.cs" />
     <Compile Include="XmlPrinter.cs" />
     <Compile Include="Providers\VstsIssue.cs" />
