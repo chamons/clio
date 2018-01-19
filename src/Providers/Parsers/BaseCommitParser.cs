@@ -1,15 +1,19 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text.RegularExpressions;
+
 using clio.Model;
 using Optional.Linq;
-using System.Text.RegularExpressions;
 
 namespace clio.Providers.Parsers
 {
-	/// <summary>
-	/// Base commit parser implementation
-	/// </summary>
+	public interface ICommitParser
+	{
+		// Can return more than one if the commit references several issues.
+		IEnumerable<ParsedCommit> ParseSingle (CommitInfo commit);
+	}
+
 	public abstract class BaseCommitParser : ICommitParser
 	{
 		static Regex Bug = new Regex (@"bug(:)?\s*(#)?\s*(\d*)", RegexOptions.Compiled | RegexOptions.IgnoreCase);
@@ -17,31 +21,21 @@ namespace clio.Providers.Parsers
 
 		protected static Regex[] DefaultLikelyBugRegexes = { Bug, Fixes };
 
+		protected IssueSource IssueSource { get; }
+		protected Regex[] HighBugRegexes { get; }
+		protected Regex[] LikelyBugRegexes { get; }
+
 		protected BaseCommitParser (IssueSource issueSource, Regex[] highBugRegexes, Regex[] likelyBugRegexes)
 		{
-			this.IssueSource = issueSource;
-			this.HighBugRegexes = highBugRegexes;
-			this.LikelyBugRegexes = likelyBugRegexes;
+			IssueSource = issueSource;
+			HighBugRegexes = highBugRegexes;
+			LikelyBugRegexes = likelyBugRegexes;
 		}
-
-		protected IssueSource IssueSource { get; private set; }
-
-		/// <summary>
-		/// Gets the regexes used to determine bugs with high confidence, for example
-		/// commits that reference the full url of the bug
-		/// </summary>
-		protected Regex[] HighBugRegexes { get; private set; }
-
-		/// <summary>
-		/// Gets the regexes used to determine bugs with likely confidence, for example
-		/// commits that reference bugs in a general manner 'fixes 12345'
-		/// </summary>
-		protected Regex[] LikelyBugRegexes { get; private set; }
 
 		public IEnumerable<ParsedCommit> ParseSingle (CommitInfo commit)
 		{
 			Explain.Indent ();
-			Explain.Print ($"{this.IssueSource} analyzing {commit.Hash}.");
+			Explain.Print ($"{IssueSource} analyzing {commit.Hash}.");
 
 			var textToSearch = commit.Description.SplitLines ();
 
@@ -50,11 +44,8 @@ namespace clio.Providers.Parsers
 				Explain.Indent ();
 
 				Explain.Print ($"Checking regexes for bug mentions");
-				foreach (var match in textToSearch.Select (x => ParseLine (x))
-						 .Where (x => x.Confidence != ParsingConfidence.Invalid))
-				{
-					yield return new ParsedCommit (this.IssueSource, commit, match.Link, match.ID, match.Confidence);
-				}
+				foreach (var match in textToSearch.Select (x => ParseLine (x)).Where (x => x.Confidence != ParsingConfidence.Invalid))
+					yield return new ParsedCommit (IssueSource, commit, match.Link, match.ID, match.Confidence);
 			}
 			finally
 			{
@@ -99,9 +90,7 @@ namespace clio.Providers.Parsers
 					Explain.Print ($"Had a valid id {id}.");
 
 					if (ShouldIgnoreLine (line))
-					{
 						return new ParseResults { Confidence = ParsingConfidence.Invalid };
-					}
 
 					Explain.Print ($"Confidence was {confidence}.");
 					return new ParseResults (confidence, match.Value, id);
@@ -122,10 +111,7 @@ namespace clio.Providers.Parsers
 			{
 				var result = ProcessLine (regex, line, ParsingConfidence.High);
 				if (result.Confidence == ParsingConfidence.High)
-				{
-					// we found one with high confidence, lets go
-					return result;
-				}
+					return result; // we found one with high confidence, lets go
 			}
 
 			// so now, lets look for more generic bug mentions
@@ -133,10 +119,7 @@ namespace clio.Providers.Parsers
 			{
 				var result = ProcessLine (regex, line, ParsingConfidence.Likely);
 				if (result.Confidence == ParsingConfidence.Likely)
-				{
-					// we found one with likely confidence, lets go
-					return result;
-				}
+					return result; // we found one with likely confidence, lets go
 			}
 
 			// nothing found

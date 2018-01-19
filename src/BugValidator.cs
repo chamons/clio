@@ -4,15 +4,10 @@ using System.Linq;
 using clio.Model;
 
 namespace clio
-{
-	/// <summary>
-	/// Validates bug milestones and statuses
-	/// </summary>
+{	
 	public static class BugValidator
 	{
-		/// <summary>
-		/// Validates the bugs in the bug collection and emits information to the console
-		/// </summary>
+		// Validates that bugs in collection look reasonable and print inconsistencies via Explain
 		public static void Validate (BugCollection bugs, SearchOptions options)
 		{
 			bool explainStatus = Explain.Enabled;
@@ -36,9 +31,8 @@ namespace clio
 		{
 			foreach (var bug in bugs.Bugs)
 			{
-				if (!bug.IssueInfo.IsClosed) {
+				if (!bug.IssueInfo.IsClosed)
 					Explain.Print ($"{bug.IssueInfo.IssueSource} {bug.Id} status may not be set correctly: {bug.IssueInfo.Status}.");
-				}
 			}
 		}
 

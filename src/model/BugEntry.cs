@@ -2,7 +2,6 @@
 
 namespace clio.Model
 {
-	// 
 	/// <summary>
 	/// The processed result of a ParsedCommit
 	/// </summary>

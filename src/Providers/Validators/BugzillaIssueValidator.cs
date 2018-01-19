@@ -7,9 +7,6 @@ using CodeRinseRepeat.Bugzilla;
 
 namespace clio.Providers.Validators
 {
-	/// <summary>
-	/// Validates bugzilla bug entries
-	/// </summary>
 	public class BugzillaIssueValidator : BaseIssueValidator
 	{
 		static string LoginFilePath = Path.Combine (Environment.GetFolderPath (Environment.SpecialFolder.MyDocuments), ".bugzilla");
@@ -26,15 +23,11 @@ namespace clio.Providers.Validators
 		public override async Task<IIssue> GetIssueAsync (int issueId)
 		{
 			if (!signedIn)
-			{
-				await this.SetupAsync ().ConfigureAwait (false);
-			}
+				await SetupAsync ().ConfigureAwait (false);
 
 			Bug bug = await GetBug (issueId).ConfigureAwait (false);
 			if (bug != null)
-			{
 				return new BugzillaIssue (bug);
-			}
 
 			return null;
 		}

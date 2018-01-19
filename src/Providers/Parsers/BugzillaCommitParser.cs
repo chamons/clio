@@ -14,13 +14,13 @@ namespace clio.Providers.Parsers
 
 		public static readonly BaseCommitParser Instance = new BugzillaCommitParser (AllRegex);
 
-		private BugzillaCommitParser (Regex[] bugRegexes) : base (IssueSource.Bugzilla, bugRegexes, DefaultLikelyBugRegexes)
+		BugzillaCommitParser (Regex[] bugRegexes) : base (IssueSource.Bugzilla, bugRegexes, DefaultLikelyBugRegexes)
 		{
 		}
 
 		protected override bool ValidateBugNumber (int bugNumber)
 		{
-			return (bugNumber >= 1000 && bugNumber <= 250000);
+			return bugNumber >= 1000 && bugNumber <= 250000;
 		}
 	}
 }
