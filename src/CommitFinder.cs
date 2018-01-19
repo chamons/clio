@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+
 using clio.Model;
 using LibGit2Sharp;
 using Optional;
@@ -132,8 +133,7 @@ namespace clio
 				}
 				else
 				{
-					var filter = new CommitFilter
-					{
+					var filter = new CommitFilter {
 						ExcludeReachableFrom = oldest,
 						IncludeReachableFrom = newest
 					};

@@ -13,8 +13,8 @@ namespace clio.Model
 
 		public BugCollection (IEnumerable<BugEntry> bugs, IEnumerable<BugEntry> potentialBugs)
 		{
-			this.Bugs.AddRange (bugs);
-			this.PotentialBugs.AddRange (potentialBugs);
+			Bugs.AddRange (bugs);
+			PotentialBugs.AddRange (potentialBugs);
 		}
 
 		/// <summary>

@@ -7,6 +7,7 @@ using Optional;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using clio.Providers;
+using clio.Providers.Parsers;
 
 namespace clio.Tests
 {

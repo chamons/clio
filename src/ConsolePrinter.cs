@@ -6,26 +6,14 @@ using clio.Providers;
 
 namespace clio
 {
-	/// <summary>
-	/// Prints information to the console
-	/// </summary>
 	static class ConsolePrinter
 	{
-		/// <summary>
-		/// Prints the given commits to the console
-		/// </summary>
-		/// <param name="commits">Commits.</param>
 		public static void PrintCommits (IEnumerable<CommitInfo> commits)
 		{
 			foreach (var commit in commits)
 				Console.WriteLine ($"{commit.Hash} {commit.Title}");
-
-			Explain.Print ($"Only listing of commits was requested. Exiting.");
 		}
 
-		/// <summary>
-		/// Prints the given bug collection to the console
-		/// </summary>
 		public static void PrintBugs (BugCollection bugCollection, SearchOptions options)
 		{
 			if (options.SplitEnhancementBugs)

@@ -2,7 +2,8 @@
 using System.Linq;
 using System.Threading.Tasks;
 using clio.Model;
-using clio.Providers;
+using clio.Providers.Parsers;
+using clio.Providers.Validators;
 
 namespace clio
 {
@@ -21,8 +22,7 @@ namespace clio
 				.SelectMany (parser => allCommits.SelectMany (commit => parser.ParseSingle (commit)))
 				.ToList ();
 
-			return parsedCommits
-				.ValidateAsync (options);
+			return parsedCommits.ValidateAsync (options);
 		}
 
 		/// <summary>
@@ -37,9 +37,7 @@ namespace clio
 
 			// fire off validation tasks for each of the validators for each of the commits
 			foreach (var validator in GetValidators (options))
-			{
 				tasks.Add (validator.ValidateIssuesAsync (allCommits));
-			}
 
 			// await everything
 			await Task.WhenAll (tasks).ConfigureAwait (false);
@@ -58,17 +56,15 @@ namespace clio
 
 		static IEnumerable<IIssueValidator> GetValidators (SearchOptions options)
 		{
-			if (options.Vsts != VstsLevel.Disable && !options.IgnoreVsts) {
+			if (options.Vsts != VstsLevel.Disable && !options.IgnoreVsts)
 				yield return new VstsIssueValidator (options);
-			} else {
-				yield return new DefaultIssueValidator (IssueSource.Vsts, options);
-			}
+			else
+				yield return new DefaultIssueValidator (IssueSource.Vsts, options);			
 
-			if (options.Bugzilla != BugzillaLevel.Disable && !options.IgnoreBugzilla) {
+			if (options.Bugzilla != BugzillaLevel.Disable && !options.IgnoreBugzilla)
 				yield return new BugzillaIssueValidator (options);
-			} else {
+			else
 				yield return new DefaultIssueValidator (IssueSource.Bugzilla, options);
-			}
 		}
 	}
 }

@@ -5,19 +5,11 @@ using clio.Model;
 
 namespace clio
 {
-	/// <summary>
-	/// Collects bugs into BugCollections
-	/// </summary>
+	// Collects bugs into BugCollections
 	public static class BugCollector
 	{
-		/// <summary>
-		/// Classifies the commits into a BugCollection
-		/// </summary>
 		public static BugCollection ClassifyCommits (IEnumerable<ParsedCommit> commits, SearchOptions options) => ClassifyCommits (commits, options, Enumerable.Empty<ParsedCommit> ());
 
-		/// <summary>
-		/// Classifies the commits into a BugCollection, ignoring any commits from commitsToIgnore
-		/// </summary>
 		public static BugCollection ClassifyCommits (IEnumerable<ParsedCommit> commits, SearchOptions options, IEnumerable<ParsedCommit> commitsToIgnore)
 		{
 			// build hashsets for each issue source
@@ -63,13 +55,9 @@ namespace clio
 
 					// Low goes into PotentialBugs, otherwise (High and Likely) go into Bugs
 					if (parsedCommit.Confidence == ParsingConfidence.Low)
-					{
 						collection.PotentialBugs.Add (new BugEntry (parsedCommit));
-					}
 					else
-					{
 						collection.Bugs.Add (new BugEntry (parsedCommit));
-					}
 
 					handledBugs[parsedCommit.IssueSource].Add (parsedCommit.IssueId);
 				}

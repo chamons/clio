@@ -1,39 +1,42 @@
 ﻿using System;
 namespace clio.Model
 {
+	public enum ParsingConfidence
+	{
+		/// <summary>
+		/// This is clearly a bug for the given issue provider, most likely because it
+		/// is referenced via the full url or the prefix for the bug clearly denotes it
+		/// as such or the bug was verified to exist for the issue provider.
+		/// </summary>
+		High,
+
+		/// <summary>
+		/// This is probably a bug for the given issue provider but we have not yet verified it
+		/// </summary>
+		Likely,
+
+		/// <summary>
+		/// This looks like a bug but verification failed to identify a match
+		/// </summary>
+		Low,
+
+		/// <summary>
+		/// No bug identified
+		/// </summary>
+		Invalid,
+	}
+
 	/// <summary>
 	/// A commit that has been parsed and associated with an issue found in the commit message
 	/// </summary>
 	public struct ParsedCommit
 	{
-		/// <summary>
-		/// Gets the source of the issue that was found in the commit
-		/// </summary>
 		public IssueSource IssueSource { get; }
-
-		/// <summary>
-		/// Gets the commit info for the commit
-		/// </summary>
 		public CommitInfo Commit { get; }
-
-		/// <summary>
-		/// Gets the link that was used to denote the bug in the commit
-		/// </summary>
 		public string Link { get; }
-
-		/// <summary>
-		/// Gets the IssueId that was found in the commit
-		/// </summary>
 		public int IssueId { get; }
-
-		/// <summary>
-		/// Gets a value indicating the level of confidence that the issue does indeed relate to the commit.
-		/// </summary>
 		public ParsingConfidence Confidence { get; }
 
-		/// <summary>
-		/// Gets the issue that was found with IssueId from the IssueSource
-		/// </summary>
 		public IIssue Issue { get; }
 
 		public ParsedCommit (IssueSource issueSource, CommitInfo commit, string link, int id, ParsingConfidence confidence)
@@ -43,7 +46,7 @@ namespace clio.Model
 			Link = link;
 			IssueId = id;
 			Confidence = confidence;
-			Issue = new NullIssue ( issueSource, id);
+			Issue = new NullIssue (issueSource, id);
 		}
 
 		public ParsedCommit (ParsedCommit commit, IIssue issue, ParsingConfidence confidence)

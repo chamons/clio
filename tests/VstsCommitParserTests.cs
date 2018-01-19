@@ -3,6 +3,7 @@ using clio.Model;
 using System.Linq;
 using NUnit.Framework;
 using clio.Providers;
+using clio.Providers.Parsers;
 
 namespace clio.Tests
 {

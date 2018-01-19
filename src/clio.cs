@@ -9,6 +9,14 @@ using System.Threading.Tasks;
 
 namespace clio
 {
+	public enum ActionType
+	{
+		Help,
+		ListConsideredCommits,
+		ListBugs,
+		ExportBugs
+	}
+
 	// Simple top level wrapper interface
 	public class clio
 	{
@@ -117,8 +125,11 @@ namespace clio
 			switch (action)
 			{
 				case ActionType.ListConsideredCommits:
+				{
 					ConsolePrinter.PrintCommits (commits);
+					Explain.Print ($"Only listing of commits was requested. Exiting.");
 					return;
+				}
 				case ActionType.ListBugs:
 					await ListBugsAsync (commits, options, commitsToIgnore).ConfigureAwait (false);
 					return;
@@ -145,7 +156,7 @@ namespace clio
 		{
 			var parsedCommits = await CommitParser.ParseAndValidateAsync (commits, options).ConfigureAwait (false);
 
-			XmlPrinter.ExportBugs (parsedCommits, options, outputFile);
+			XmlPrinter.ExportBugsToXML (parsedCommits, options, outputFile);
 		}
 	}
 }

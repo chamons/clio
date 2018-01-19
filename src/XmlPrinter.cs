@@ -5,21 +5,16 @@ using clio.Model;
 
 namespace clio
 {
-	/// <summary>
-	/// Prints information to an xml file
-	/// </summary>
 	static class XmlPrinter
 	{
-		/// <summary>
-		/// Exports the given bug collection to an xml file
-		/// </summary>
-		public static void ExportBugs (IEnumerable<ParsedCommit> parsedCommits, SearchOptions options, string outputFile)
+		public static void ExportBugsToXML (IEnumerable<ParsedCommit> parsedCommits, SearchOptions options, string outputFile)
 		{
 			XDocument xml = new XDocument ();
 			var root = new XElement ("Bugs");
 			xml.Add (root);
 
-			foreach (var commit in parsedCommits) {
+			foreach (var commit in parsedCommits)
+			{
 				var bugElement = new XElement ("Bug");
 				root.Add (bugElement);
 

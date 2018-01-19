@@ -2,7 +2,7 @@
 using System.Text.RegularExpressions;
 using clio.Model;
 
-namespace clio.Providers
+namespace clio.Providers.Parsers
 {
 	public sealed class BugzillaCommitParser : BaseCommitParser
 	{
@@ -14,13 +14,13 @@ namespace clio.Providers
 
 		public static readonly BaseCommitParser Instance = new BugzillaCommitParser (AllRegex);
 
-		private BugzillaCommitParser (Regex[] bugRegexes) : base (IssueSource.Bugzilla, bugRegexes, DefaultLikelyBugRegexes)
+		BugzillaCommitParser (Regex[] bugRegexes) : base (IssueSource.Bugzilla, bugRegexes, DefaultLikelyBugRegexes)
 		{
 		}
 
 		protected override bool ValidateBugNumber (int bugNumber)
 		{
-			return (bugNumber >= 1000 && bugNumber <= 250000);
+			return bugNumber >= 1000 && bugNumber <= 250000;
 		}
 	}
 }

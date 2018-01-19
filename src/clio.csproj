@@ -65,19 +65,8 @@
     <Compile Include="BugCollector.cs" />
     <Compile Include="Model\BugEntry.cs" />
     <Compile Include="BugValidator.cs" />
-    <Compile Include="Providers\BugzillaIssueValidator.cs" />
-    <Compile Include="Providers\BugzillaCommitParser.cs" />
-    <Compile Include="Providers\VstsCommitParser.cs" />
-    <Compile Include="Model\IIssue.cs" />
-    <Compile Include="Model\ParsingConfidence.cs" />
-    <Compile Include="Model\ICommitParser.cs" />
+    <Compile Include="Model\Issue.cs" />
     <Compile Include="Providers\BugzillaIssue.cs" />
-    <Compile Include="Providers\VstsIssueValidator.cs" />
-    <Compile Include="Model\IssueSource.cs" />
-    <Compile Include="Model\NullIssue.cs" />
-    <Compile Include="Providers\BaseCommitParser.cs" />
-    <Compile Include="Model\IIssueValidator.cs" />
-    <Compile Include="Providers\BaseIssueValidator.cs" />
     <Compile Include="Model\BugCollection.cs" />
     <Compile Include="ActionType.cs" />
     <Compile Include="ConsolePrinter.cs" />
@@ -85,7 +74,12 @@
     <Compile Include="Providers\VstsIssue.cs" />
     <Compile Include="Providers\VisualStudioService.cs" />
     <Compile Include="Providers\HttpService.cs" />
-    <Compile Include="Providers\DefaultIssueValidator.cs" />
+    <Compile Include="Providers\Parsers\BaseCommitParser.cs" />
+    <Compile Include="Providers\Parsers\BugzillaCommitParser.cs" />
+    <Compile Include="Providers\Parsers\VstsCommitParser.cs" />
+    <Compile Include="Providers\Validators\BaseIssueValidator.cs" />
+    <Compile Include="Providers\Validators\BugzillaIssueValidator.cs" />
+    <Compile Include="Providers\Validators\VstsIssueValidator.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
@@ -94,6 +88,8 @@
   <ItemGroup>
     <Folder Include="Model\" />
     <Folder Include="Providers\" />
+    <Folder Include="Providers\Parsers\" />
+    <Folder Include="Providers\Validators\" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\external\libbz\libbz\libbz.csproj">
