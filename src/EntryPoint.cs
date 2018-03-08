@@ -66,6 +66,7 @@ namespace clio
 							break;
 						}
 					}},
+				{ "github-pat=", "Sets the PAT required to access VSTS issues", v => options.GithubPAT = v},
 				{ "vsts-pat=", "Sets the PAT required to access VSTS issues", v => options.VstsPAT = v},
 				{ "github=", "Project to search issues of, such as xamarin/xamarin-macios. Must be '/' seperated", v => {
 						options.IgnoreGithub = false;
