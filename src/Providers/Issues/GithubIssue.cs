@@ -26,7 +26,7 @@ namespace clio.Providers.Issues
 			Status = issue.State == Octokit.ItemState.Closed ? "Closed" : "Open";
 			Importance = "";
 			IsEnhancement = false;
-			IssueUrl = issue.Url;
+			IssueUrl = issue.HtmlUrl;
 			IsClosed = issue.State == Octokit.ItemState.Closed;
 		}
 	}
