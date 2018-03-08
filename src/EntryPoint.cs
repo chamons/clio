@@ -77,6 +77,7 @@ namespace clio
 				{ "additional-bug-info", "Print additional information on each bug for list-bugs", v => options.AdditionalBugInfo = true},
 				{ "split-enhancement=", "Split out enhancement bugs from others in listing (defaults to true)", (bool v) => options.SplitEnhancementBugs = v},
 				{ "validate-bug-status", "Validate bugzilla status for referenced bugs and report discrepancies (Not closed, not matching milestone)", v => options.ValidateBugStatus = true},
+				{ "collect-authors", "Generate a list of unique authors to commits listed", v => options.CollectAuthors = true},
 				{ "expected-target-milestone=", "Target Milestone to expect when validate-bug-status (instead of using the most common).", v => options.ExpectedTargetMilestone = v},
 				{ "submodules", "Query submodules as well", v => options.Submodules = true},
 				new ResponseFileSource (),
