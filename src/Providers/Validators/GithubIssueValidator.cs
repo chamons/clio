@@ -27,7 +27,7 @@ namespace clio.Providers.Validators
 			try
 			{
 				var githubIssue = await Client.Issue.Get (Owner, Area, issueId);
-				await Task.Delay (250);
+				await Task.Delay (25);
 				return new GithubIssue (githubIssue);
 			}
 			catch (NotFoundException)
