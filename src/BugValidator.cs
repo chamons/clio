@@ -59,10 +59,9 @@ namespace clio
 
 				foreach (var bug in unmatchingBugs)
 					Explain.Print ($"{bug.IssueInfo.IssueSource} {bug.Id} - {bug.IssueInfo.TargetMilestone}");
-			}
 
-			// TODO: is this an unmatched Deindent??
-			Explain.Deindent ();
+				Explain.Deindent ();
+			}
 		}
 
 		static string GuessTargetMilestone (BugCollection bugs)
@@ -79,7 +78,13 @@ namespace clio
 			var targetMilestones = targetMilestoneCount.Keys.OrderByDescending (x => targetMilestoneCount[x]).ToList ();
 
 			string guess = targetMilestones.FirstOrDefault ();
-			Explain.Print ($"{guess} is the most common Target Milestone.");
+			if (Explain.Enabled) {
+				if (guess != null)
+					Explain.Print ($"{guess} is the most common Target Milestone.");
+				else
+					Explain.Print ($"There is no common Target Milestone.");
+			}
+
 			return guess;
 		}
 	}
