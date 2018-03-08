@@ -10,6 +10,11 @@ release:: build
 	cp -R src/bin/Debug/ dist/
 	cp src/clio dist/
 
+chris-install::
+	rm -r ~/bin/clio/
+	mkdir -p ~/bin/clio/
+	cp -R dist/* ~/bin/clio/
+
 clean::
 	msbuild /t:clean clio.sln
 	rm -rf dist/
