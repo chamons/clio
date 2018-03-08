@@ -34,6 +34,7 @@ namespace clio
 		public VstsLevel Vsts { get; set; } = VstsLevel.Disable;
 		public string GithubLocation { get; set; }
 
+		public string GithubPAT { get; set; }
 		public string VstsPAT { get; set; }
 
 		public bool AdditionalBugInfo { get; set; } = false;
