@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using clio.Model;
@@ -16,6 +17,13 @@ namespace clio
 		{
 			// enumerate these now
 			var allCommits = commits.ToList ();
+
+			// Before we filter, generate list of authors
+			if (options.CollectAuthors)
+			{
+				HashSet<string> emails = new HashSet<string> (allCommits.Select (x => x.Author));
+				Console.WriteLine ("Authors:\n" + String.Join ("\n", emails.ToList ()));
+			}
 
 			// grab all the issues that we can find (these will all be >= Low confidence
 			var parsedCommits = GetCommitParsers (options)

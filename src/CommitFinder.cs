@@ -32,7 +32,7 @@ namespace clio
 			try
 			{
 				using (var repo = new Repository (path))
-					return repo.Commits.QueryBy (filter).Select (x => new CommitInfo (x.Sha, x.MessageShort, x.Message)).ToList ();
+					return repo.Commits.QueryBy (filter).Select (x => new CommitInfo (x.Sha, x.MessageShort, x.Message, x.Author.Email)).ToList ();
 			}
 			catch (RepositoryNotFoundException)
 			{
@@ -53,7 +53,7 @@ namespace clio
 					var commit = repo.Lookup<Commit> (hash);
 					if (commit == null)
 						return Option.None<CommitInfo> ();
-					return (new CommitInfo (commit.Sha, commit.MessageShort, commit.Message)).Some ();
+					return (new CommitInfo (commit.Sha, commit.MessageShort, commit.Message, commit.Author.Email)).Some ();
 				}
 			}
 			catch (RepositoryNotFoundException)

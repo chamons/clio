@@ -40,6 +40,8 @@ namespace clio
 		public bool AdditionalBugInfo { get; set; } = false;
 		public bool SplitEnhancementBugs { get; set; } = true;
 		public bool ValidateBugStatus { get; set; } = false;
+		public bool CollectAuthors { get; set; } = false;
+
 		public string ExpectedTargetMilestone { get; set; }
 		public bool Submodules { get; set; } = false;
 	}
