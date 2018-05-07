@@ -3,9 +3,6 @@ using System.Linq;
 
 namespace clio.Model
 {
-	/// <summary>
-	/// A collection of bugs, grouped by confidence
-	/// </summary>
 	public class BugCollection
 	{
 		public BugCollection ()
@@ -18,20 +15,37 @@ namespace clio.Model
 			PotentialBugs.AddRange (potentialBugs);
 		}
 
-		/// <summary>
-		/// Gets the list of bugs that have high or likely confidence
-		/// </summary>
 		public List<BugEntry> Bugs { get; private set; } = new List<BugEntry> ();
-
-		/// <summary>
-		/// Gets the list of bugs that have low confidence
-		/// </summary>
 		public List<BugEntry> PotentialBugs { get; private set; } = new List<BugEntry> ();
 
-		public void Demote (IEnumerable<BugEntry> bugs)
+		public bool Contains (int id) => ContainsBug (id) || ContainsPotentialBug (id);
+		public bool ContainsBug (int id) => Bugs.Any (x => x.Id == id);
+		public bool ContainsPotentialBug (int id) => PotentialBugs.Any (x => x.Id == id);
+
+		void RemoveAnyMatchingPotentialBug (BugEntry bug)
 		{
-			Bugs = Bugs.Except (bugs).ToList ();
-			PotentialBugs.AddRange (bugs);
+			if (PotentialBugs.Any (x => x.Id == bug.Id))
+				PotentialBugs.RemoveAll (x => x.Id == bug.Id);
+		}
+
+		public void AddBug (BugEntry bug)
+		{
+			RemoveAnyMatchingPotentialBug (bug);
+			if (!ContainsBug (bug.Id))
+				Bugs.Add (bug);
+		}
+
+		public void AddPotentialBug (BugEntry bug)
+		{
+			if (!ContainsBug (bug.Id) && !ContainsPotentialBug (bug.Id))
+				PotentialBugs.Add (bug);
+		}
+
+		public void Order ()
+		{
+			// Bugzilla goes last
+			Bugs = Bugs.OrderBy (x => x.Id).OrderBy (x => x.IssueSource == IssueSource.Bugzilla ? "Z" : x.IssueSource.ToString ()).ToList ();
+			PotentialBugs = PotentialBugs.OrderBy (x => x.Id).OrderBy (x => x.IssueSource == IssueSource.Bugzilla ? "Z" : x.IssueSource.ToString ()).ToList ();
 		}
 	}
 }

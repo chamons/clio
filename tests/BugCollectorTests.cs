@@ -20,9 +20,8 @@ namespace clio.Tests
 
 			var parsedCommits = await CommitParser.ParseAndValidateAsync (commits, new SearchOptions ());
 
-			var bugCollection = BugCollector.ClassifyCommits (parsedCommits, new SearchOptions ());
-
-			Assert.AreEqual (1, bugCollection.PotentialBugs.Count);
+			var bugCollection = BugCollector.ClassifyCommits (parsedCommits);
+			Assert.AreEqual (1, bugCollection.Bugs.Count);
 		}
 
 		[Test]
@@ -34,8 +33,8 @@ namespace clio.Tests
 
 			var parsedCommits = await CommitParser.ParseAndValidateAsync (commits, new SearchOptions ());
 
-			var bugCollection = BugCollector.ClassifyCommits (parsedCommits, new SearchOptions ());
-			Assert.AreEqual (2, bugCollection.PotentialBugs.Count);
+			var bugCollection = BugCollector.ClassifyCommits (parsedCommits);
+			Assert.AreEqual (2, bugCollection.Bugs.Count);
 		}
 	}
 }

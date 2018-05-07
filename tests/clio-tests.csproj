@@ -41,7 +41,7 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="BugCollector.cs" />
+    <Compile Include="BugCollectorTests.cs" />
     <Compile Include="BugzillaCommitParserTests.cs" />
     <Compile Include="VstsCommitParserTests.cs" />
     <Compile Include="GithubCommitParserTests.cs" />
