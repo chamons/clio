@@ -31,19 +31,12 @@ The contents of dist are relocatable where ever you desire.
 ./dist/clio [ACTION] [OPTIONS] PATH_TO_GIT_CHECKOUT
 ```
 
-## Examples:
+To parse commits, clio must have a range to consider. There are two formats available:
 
-**What bugs were fixed after a given hash**:
-
-``` --oldest:bcfddc9 clio-test-data/```
-
-**What mono bugs were fixed in a release branch (clio currently does not understand tags)**:
-
-```--list-bugs --oldest:`git rev-list -1 mono-5.2.0.213` --newest:origin/2017-04 mono/```
-
-**What bugs were fixed after d15-3 branched to current d15-4, excluding cherry picks to d15-3, including submodule bumped**:
-
-```--list-bugs --submodules --oldest-branch:d15-3 --newest=d15-4 xamarin-macios```
+- `--base` `--branch` - This uses git cherry to determine what commits would need to be cherry-picked from base to branch to bring branch "up to speed".
+    - This case remove "merge echos" that raw hash ranges can introduce
+- `--oldest` `--newest` - This passes a raw range of commits to git for consideration. Equivilant to git log OLD_HASH..NEW_HASH.
+    - Do note that due to how git handles merges, merge parents from release ago could show up in this list.
 
 
 ## Actions
@@ -64,6 +57,14 @@ Two additional options can change this behavor (beyond --bugzilla:public which i
 
 By default bugzilla valiation is set to public, which means private bugs will be called out as "Potential bugs". Additionally, they will not have bugzilla titles added as additional descriptions to choose from in bug listings. This may be desired behavior, if private bugs are not considered release notes appropriate. This behavior can be changed with the aforementioned ```--bugzilla:private``` option.
 
+## Github Validation
+
+To enable github validation both `--github` and `--github-pat` need to be passed, as github has strict rate limiting that will be hit even in the most trivial case. See the [documentation](https://help.github.com/articles/creating-a-personal-access-token-for-the-command-line/) for details on how to create a PAT.
+
+## VSTS Validation
+
+To enable VSTS validation `--vsts=enable` and `--vsts-path` need to be passed, for similar reasons as github.
+
 ## Full Argument Listing
 
 ```
@@ -74,20 +75,39 @@ clio [options] path
   -l, --list-commits         List commits that would be considered
   -b, --list-bugs            List bugs discovered instead of formatting release
                                notes
-      --oldest=VALUE         Starting hash to consider
-      --newest=VALUE         Ending hash to consider
-      --oldest-branch=VALUE  Starting branch to consider. Finds the last commit
-                               in master before branch, and ignore all bugs
-                               fixed in master that are also fixed in this
-                               branch.
-      --exclude-oldest       Exclude oldest item from range considered (
-                               included by default)
+  -x, --export-bugs          Export bugs discovered instead of formatting
+                               release notes
+      --output-file=VALUE    Output file for export-bugs
+      --oldest=VALUE         Starting hash to consider (hash range mode)
+      --newest=VALUE         Ending hash to consider (hash range mode)
+      --base=VALUE           Starting base to consider (branch/base mode)
+      --branch=VALUE         Ending branch to consider (branch/base mode)
       --explain              Explain why each commit is considered a bug
-      --bugzilla=VALUE       What level should bugzilla queries be made at     
-                               (Public, Private, Disable)
+      --bugzilla=VALUE       Determines how Bugzilla issues should be validated
+                               (public, private, disable). The default is `
+                               public`
+      --vsts=VALUE           Determines if VSTS issues should be validated or
+                               not (enable, disable). The default is `disable`
+      --github-pat=VALUE     Sets the PAT required to access github issues
+      --vsts-pat=VALUE       Sets the PAT required to access VSTS issues
+      --github=VALUE         Project to search issues of, such as xamarin/
+                               xamarin-macios. Must be '/' seperated
+      --ignore-bugzilla      Ignores Bugilla issues and does not attempt to
+                               parse commits for Bugzilla issues
+      --ignore-vsts          Ignores VSTS issues and does not attempt to parse
+                               commits for VSTS issues
       --additional-bug-info  Print additional information on each bug for list-
                                bugs
-      --submodules           Query submodules as well
+      --split-enhancement=VALUE
+                             Split out enhancement bugs from others in listing (
+                               defaults to true)
+      --validate-bug-status  Validate bugzilla status for referenced bugs and
+                               report discrepancies (Not closed, not matching
+                               milestone)
+      --collect-authors      Generate a list of unique authors to commits listed
+      --expected-target-milestone=VALUE
+                             Target Milestone to expect when validate-bug-
+                               status (instead of using the most common).
   @file                      Read response file for more options.
 ```
 

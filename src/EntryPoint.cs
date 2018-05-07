@@ -9,13 +9,38 @@ namespace clio
 {
 	class EntryPoint
 	{
+		
 		public static void Main (string[] args)
 		{
 			string path = null;
 			SearchOptions options = new SearchOptions ();
-			SearchRange range = new SearchRange ();
+			ISearchRange range = null;
 			ActionType requestedAction = ActionType.ListBugs;
 			string outputFile = null;
+
+			void SetBranchRange (string baseBranch, string branch)
+			{
+				if (range != null && !(range is BranchSearchRange))
+					Die ("Can not mix hash and branch ranges");
+				BranchSearchRange current = range != null ? (BranchSearchRange)range : new BranchSearchRange ();
+				if (baseBranch != null)
+					current.Base = baseBranch;
+				if (branch != null)
+					current.Branch = branch;
+				range = current;
+			}
+
+			void SetHashRange (string oldest, string newest)
+			{
+				if (range != null && !(range is HashSearchRange))
+					Die ("Can not mix hash and branch ranges");
+				HashSearchRange current = range != null ? (HashSearchRange)range : new HashSearchRange ();
+				if (oldest != null)
+					current.Oldest = oldest;
+				if (newest != null)
+					current.Newest = newest;
+				range = current;
+			}
 
 			OptionSet os = new OptionSet ()
 			{
@@ -24,14 +49,11 @@ namespace clio
 				{ "b|list-bugs", "List bugs discovered instead of formatting release notes", v => requestedAction = ActionType.ListBugs },
 				{ "x|export-bugs", "Export bugs discovered instead of formatting release notes", v => requestedAction = ActionType.ExportBugs },
 				{ "output-file=", "Output file for export-bugs", v => outputFile = v },
-				{ "commit=", "Single commit to consider, sets --oldest and --newest to the same value", s => {
-						range.Newest = range.Oldest = s.Some ();
-						range.IncludeOldest = true;
-					}},
-				{ "oldest=", "Starting hash to consider", s => range.Oldest = s.Some () },
-				{ "newest=", "Ending hash to consider", e => range.Newest = e.Some () },
-				{ "oldest-branch=", "Starting branch to consider. Finds the last commit in master before branch, and ignore all bugs fixed in master that are also fixed in this branch.", s => range.OldestBranch = s.Some () },
-				{ "exclude-oldest", "Exclude oldest item from range considered (included by default)", v => range.IncludeOldest = false },
+				{ "oldest=", "Starting hash to consider (hash range mode)", s => SetHashRange (s, null) },
+				{ "newest=", "Ending hash to consider (hash range mode)", e => SetHashRange (null, e) },
+				{ "base=", "Starting base to consider (branch/base mode)", b => SetBranchRange (b, null) },
+				{ "branch=", "Ending branch to consider (branch/base mode)", b => SetBranchRange (null, b) },
+
 				{ "explain", "Explain why each commit is considered a bug", v => Explain.Enabled = true },
 				{ "bugzilla=", "Determines how Bugzilla issues should be validated (public, private, disable). The default is `public`", v =>
 					{
@@ -79,7 +101,6 @@ namespace clio
 				{ "validate-bug-status", "Validate bugzilla status for referenced bugs and report discrepancies (Not closed, not matching milestone)", v => options.ValidateBugStatus = true},
 				{ "collect-authors", "Generate a list of unique authors to commits listed", v => options.CollectAuthors = true},
 				{ "expected-target-milestone=", "Target Milestone to expect when validate-bug-status (instead of using the most common).", v => options.ExpectedTargetMilestone = v},
-				{ "submodules", "Query submodules as well", v => options.Submodules = true},
 				new ResponseFileSource (),
 			};
 
@@ -96,6 +117,7 @@ namespace clio
 			catch (Exception e)
 			{
 				Console.Error.WriteLine ("Could not parse the command line arguments: {0}", e.Message);
+				return;
 			}
 
 			if (!options.IgnoreGithub && !options.GithubLocation.Contains ("/"))
@@ -110,15 +132,13 @@ namespace clio
 			if (requestedAction != ActionType.ExportBugs && !string.IsNullOrEmpty (outputFile))
 				Die ("--outputfile= can only be specified with --export-bugs.");
 
-			if (range.Oldest.HasValue && range.Newest.HasValue)
-			{
-				if (!CommitFinder.ValidateGitHashes (path, range.Oldest.ValueOrFailure (), range.Newest.ValueOrFailure ()))
-					Environment.Exit (-1);
-			}
+			if (!RepositoryValidator.ValidateGitHashes (path, range))
+				Environment.Exit (-1);
 
-			var request = new clio (path, range, options);
-			request.Run (requestedAction, outputFile).Wait ();
+			var request = new clio (path, options);
+			request.Run (requestedAction, range, outputFile).Wait ();
 		}
+
 
 		public static void Die (string v)
 		{

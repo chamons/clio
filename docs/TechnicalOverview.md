@@ -5,9 +5,8 @@ clio is build upon the concept of a pipeline of different "passes", each extract
 These passes currently are:
 
 - CommitFinder: Given a path and search range, determine which commits we should consider
-- CommitParser: Given a set of commits, determine which potentially reference bugs and optionally determine confidence by cross referencing with BugzillaChecker
-- BugCollector: Given a set of ParsedCommits (from CommitParser), catagorize them into lists, handling duplicate references correctly
-- TemplateGenerator: Given a bug collection, generate inital release notes based upon a template
+- CommitParser: Given a set of commits, determine which potentially reference bugs and optionally determine confidence by cross referencing with Bugzilla/Github/VSTS's parser
+- BugCollector: Given a set of ParsedCommits catagorize them into lists, handling duplicate references correctly
 
 In the long term, CommitParser should really be broken into two steps.
 
@@ -21,4 +20,4 @@ Each pipeline step is an independent class, and in theory the entire clio.exe co
 
 ## Explain
 
-The --explain option outputs a significant amount of spam to try to explain what is going on under the hood. There are a number of places where it can be expanded, and many bug reports should likely 
+The --explain option outputs a significant amount of spam to try to explain what is going on under the hood. There are a number of places where it can be expanded, and many bug reports should likely.
