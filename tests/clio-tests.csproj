@@ -41,12 +41,11 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="CommitFinder.cs" />
-    <Compile Include="TestDataLocator.cs" />
     <Compile Include="BugCollector.cs" />
     <Compile Include="BugzillaCommitParserTests.cs" />
     <Compile Include="VstsCommitParserTests.cs" />
     <Compile Include="GithubCommitParserTests.cs" />
+    <Compile Include="ParserTestHelpers.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

@@ -1,6 +1,3 @@
-[submodule "clio-test-data"]
-	path = clio-test-data
-	url = https://github.com/chamons/clio-test-data.git
 [submodule "libbz"]
 	path = external/libbz
 	url = https://github.com/chamons/libbz.git

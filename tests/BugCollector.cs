@@ -5,6 +5,7 @@ using System.Linq;
 using clio.Model;
 using Optional;
 using System.Threading.Tasks;
+using System.Collections.Generic;
 
 namespace clio.Tests
 {
@@ -14,29 +15,27 @@ namespace clio.Tests
 		[Test]
 		public async Task BugCollector_HandlesDuplicateBugEntries ()
 		{
-			// One commit with certain, one without. Only one copy in final output
-			var options = new SearchOptions () { Bugzilla = BugzillaLevel.Private };
-			var range = new SearchRange { Oldest = "ad26139".Some (), Newest = "6c280ad".Some () };
-			var commits = CommitFinder.Parse (TestDataLocator.GetPath (), range);
-			var parsedCommits = await CommitParser.ParseAndValidateAsync (commits, options);
+			var commits = new List<CommitInfo> () { new CommitInfo ("first", "title 1", "But this one though...\nbug 37664"),
+													new CommitInfo ("second", "title 2", "Get context test right\nContext bug 37664") };
+
+			var parsedCommits = await CommitParser.ParseAndValidateAsync (commits, new SearchOptions ());
 
 			var bugCollection = BugCollector.ClassifyCommits (parsedCommits, new SearchOptions ());
 
-			Assert.AreEqual (1, bugCollection.Bugs.Count);
-			Assert.AreEqual (0, bugCollection.PotentialBugs.Count);
+			Assert.AreEqual (1, bugCollection.PotentialBugs.Count);
 		}
 
 		[Test]
 		public async Task BugCollector_SmokeTest ()
 		{
-			var options = new SearchOptions () { Bugzilla = BugzillaLevel.Private };
-			var range = new SearchRange { Oldest = "98fff31".Some (), Newest = "6c280ad".Some () };
-			var commits = CommitFinder.Parse (TestDataLocator.GetPath (), range);
-			var parsedCommits = await CommitParser.ParseAndValidateAsync (commits, options);
+			var commits = new List<CommitInfo> () { new CommitInfo ("first", "title 1", "But this one though...\nbug 37664"),
+													new CommitInfo ("second", "title 2", "Get context test right\nContext bug 37664"),
+													new CommitInfo ("third", "title 3", "bug 37665") };
 
-			var bugCollection = BugCollector.ClassifyCommits (parsedCommits, options);
-			Assert.AreEqual (2, bugCollection.Bugs.Count);
-			Assert.AreEqual (3, bugCollection.PotentialBugs.Count);
+			var parsedCommits = await CommitParser.ParseAndValidateAsync (commits, new SearchOptions ());
+
+			var bugCollection = BugCollector.ClassifyCommits (parsedCommits, new SearchOptions ());
+			Assert.AreEqual (2, bugCollection.PotentialBugs.Count);
 		}
 	}
 }

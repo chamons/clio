@@ -7,3 +7,4 @@ tests/bin
 tests/obj
 packages
 dist/
+.vs/
