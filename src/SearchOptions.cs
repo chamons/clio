@@ -43,15 +43,20 @@ namespace clio
 		public bool CollectAuthors { get; set; } = false;
 
 		public string ExpectedTargetMilestone { get; set; }
-		public bool Submodules { get; set; } = false;
 	}
 
-	public class SearchRange
+	public interface ISearchRange {}
+
+	public class HashSearchRange : ISearchRange
 	{
-		public Option<string> Oldest { get; set; } = Option.None<string> ();
-		public Option<string> OldestBranch { get; set; } = Option.None<string> ();
-		public bool IncludeOldest { get; set; } = true;
-		public Option<string> Newest { get; set; } = Option.None<string> ();
+		public string Oldest { get; set; }
+		public string Newest { get; set; }
+	}
+
+	public class BranchSearchRange : ISearchRange
+	{
+		public string Base { get; set; }	
+		public string Branch { get; set; }
 	}
 
 	public static class Explain

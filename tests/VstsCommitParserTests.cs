@@ -117,25 +117,18 @@ namespace clio.Tests
 		static void AssertHigh (CommitInfo commitInfo, int number)
 		{
 			var results = VstsCommitParser.Instance.ParseSingle (commitInfo).ToList ();
-
-			Assert.AreEqual (1, results.Count, "did not find any vsts work items");
-			Assert.AreEqual (number, results[0].IssueId, "did not parse to correct vsts id");
-			Assert.AreEqual (ParsingConfidence.High, results[0].Confidence, "Did not determine the correct confidence");
+			ParserTestHelpers.AssertFoundWithConfidence (ParsingConfidence.High, number, results);
 		}
 
 		static void AssertLikely (CommitInfo commitInfo, int number)
 		{
 			var results = VstsCommitParser.Instance.ParseSingle (commitInfo).ToList ();
-
-			Assert.AreEqual (1, results.Count, "did not find any vsts work items");
-			Assert.AreEqual (number, results[0].IssueId, "did not parse to correct vsts id");
-			Assert.AreEqual (ParsingConfidence.Likely, results[0].Confidence, "Did not determine the correct confidence");
+			ParserTestHelpers.AssertFoundWithConfidence (ParsingConfidence.Likely, number, results);
 		}
 
 		static void AssertNone (CommitInfo commitInfo)
 		{
 			var results = VstsCommitParser.Instance.ParseSingle (commitInfo).ToList ();
-
 			Assert.AreEqual (0, results.Count, "found an item when it should not have");
 		}
 	}

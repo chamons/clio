@@ -85,6 +85,8 @@
     <Compile Include="Providers\Issues\BugzillaIssue.cs" />
     <Compile Include="Providers\Issues\VstsIssue.cs" />
     <Compile Include="Providers\Issues\GithubIssue.cs" />
+    <Compile Include="RepositoryValidator.cs" />
+    <Compile Include="RunCommand.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
