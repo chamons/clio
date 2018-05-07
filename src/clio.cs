@@ -65,7 +65,7 @@ namespace clio
 		static async Task ListBugsAsync (IEnumerable<CommitInfo> commits, SearchOptions options)
 		{
 			var parsedCommits = await CommitParser.ParseAndValidateAsync (commits, options).ConfigureAwait (false);
-			var bugCollection = BugCollector.ClassifyCommits (parsedCommits, options);
+			var bugCollection = BugCollector.ClassifyCommits (parsedCommits);
 
 			ConsolePrinter.PrintBugs (bugCollection, options);
 

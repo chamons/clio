@@ -15,12 +15,15 @@ namespace clio.Model
 
 		public IIssue IssueInfo { get; private set; }
 
+		public IssueSource IssueSource { get; private set; }
+
 		public BugEntry (ParsedCommit parsedCommit)
 		{
 			Id = parsedCommit.IssueId;
 			Title = parsedCommit.Issue.Title?.Replace ('`', '`') ?? string.Empty;
 			SecondaryTitle = parsedCommit.Commit.Title?.Replace ('`', '`') ?? string.Empty;
 			IssueInfo = parsedCommit.Issue;
+			IssueSource = parsedCommit.IssueSource;
 		}
 	}
 }
