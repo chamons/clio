@@ -12,8 +12,7 @@ namespace clio.Providers.Parsers
 
 		public static readonly GithubCommitParser Instance = new GithubCommitParser (AllRegex);
 
-		// We do _not_ want DefaultLikelyBugRegexes unlike github / VSTS
-		GithubCommitParser (Regex[] bugRegexes) : base (IssueSource.GitHub, bugRegexes, new Regex [] {})
+		GithubCommitParser (Regex[] bugRegexes) : base (IssueSource.GitHub, bugRegexes, DefaultLikelyBugRegexes)
 		{
 		}
 
