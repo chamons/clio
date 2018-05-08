@@ -13,21 +13,35 @@ namespace clio.Tests
 		[Test]
 		public void ParseFullLink ()
 		{
-			AssertFound (new CommitInfo ("hash", "title", "title \nhttps://github.com/chamons/clio/issues/18"), 18);
-			AssertFound (new CommitInfo ("hash", "title", "title \nhttp://github.com/chamons/clio/issues/18"), 18);
+			AssertHigh (new CommitInfo ("hash", "title", "title \nhttps://github.com/chamons/clio/issues/18"), 18);
+			AssertHigh (new CommitInfo ("hash", "title", "title \nhttp://github.com/chamons/clio/issues/18"), 18);
 		}
 
 		[Test]
-		[TestCase ("title \nfixes 549249")]
-		[TestCase ("title \nfixes github 549249")]
-		[TestCase ("title \nfixes github bug 549249")]
-		[TestCase ("title \nfixes issue 549249")]
-		[TestCase ("title \nfixes bug 549249")]
-		[TestCase ("title \nfixes bug #549249")]
-		[TestCase ("title \nfixes fix 549249")]
-		[TestCase ("title \nfixes fixes: 549249")]
-		[TestCase ("title \nfixes #549249")]
-		public void ParseNonFullLinks_ShouldFail (string description)
+		[TestCase ("title \nfixes 54924")]
+		[TestCase ("title \nfixes github bug 54924")]
+		[TestCase ("title \nfixes bug 54924")]
+		[TestCase ("title \nfixes bug #54924")]
+		[TestCase ("title \nfix 54924")]
+		[TestCase ("title \nfixes: 54924")]
+		[TestCase ("title \nfixes #54924")]
+		public void ParseNonFullLinks_ShouldPass (string description)
+		{
+			AssertLikely (new CommitInfo ("hash", "title", description), 54924);
+		}
+
+		[TestCase ("title \ngithub 54924")]
+		[TestCase ("title \nissue 54924")]
+		public void ParseUnsupportedNamed_ShouldFail (string description)
+		{
+			AssertNone (new CommitInfo ("hash", "title", description));
+		}
+
+		[TestCase ("title \nfixes issue 54924")]
+		[TestCase ("title \nfixes github 54924")]
+		[TestCase ("title \nfixes fix 54924")]
+		[TestCase ("title \nfixes fixes: 54924")]
+		public void ParseConfusingLinks_ShouldFail (string description)
 		{
 			AssertNone (new CommitInfo ("hash", "title", description));
 		}
@@ -56,13 +70,16 @@ namespace clio.Tests
 			Assert.AreEqual (ParsingConfidence.High, results[1].Confidence, "Did not determine the correct confidence");
 		}
 
-		static void AssertFound (CommitInfo commitInfo, int number)
+		static void AssertHigh (CommitInfo commitInfo, int number)
 		{
 			var results = GithubCommitParser.Instance.ParseSingle (commitInfo).ToList ();
+			ParserTestHelpers.AssertFoundWithConfidence (ParsingConfidence.High, number, results);
+		}
 
-			Assert.AreEqual (1, results.Count, "did not find any github issues");
-			Assert.AreEqual (number, results[0].IssueId, "did not parse to correct github id");
-			Assert.AreEqual (ParsingConfidence.High, results[0].Confidence, "Did not determine the correct confidence");
+		static void AssertLikely (CommitInfo commitInfo, int number)
+		{
+			var results = GithubCommitParser.Instance.ParseSingle (commitInfo).ToList ();
+			ParserTestHelpers.AssertFoundWithConfidence (ParsingConfidence.Likely, number, results);
 		}
 
 		static void AssertNone (CommitInfo commitInfo)
