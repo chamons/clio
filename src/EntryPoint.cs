@@ -101,6 +101,7 @@ namespace clio
 				{ "validate-bug-status", "Validate bugzilla status for referenced bugs and report discrepancies (Not closed, not matching milestone)", v => options.ValidateBugStatus = true},
 				{ "collect-authors", "Generate a list of unique authors to commits listed", v => options.CollectAuthors = true},
 				{ "expected-target-milestone=", "Target Milestone to expect when validate-bug-status (instead of using the most common).", v => options.ExpectedTargetMilestone = v},
+				{ "ignore=", "Commit hashes to ignore", v => options.CommitsToIgnore.Add (v) },
 				new ResponseFileSource (),
 			};
 
