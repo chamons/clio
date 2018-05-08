@@ -108,6 +108,7 @@ clio [options] path
       --expected-target-milestone=VALUE
                              Target Milestone to expect when validate-bug-
                                status (instead of using the most common).
+      --ignore=VALUE         Commit hashes to ignore
   @file                      Read response file for more options.
 ```
 

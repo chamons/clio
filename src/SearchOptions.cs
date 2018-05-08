@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using Optional;
 
 namespace clio
@@ -41,6 +42,7 @@ namespace clio
 		public bool SplitEnhancementBugs { get; set; } = true;
 		public bool ValidateBugStatus { get; set; } = false;
 		public bool CollectAuthors { get; set; } = false;
+		public List<string> CommitsToIgnore { get; set; } = new List<string> ();
 
 		public string ExpectedTargetMilestone { get; set; }
 	}

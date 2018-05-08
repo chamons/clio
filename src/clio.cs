@@ -35,9 +35,9 @@ namespace clio
 		{
 			IEnumerable<CommitInfo> commits;
 			if (range is HashSearchRange hashSearchRange)
-				commits = CommitFinder.ParseHashRange (path, hashSearchRange.Oldest, hashSearchRange.Newest);
+				commits = CommitFinder.ParseHashRange (path, options, hashSearchRange.Oldest, hashSearchRange.Newest);
 			else if (range is BranchSearchRange branchSearchRange)
-				commits = CommitFinder.ParseBranchRange (path, branchSearchRange.Base, branchSearchRange.Branch);
+				commits = CommitFinder.ParseBranchRange (path, options, branchSearchRange.Base, branchSearchRange.Branch);
 			else
 				throw new NotImplementedException ();
 
