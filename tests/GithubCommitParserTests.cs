@@ -57,6 +57,12 @@ namespace clio.Tests
 		}
 
 		[Test]
+		public void ParseMarkDownLink ()
+		{
+			AssertHigh (new CommitInfo ("hash", "title", "Fix for issue[4110] (https://github.com/xamarin/xamarin-macios/issues/4110): Details"), 4110);
+		}
+
+		[Test]
 		public void ParseMultipleLinks ()
 		{
 			var commitInfo = new CommitInfo ("hash", "title", "title \nhttps://github.com/chamons/clio/issues/18\nhttps://github.com/chamons/clio/issues/19");
