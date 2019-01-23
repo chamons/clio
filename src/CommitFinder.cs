@@ -13,17 +13,23 @@ namespace clio
 	{
 		static CommitInfo CreateInfoFromCommit (Commit x) => new CommitInfo (x.Sha, x.MessageShort, x.Message, x.Author.Email);
 
-		public static IEnumerable<CommitInfo> ParseHashRange (string path, SearchOptions options, string oldest, string newest)
-		{
-			var filter = new CommitFilter { ExcludeReachableFrom = oldest, IncludeReachableFrom = newest };
-			return ParseWithFilter (path, options, filter);
-		}
-
-		static IEnumerable<CommitInfo> ParseWithFilter (string path, SearchOptions options, CommitFilter filter)
+		public static IEnumerable<CommitInfo> ParseHashRange (string path, SearchOptions options, HashSearchRange range)
 		{
 			try {
 				using (var repo = new Repository (path))
-					return repo.Commits.QueryBy (filter).Where(x => !options.CommitsToIgnore.Contains (x.Id.ToString ())).Select (x => CreateInfoFromCommit (x)).ToList ();
+				{
+					List<CommitInfo> commitInfo = new List<CommitInfo> ();
+
+					CommitFilter filter = CreateCommitFilter (options, range);
+
+					foreach (var commit in repo.Commits.QueryBy (filter)) {
+						if (options.CommitsToIgnore.Contains (commit.Id.ToString ()))
+							continue;
+
+						commitInfo.Add (CreateInfoFromCommit (commit));
+					}
+					return commitInfo;
+				}
 			}
 			catch (RepositoryNotFoundException) {
 				return Enumerable.Empty<CommitInfo> ();
@@ -31,6 +37,41 @@ namespace clio
 			catch (NotFoundException) {
 				return Enumerable.Empty<CommitInfo> ();
 			}
+		}
+
+		public static IEnumerable<CommitInfo> FindMergeCommits (string path, SearchOptions options, HashSearchRange range)
+		{
+			try {
+				using (var repo = new Repository (path)) {
+					List<CommitInfo> commitInfo = new List<CommitInfo> ();
+
+					CommitFilter filter = CreateCommitFilter (options, range);
+
+					foreach (var commit in repo.Commits.QueryBy (filter)) {			
+						// Commits with more than one parent are merge commits
+						if (commit.Parents.Count () > 1) {
+							commitInfo.Add (CreateInfoFromCommit (commit));
+						}
+					}
+					return commitInfo;
+				}
+			}
+			catch (RepositoryNotFoundException) {
+				return Enumerable.Empty<CommitInfo> ();
+			}
+			catch (NotFoundException){
+				return Enumerable.Empty<CommitInfo> ();
+			}
+		}
+
+		static CommitFilter CreateCommitFilter (SearchOptions options, HashSearchRange range)
+		{
+			var filter = new CommitFilter { ExcludeReachableFrom = range.Oldest, IncludeReachableFrom = range.Newest };
+
+			if (options.MergeCommitsToIgnore.Any ()) {
+				filter.ExcludeReachableFrom = options.MergeCommitsToIgnore;
+			}
+			return filter;
 		}
 
 		public static IEnumerable<CommitInfo> ParseBranchRange (string path, SearchOptions options, string baseBranch, string branch)

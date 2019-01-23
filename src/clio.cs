@@ -14,6 +14,7 @@ namespace clio
 		Help,
 		ListConsideredCommits,
 		ListBugs,
+		ListMergeCommits,
 		ExportBugs
 	}
 
@@ -33,9 +34,16 @@ namespace clio
 
 		static async Task ProcessAsync (string path, SearchOptions options, ISearchRange range, ActionType action, string outputFile)
 		{
+			if (action == ActionType.ListMergeCommits) {
+				if (range is HashSearchRange hsr)
+					ConsolePrinter.PrintCommits (CommitFinder.FindMergeCommits (path, options, hsr));
+				Explain.Print ($"Only listing of merge commits was requested. Exiting.");
+				return;
+			}
+
 			IEnumerable<CommitInfo> commits;
 			if (range is HashSearchRange hashSearchRange)
-				commits = CommitFinder.ParseHashRange (path, options, hashSearchRange.Oldest, hashSearchRange.Newest);
+				commits = CommitFinder.ParseHashRange (path, options, hashSearchRange);
 			else if (range is BranchSearchRange branchSearchRange)
 				commits = CommitFinder.ParseBranchRange (path, options, branchSearchRange.Base, branchSearchRange.Branch);
 			else

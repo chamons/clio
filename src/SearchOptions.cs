@@ -43,6 +43,7 @@ namespace clio
 		public bool ValidateBugStatus { get; set; } = false;
 		public bool CollectAuthors { get; set; } = false;
 		public List<string> CommitsToIgnore { get; set; } = new List<string> ();
+		public HashSet<string> MergeCommitsToIgnore { get; set; } = new HashSet<string> ();
 
 		public string ExpectedTargetMilestone { get; set; }
 	}

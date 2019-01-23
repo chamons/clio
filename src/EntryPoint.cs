@@ -46,8 +46,9 @@ namespace clio
 			{
 				{ "h|?|help", "Displays the help", v => requestedAction = ActionType.Help },
 				{ "l|list-commits", "List commits that would be considered", v => requestedAction = ActionType.ListConsideredCommits },
-				{ "b|list-bugs", "List bugs discovered instead of formatting release notes", v => requestedAction = ActionType.ListBugs },
-				{ "x|export-bugs", "Export bugs discovered instead of formatting release notes", v => requestedAction = ActionType.ExportBugs },
+				{ "b|list-bugs", "List bugs discovered", v => requestedAction = ActionType.ListBugs },
+				{ "x|export-bugs", "Export bugs discovered", v => requestedAction = ActionType.ExportBugs },
+				{ "list-merge-commits", "Only list merge commits in requested range (to consider to filter)", v => requestedAction = ActionType.ListMergeCommits },
 				{ "output-file=", "Output file for export-bugs", v => outputFile = v },
 				{ "oldest=", "Starting hash to consider (hash range mode)", s => SetHashRange (s, null) },
 				{ "newest=", "Ending hash to consider (hash range mode)", e => SetHashRange (null, e) },
@@ -102,6 +103,7 @@ namespace clio
 				{ "collect-authors", "Generate a list of unique authors to commits listed", v => options.CollectAuthors = true},
 				{ "expected-target-milestone=", "Target Milestone to expect when validate-bug-status (instead of using the most common).", v => options.ExpectedTargetMilestone = v},
 				{ "ignore=", "Commit hashes to ignore", v => options.CommitsToIgnore.Add (v) },
+				{ "ignore-merge-commit=", "Commit hashes to ignore", v => options.MergeCommitsToIgnore.Add (v) },
 				new ResponseFileSource (),
 			};
 
@@ -132,6 +134,10 @@ namespace clio
 
 			if (requestedAction != ActionType.ExportBugs && !string.IsNullOrEmpty (outputFile))
 				Die ("--outputfile= can only be specified with --export-bugs.");
+
+			if (requestedAction != ActionType.ListMergeCommits && range == null)
+				Die ("--list-merge-commits requires hash range");
+
 
 			if (!RepositoryValidator.ValidateGitHashes (path, range))
 				Environment.Exit (-1);
