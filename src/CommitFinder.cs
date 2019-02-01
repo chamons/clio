@@ -11,7 +11,7 @@ namespace clio
 {
 	public static class CommitFinder
 	{
-		static CommitInfo CreateInfoFromCommit (Commit x) => new CommitInfo (x.Sha, x.MessageShort, x.Message, x.Author.Email);
+		static CommitInfo CreateInfoFromCommit (Commit x) => new CommitInfo (x.Sha, x.MessageShort, x.Message, x.Committer.When.ToString ("MM/dd/yyyy"), x.Author.Email);
 
 		public static IEnumerable<CommitInfo> ParseHashRange (string path, SearchOptions options, string oldest, string newest)
 		{

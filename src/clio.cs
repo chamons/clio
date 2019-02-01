@@ -47,7 +47,7 @@ namespace clio
 			{
 				case ActionType.ListConsideredCommits:
 				{
-					ConsolePrinter.PrintCommits (commits);
+					ConsolePrinter.Create (options).PrintCommits (commits);
 					Explain.Print ($"Only listing of commits was requested. Exiting.");
 					return;
 				}
@@ -67,7 +67,7 @@ namespace clio
 			var parsedCommits = await CommitParser.ParseAndValidateAsync (commits, options).ConfigureAwait (false);
 			var bugCollection = BugCollector.ClassifyCommits (parsedCommits);
 
-			ConsolePrinter.PrintBugs (bugCollection, options);
+			ConsolePrinter.Create (options).PrintBugs (bugCollection);
 		}
 
 		static async Task ExportAsync(IEnumerable<CommitInfo> commits, SearchOptions options, string outputFile)
