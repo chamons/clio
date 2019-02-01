@@ -27,8 +27,7 @@ namespace clio
 			{
 				BugCollection bugCollection = new BugCollection ();
 
-				// Bugzilla must come last
-				foreach (BugList list in BugLists.OrderBy (x => x.Key == IssueSource.Bugzilla ? "Z" : x.Key.ToString ()).Select (x => x.Value))
+				foreach (BugList list in BugLists.Values)
 				{
 					foreach (var bug in list.Bugs)
 						bugCollection.AddBug (bug);
@@ -36,9 +35,7 @@ namespace clio
 					foreach (var potentialBugs in list.PotentialBugs)
 						bugCollection.AddPotentialBug (potentialBugs);
 				}
-
-				bugCollection.Order ();
-
+				
 				return bugCollection;
 			}
 		}

@@ -40,12 +40,5 @@ namespace clio.Model
 			if (!ContainsBug (bug.Id) && !ContainsPotentialBug (bug.Id))
 				PotentialBugs.Add (bug);
 		}
-
-		public void Order ()
-		{
-			// Bugzilla goes last
-			Bugs = Bugs.OrderBy (x => x.Id).OrderBy (x => x.IssueSource == IssueSource.Bugzilla ? "Z" : x.IssueSource.ToString ()).ToList ();
-			PotentialBugs = PotentialBugs.OrderBy (x => x.Id).OrderBy (x => x.IssueSource == IssueSource.Bugzilla ? "Z" : x.IssueSource.ToString ()).ToList ();
-		}
 	}
 }

@@ -67,7 +67,6 @@
     <Compile Include="SearchOptions.cs" />
     <Compile Include="BugCollector.cs" />
     <Compile Include="Model\BugEntry.cs" />
-    <Compile Include="BugValidator.cs" />
     <Compile Include="Model\Issue.cs" />
     <Compile Include="Model\BugCollection.cs" />
     <Compile Include="ConsolePrinter.cs" />
@@ -75,14 +74,11 @@
     <Compile Include="Providers\VisualStudioService.cs" />
     <Compile Include="Providers\HttpService.cs" />
     <Compile Include="Providers\Parsers\BaseCommitParser.cs" />
-    <Compile Include="Providers\Parsers\BugzillaCommitParser.cs" />
     <Compile Include="Providers\Parsers\VstsCommitParser.cs" />
     <Compile Include="Providers\Validators\BaseIssueValidator.cs" />
-    <Compile Include="Providers\Validators\BugzillaIssueValidator.cs" />
     <Compile Include="Providers\Validators\VstsIssueValidator.cs" />
     <Compile Include="Providers\Validators\GithubIssueValidator.cs" />
     <Compile Include="Providers\Parsers\GithubCommitParser.cs" />
-    <Compile Include="Providers\Issues\BugzillaIssue.cs" />
     <Compile Include="Providers\Issues\VstsIssue.cs" />
     <Compile Include="Providers\Issues\GithubIssue.cs" />
     <Compile Include="RepositoryValidator.cs" />
@@ -98,12 +94,6 @@
     <Folder Include="Providers\Parsers\" />
     <Folder Include="Providers\Validators\" />
     <Folder Include="Providers\Issues\" />
-  </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\external\libbz\libbz\libbz.csproj">
-      <Project>{DB06A55C-89FF-46A9-ABE5-D9F095C6B740}</Project>
-      <Name>libbz</Name>
-    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
 </Project>

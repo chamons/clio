@@ -3,13 +3,12 @@ namespace clio.Model
 {
 	public enum IssueSource
 	{
-		Bugzilla,
 		Vsts,
 		GitHub
 	}
 
 	/// <summary>
-	/// Represents an issue in an issue tracker system, ie bugzilla, vsts or github
+	/// Represents an issue in an issue tracker system, ie vsts or github
 	/// </summary>
 	public interface IIssue
 	{

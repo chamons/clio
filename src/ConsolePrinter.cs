@@ -49,7 +49,6 @@ namespace clio
 
 		static string FormatBug (BugEntry bug)
 		{
-			// If bugzilla validation is disabled, all bugs are uncertain
 			if (string.IsNullOrEmpty (bug.Title))
 				return FormatUncertainBug (bug);
 
