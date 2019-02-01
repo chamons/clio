@@ -17,6 +17,10 @@ namespace clio.Model
 
 		public IssueSource IssueSource { get; private set; }
 
+		public string Date { get; private set; }
+
+		public ParsedCommit Commit { get; private set; }
+
 		public BugEntry (ParsedCommit parsedCommit)
 		{
 			Id = parsedCommit.IssueId;
@@ -24,6 +28,8 @@ namespace clio.Model
 			SecondaryTitle = parsedCommit.Commit.Title?.Replace ('`', '`') ?? string.Empty;
 			IssueInfo = parsedCommit.Issue;
 			IssueSource = parsedCommit.IssueSource;
+			Date = parsedCommit.Commit.CommitDate;
+			Commit = parsedCommit;
 		}
 	}
 }

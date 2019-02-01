@@ -1,73 +1,145 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text;
+using System.Text.RegularExpressions;
 using clio.Model;
-using clio.Providers;
 
 namespace clio
 {
-	static class ConsolePrinter
+	class ConsoleBugPrinter
 	{
-		public static void PrintCommits (IEnumerable<CommitInfo> commits)
+		static Regex BugRegex = new Regex (@"#\s*(\d+)", RegexOptions.Compiled | RegexOptions.IgnoreCase);
+
+		public List<string> Links { get; private set; } = new List<string> ();
+		SearchOptions Options;
+		string IssueURL => "https://github.com/" + Options.GithubLocation + "/issues/";
+		string CommitURL => "https://github.com/" + Options.GithubLocation + "/commit/";
+
+		public ConsoleBugPrinter (SearchOptions options)
+		{
+			Options = options;
+		}
+
+		public string Parse (BugEntry bug)
+		{
+			Links.Clear ();
+			if (Options.GithubLocation != null)
+				HarvestLinks (bug);
+			return FormatOutput (bug);
+		}
+
+		void Add (string link)
+		{
+			if (!Links.Contains (link))
+				Links.Add (link);
+		}
+
+		void HarvestHashLinks (string s)
+		{
+			foreach (Match m in BugRegex.Matches (s))
+			{
+				if (m.Success)
+					Add (IssueURL + m.Groups[1]); // Dirty trick, this works for issues and PRs even though URL is /issues
+			}
+		}
+
+		void HarvestLinks (BugEntry bug)
+		{
+			Add (CommitURL + bug.Commit.Commit.Hash);
+			Add (bug.IssueInfo.IssueUrl);
+			HarvestHashLinks (bug.Title);
+			HarvestHashLinks (bug.SecondaryTitle);
+		}
+
+		string FormatOutput (BugEntry bug)
+		{
+			StringBuilder output = new StringBuilder ();
+			output.AppendLine ($"* [{bug.Id}]({bug.IssueInfo.IssueUrl})");
+			output.AppendLine ($"\t * {bug.Date}");
+			output.AppendLine ($"\t * {bug.Title}");
+
+			if (!String.IsNullOrEmpty (bug.SecondaryTitle))
+				output.AppendLine ($"\t * {bug.SecondaryTitle}");
+
+			// Only print service if we are using both
+			if (!Options.IgnoreVsts && !Options.IgnoreGithub)
+				output.AppendLine ($"\t * {bug.IssueInfo.IssueSource}");
+
+			return output.ToString ();
+		}
+	}
+
+	class ConsolePrinter
+	{
+		ConsoleBugPrinter BugPrinter;
+		SearchOptions Options;
+
+		public ConsolePrinter (SearchOptions options)
+		{
+			BugPrinter = new ConsoleBugPrinter (options);
+			Options = options;
+		}
+
+		public static ConsolePrinter Create (SearchOptions options) => new ConsolePrinter (options);
+
+		public void PrintCommits (IEnumerable<CommitInfo> commits)
 		{
 			foreach (var commit in commits)
 				Console.WriteLine ($"{commit.Hash} {commit.Title}");
 		}
 
-		public static void PrintBugs (BugCollection bugCollection, SearchOptions options)
+		public void PrintBugs (BugCollection bugCollection)
 		{
-			if (options.SplitEnhancementBugs)
+			if (Options.SplitEnhancementBugs)
 			{
 				var bugs = bugCollection.Bugs.Where (x => !x.IssueInfo.IsEnhancement);
-				PrintBugList ("Bugs:", false, bugs, options);
+				PrintBugList ("Bugs:", bugs);
 
 				var potentialBugs = bugCollection.PotentialBugs.Where (x => !x.IssueInfo.IsEnhancement);
-				PrintBugList ("Potential Bugs:", true, potentialBugs, options);
+				PrintBugList ("Potential Bugs:", potentialBugs);
 
 				var enhancements = bugCollection.Bugs.Where (x => x.IssueInfo.IsEnhancement);
-				PrintBugList ("Enhancements:", false, enhancements, options);
+				PrintBugList ("Enhancements:", enhancements);
 
 				var potentialEnhancements = bugCollection.PotentialBugs.Where (x => x.IssueInfo.IsEnhancement);
-				PrintBugList ("Potential Enhancements:", true, potentialEnhancements, options);
+				PrintBugList ("Potential Enhancements:", potentialEnhancements);
 			}
 			else
 			{
-				PrintBugList ("Bugs:", false, bugCollection.Bugs, options);
-				PrintBugList ("Potential Bugs:", true, bugCollection.PotentialBugs, options);
+				PrintBugList ("Bugs:", bugCollection.Bugs);
+				PrintBugList ("Potential Bugs:", bugCollection.PotentialBugs);
 			}
 		}
 
-		static void PrintBugList (string title, bool potential, IEnumerable<BugEntry> list, SearchOptions options)
+		void PrintBugList (string title, IEnumerable<BugEntry> list)
 		{
 			if (list.Count () > 0)
 			{
 				Console.WriteLine (title);
+				Console.WriteLine ();
 				foreach (var bug in list)
-					PrintBug (bug, potential, options);
+					PrintBug (bug);
 			}
 		}
 
-		static string FormatBug (BugEntry bug)
+		static void PrintLinkList (List<string> links)
 		{
-			if (string.IsNullOrEmpty (bug.Title))
-				return FormatUncertainBug (bug);
-
-			return $"* {bug.IssueInfo.IssueSource} [{bug.Id}]({bug.IssueInfo.IssueUrl}) -  {bug.Title}" + (String.IsNullOrEmpty (bug.SecondaryTitle) ? "" : $" / {bug.SecondaryTitle}");
+			if (links.Count () > 0)
+			{
+				Console.WriteLine ("\t* Links");
+				foreach (var link in links)
+					Console.WriteLine ($"\t * [{link}]({link})");
+			}
 		}
 
-		static string FormatUncertainBug (BugEntry bug)
+		void PrintBug (BugEntry bug)
 		{
-			return $"* {bug.IssueInfo.IssueSource} [{bug.Id}]({bug.IssueInfo.IssueUrl}) -  {bug.SecondaryTitle}";
-		}
+			Console.WriteLine (BugPrinter.Parse (bug));
 
-		static void PrintBug (BugEntry bug, bool potential, SearchOptions options)
-		{
-			if (!potential)
-				Console.WriteLine (FormatBug (bug));
-			else
-				Console.WriteLine (FormatUncertainBug (bug));
+			PrintLinkList (BugPrinter.Links);
 
-			if (options.AdditionalBugInfo)
+			if (Options.AdditionalBugInfo)
 			{
 				string additionalInfo = bug.IssueInfo.MoreInfo;
 				if (additionalInfo != null)
