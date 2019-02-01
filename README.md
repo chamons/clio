@@ -83,17 +83,12 @@ clio [options] path
       --base=VALUE           Starting base to consider (branch/base mode)
       --branch=VALUE         Ending branch to consider (branch/base mode)
       --explain              Explain why each commit is considered a bug
-      --bugzilla=VALUE       Determines how Bugzilla issues should be validated
-                               (public, private, disable). The default is `
-                               public`
       --vsts=VALUE           Determines if VSTS issues should be validated or
                                not (enable, disable). The default is `disable`
       --github-pat=VALUE     Sets the PAT required to access github issues
       --vsts-pat=VALUE       Sets the PAT required to access VSTS issues
       --github=VALUE         Project to search issues of, such as xamarin/
                                xamarin-macios. Must be '/' seperated
-      --ignore-bugzilla      Ignores Bugilla issues and does not attempt to
-                               parse commits for Bugzilla issues
       --ignore-vsts          Ignores VSTS issues and does not attempt to parse
                                commits for VSTS issues
       --additional-bug-info  Print additional information on each bug for list-
@@ -101,13 +96,7 @@ clio [options] path
       --split-enhancement=VALUE
                              Split out enhancement bugs from others in listing (
                                defaults to true)
-      --validate-bug-status  Validate bugzilla status for referenced bugs and
-                               report discrepancies (Not closed, not matching
-                               milestone)
       --collect-authors      Generate a list of unique authors to commits listed
-      --expected-target-milestone=VALUE
-                             Target Milestone to expect when validate-bug-
-                               status (instead of using the most common).
       --ignore=VALUE         Commit hashes to ignore
   @file                      Read response file for more options.
 ```
