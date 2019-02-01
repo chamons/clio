@@ -14,6 +14,9 @@ namespace clio.Providers.Validators
 
 		public GithubIssueValidator (SearchOptions options) : base (IssueSource.GitHub, options)
 		{
+			if (options.GithubLocation == null)
+				EntryPoint.Die ("github location not set");
+
 			var bits = options.GithubLocation.Split ('/');
 			if (bits.Length != 2)
 				EntryPoint.Die ("--github formatted incorrectly");

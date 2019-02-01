@@ -15,10 +15,10 @@ namespace clio.Tests
 		[Test]
 		public async Task BugCollector_HandlesDuplicateBugEntries ()
 		{
-			var commits = new List<CommitInfo> () { new CommitInfo ("first", "title 1", "But this one though...\nbug 37664"),
-													new CommitInfo ("second", "title 2", "Get context test right\nContext bug 37664") };
+			var commits = new List<CommitInfo> () { new CommitInfo ("first", "title 1", "But this one though...\nbug 57"),
+													new CommitInfo ("second", "title 2", "Get context test right\nContext bug 57") };
 
-			var parsedCommits = await CommitParser.ParseAndValidateAsync (commits, new SearchOptions ());
+			var parsedCommits = await CommitParser.ParseAndValidateAsync (commits, new SearchOptions () { GithubLocation = "chamons/clio" } );
 
 			var bugCollection = BugCollector.ClassifyCommits (parsedCommits);
 			Assert.AreEqual (1, bugCollection.Bugs.Count);
@@ -27,11 +27,11 @@ namespace clio.Tests
 		[Test]
 		public async Task BugCollector_SmokeTest ()
 		{
-			var commits = new List<CommitInfo> () { new CommitInfo ("first", "title 1", "But this one though...\nbug 37664"),
-													new CommitInfo ("second", "title 2", "Get context test right\nContext bug 37664"),
-													new CommitInfo ("third", "title 3", "bug 37665") };
+			var commits = new List<CommitInfo> () { new CommitInfo ("first", "title 1", "But this one though...\nbug 19"),
+													new CommitInfo ("second", "title 2", "Get context test right\nContext bug 20"),
+													new CommitInfo ("third", "title 3", "bug 57") };
 
-			var parsedCommits = await CommitParser.ParseAndValidateAsync (commits, new SearchOptions ());
+			var parsedCommits = await CommitParser.ParseAndValidateAsync (commits, new SearchOptions () { GithubLocation = "chamons/clio" });
 
 			var bugCollection = BugCollector.ClassifyCommits (parsedCommits);
 			Assert.AreEqual (2, bugCollection.Bugs.Count);
