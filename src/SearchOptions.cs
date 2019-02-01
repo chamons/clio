@@ -15,8 +15,8 @@ namespace clio
 
 	public class SearchOptions
 	{
-		public bool IgnoreVsts { get; set; }
-		public bool IgnoreGithub { get; set; } = true;
+		public bool IgnoreVsts { get; set; } = true;
+		public bool IgnoreGithub { get; set; }
 
 		public VstsLevel Vsts { get; set; } = VstsLevel.Disable;
 		public string GithubLocation { get; set; }
