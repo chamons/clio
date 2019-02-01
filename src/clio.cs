@@ -68,9 +68,6 @@ namespace clio
 			var bugCollection = BugCollector.ClassifyCommits (parsedCommits);
 
 			ConsolePrinter.PrintBugs (bugCollection, options);
-
-			if (options.ValidateBugStatus)
-				BugValidator.Validate (bugCollection, options);
 		}
 
 		static async Task ExportAsync(IEnumerable<CommitInfo> commits, SearchOptions options, string outputFile)

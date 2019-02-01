@@ -55,24 +55,6 @@ namespace clio
 				{ "branch=", "Ending branch to consider (branch/base mode)", b => SetBranchRange (null, b) },
 
 				{ "explain", "Explain why each commit is considered a bug", v => Explain.Enabled = true },
-				{ "bugzilla=", "Determines how Bugzilla issues should be validated (public, private, disable). The default is `public`", v =>
-					{
-						switch (v.ToLower (CultureInfo.InvariantCulture))
-						{
-							case "public":
-								options.Bugzilla = BugzillaLevel.Public;
-								break;
-							case "private":
-								options.Bugzilla = BugzillaLevel.Private;
-								break;
-							case "disable":
-								options.Bugzilla = BugzillaLevel.Disable;
-								break;
-							default:
-								Die ($"Unknown value for --bugzilla {v}");
-							break;
-						}
-					}},
 				{ "vsts=", "Determines if VSTS issues should be validated or not (enable, disable). The default is `disable`", v =>
 					{
 						switch (v.ToLower (CultureInfo.InvariantCulture))
@@ -94,13 +76,10 @@ namespace clio
 						options.IgnoreGithub = false;
 						options.GithubLocation = v;
 					}},
-				{ "ignore-bugzilla", "Ignores Bugilla issues and does not attempt to parse commits for Bugzilla issues", v => options.IgnoreBugzilla = true},
 				{ "ignore-vsts", "Ignores VSTS issues and does not attempt to parse commits for VSTS issues", v => options.IgnoreVsts = true},
 				{ "additional-bug-info", "Print additional information on each bug for list-bugs", v => options.AdditionalBugInfo = true},
 				{ "split-enhancement=", "Split out enhancement bugs from others in listing (defaults to true)", (bool v) => options.SplitEnhancementBugs = v},
-				{ "validate-bug-status", "Validate bugzilla status for referenced bugs and report discrepancies (Not closed, not matching milestone)", v => options.ValidateBugStatus = true},
 				{ "collect-authors", "Generate a list of unique authors to commits listed", v => options.CollectAuthors = true},
-				{ "expected-target-milestone=", "Target Milestone to expect when validate-bug-status (instead of using the most common).", v => options.ExpectedTargetMilestone = v},
 				{ "ignore=", "Commit hashes to ignore", v => options.CommitsToIgnore.Add (v) },
 				new ResponseFileSource (),
 			};
@@ -123,10 +102,7 @@ namespace clio
 
 			if (!options.IgnoreGithub && !options.GithubLocation.Contains ("/"))
 					Die ("--github formatted incorrectly");
-
-			if (options.ValidateBugStatus && options.Bugzilla == BugzillaLevel.Disable)
-				Die ("Unable to Validate Bug Status with Bugzilla support disabled.");
-
+					
 			if (requestedAction == ActionType.ExportBugs && string.IsNullOrEmpty(outputFile))
 				Die ("You must specify --outputfile= with --export-bugs.");
 

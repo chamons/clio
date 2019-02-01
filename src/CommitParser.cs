@@ -58,8 +58,6 @@ namespace clio
 		{
 			if (!options.IgnoreVsts)
 				yield return VstsCommitParser.Instance;
-			if (!options.IgnoreBugzilla)
-				yield return BugzillaCommitParser.Instance;
 			if (!options.IgnoreGithub)
 				yield return GithubCommitParser.Instance;
 		}
@@ -70,17 +68,12 @@ namespace clio
 				yield return new VstsIssueValidator (options);
 			else
 				yield return new DefaultIssueValidator (IssueSource.Vsts, options);			
-
-			if (options.Bugzilla != BugzillaLevel.Disable && !options.IgnoreBugzilla)
-				yield return new BugzillaIssueValidator (options);
-			else
-				yield return new DefaultIssueValidator (IssueSource.Bugzilla, options);
-
+				
 			// TODO - Github is only public for now
 			if (!options.IgnoreGithub)
 				yield return new GithubIssueValidator (options);
 			else
-				yield return new DefaultIssueValidator (IssueSource.Bugzilla, options);
+				yield return new DefaultIssueValidator (IssueSource.GitHub, options);
 		}
 	}
 }

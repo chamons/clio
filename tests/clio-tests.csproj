@@ -42,7 +42,6 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="BugCollectorTests.cs" />
-    <Compile Include="BugzillaCommitParserTests.cs" />
     <Compile Include="VstsCommitParserTests.cs" />
     <Compile Include="GithubCommitParserTests.cs" />
     <Compile Include="ParserTestHelpers.cs" />
