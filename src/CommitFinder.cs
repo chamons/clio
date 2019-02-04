@@ -19,6 +19,25 @@ namespace clio
 			return ParseWithFilter (path, options, filter);
 		}
 
+		public static IEnumerable<CommitInfo> ParseSingle (string path, SearchOptions options, string hash)
+		{
+			try {
+				using (var repo = new Repository (path)) {
+					var commit = repo.Commits.FirstOrDefault (x => x.Id.Sha == hash);
+					if (commit == null)
+						return Enumerable.Empty<CommitInfo> ();
+
+					return new List<CommitInfo> { CreateInfoFromCommit (commit) };
+				}
+			}
+			catch (RepositoryNotFoundException) {
+				return Enumerable.Empty<CommitInfo> ();
+			}
+			catch (NotFoundException) {
+				return Enumerable.Empty<CommitInfo> ();
+			}
+		}
+
 		static IEnumerable<CommitInfo> ParseWithFilter (string path, SearchOptions options, CommitFilter filter)
 		{
 			try {

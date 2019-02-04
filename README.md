@@ -77,6 +77,7 @@ clio [options] path
                                notes
   -x, --export-bugs          Export bugs discovered instead of formatting
                                release notes
+      --explain-commit=VALUE Parse a single commit and explain.
       --output-file=VALUE    Output file for export-bugs
       --oldest=VALUE         Starting hash to consider (hash range mode)
       --newest=VALUE         Ending hash to consider (hash range mode)
@@ -86,6 +87,8 @@ clio [options] path
       --vsts=VALUE           Determines if VSTS issues should be validated or
                                not (enable, disable). The default is `disable`
       --github-pat=VALUE     Sets the PAT required to access github issues
+      --github-pat-file=VALUE
+                             Sets a file to read to use for github-path
       --vsts-pat=VALUE       Sets the PAT required to access VSTS issues
       --github=VALUE         Project to search issues of, such as xamarin/
                                xamarin-macios. Must be '/' seperated

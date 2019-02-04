@@ -14,7 +14,8 @@ namespace clio
 		Help,
 		ListConsideredCommits,
 		ListBugs,
-		ExportBugs
+		ExportBugs,
+		ExplainCommit
 	}
 
 	// Simple top level wrapper interface
@@ -38,6 +39,8 @@ namespace clio
 				commits = CommitFinder.ParseHashRange (path, options, hashSearchRange.Oldest, hashSearchRange.Newest);
 			else if (range is BranchSearchRange branchSearchRange)
 				commits = CommitFinder.ParseBranchRange (path, options, branchSearchRange.Base, branchSearchRange.Branch);
+			else if (range is SingleHashSearchRange singleRange)
+				commits = CommitFinder.ParseSingle (path, options, singleRange.Hash);
 			else
 				throw new NotImplementedException ();
 
@@ -46,11 +49,13 @@ namespace clio
 			switch (action)
 			{
 				case ActionType.ListConsideredCommits:
-				{
 					ConsolePrinter.Create (options).PrintCommits (commits);
 					Explain.Print ($"Only listing of commits was requested. Exiting.");
 					return;
-				}
+				case ActionType.ExplainCommit:
+					Explain.Enabled = true;
+					await ListBugsAsync (commits, options).ConfigureAwait (false);
+					return;
 				case ActionType.ListBugs:
 					await ListBugsAsync (commits, options).ConfigureAwait (false);
 					return;

@@ -44,6 +44,11 @@ namespace clio
 		public string Branch { get; set; }
 	}
 
+	public class SingleHashSearchRange : ISearchRange
+	{
+		public string Hash { get; set; }
+	}
+
 	public static class Explain
 	{
 		static public bool Enabled;
