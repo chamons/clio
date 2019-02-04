@@ -56,6 +56,7 @@ namespace clio.Providers.Parsers
 		}
 
 		protected abstract bool ValidateBugNumber (int bugNumber);
+		protected virtual bool ValidateLine (string line, int bugNumber) => true;
 
 		protected virtual bool ShouldIgnoreLine (string line)
 		{
@@ -86,6 +87,9 @@ namespace clio.Providers.Parsers
 						Explain.Print ($"Had an invalid id {id}.");
 						return new ParseResults { Confidence = ParsingConfidence.Invalid };
 					}
+
+					if (!ValidateLine (line, id))
+						return new ParseResults { Confidence = ParsingConfidence.Invalid };
 
 					Explain.Print ($"Had a valid id {id}.");
 
