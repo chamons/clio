@@ -12,8 +12,16 @@ namespace clio
 				return HandleHashRange (path, hashSearchRange.Oldest, hashSearchRange.Newest);
 			else if (range is BranchSearchRange branchSearchRange)
 				return HandleBranchRange (path, branchSearchRange.Base, branchSearchRange.Branch);
+			else if (range is SingleHashSearchRange singleHash)
+				return HandleSingle (path, singleHash.Hash);
 			else
 				throw new NotImplementedException ();
+		}
+
+		static bool HandleSingle (string path, string hash)
+		{
+			using (var repo = new Repository (path))
+				return repo.Lookup<Commit> (hash) != null;
 		}
 
 		static bool HandleBranchRange (string path, string baseBranch, string branch)

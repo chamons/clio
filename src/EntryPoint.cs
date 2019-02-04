@@ -50,6 +50,10 @@ namespace clio
 				{ "l|list-commits", "List commits that would be considered", v => requestedAction = ActionType.ListConsideredCommits },
 				{ "b|list-bugs", "List bugs discovered instead of formatting release notes", v => requestedAction = ActionType.ListBugs },
 				{ "x|export-bugs", "Export bugs discovered instead of formatting release notes", v => requestedAction = ActionType.ExportBugs },
+				{ "explain-commit=", "Parse a single commit and explain.", v => {
+					requestedAction = ActionType.ExplainCommit;
+					range = new SingleHashSearchRange { Hash = v };
+				}},
 				{ "output-file=", "Output file for export-bugs", v => outputFile = v },
 				{ "oldest=", "Starting hash to consider (hash range mode)", s => SetHashRange (s, null) },
 				{ "newest=", "Ending hash to consider (hash range mode)", e => SetHashRange (null, e) },
