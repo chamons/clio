@@ -66,6 +66,7 @@ namespace clio
 			if (!Options.IgnoreVsts && !Options.IgnoreGithub)
 				output.AppendLine ($"\t * {bug.IssueInfo.IssueSource}");
 
+			output.AppendLine ();
 			return output.ToString ();
 		}
 	}
