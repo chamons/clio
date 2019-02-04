@@ -59,7 +59,7 @@ namespace clio
 			if (!options.IgnoreVsts)
 				yield return VstsCommitParser.Instance;
 			if (!options.IgnoreGithub)
-				yield return GithubCommitParser.Instance;
+				yield return GithubCommitParser.Create (options.GithubLocation ?? "");
 		}
 
 		static IEnumerable<IIssueValidator> GetValidators (SearchOptions options)

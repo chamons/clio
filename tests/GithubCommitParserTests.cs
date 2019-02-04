@@ -67,30 +67,53 @@ namespace clio.Tests
 		{
 			var commitInfo = new CommitInfo ("hash", "title", "title \nhttps://github.com/chamons/clio/issues/18\nhttps://github.com/chamons/clio/issues/19");
 
-			var results = GithubCommitParser.Instance.ParseSingle (commitInfo).ToList ();
+			var results = GithubCommitParser.DefaultInstance.ParseSingle (commitInfo).ToList ();
 
 			Assert.AreEqual (2, results.Count, "did not find any github issues");
 			Assert.AreEqual (18, results[0].IssueId, "did not parse to correct github id");
 			Assert.AreEqual (19, results[1].IssueId, "did not parse to correct github id");
-			Assert.AreEqual (ParsingConfidence.High, results[0].Confidence, "Did not determine the correct confidence");
-			Assert.AreEqual (ParsingConfidence.High, results[1].Confidence, "Did not determine the correct confidence");
+			Assert.AreEqual (ParsingConfidence.High, results[0].Confidence, "Did not determine the correct confidence #1");
+			Assert.AreEqual (ParsingConfidence.High, results[1].Confidence, "Did not determine the correct confidence #2");
+		}
+
+		[Test]
+		public void IssueWithBuildPath ()
+		{
+			var commitInfo = new CommitInfo ("hash", "title", "title \nobj/iPhone/Debug64-today-extension/Xamarin.iOS,Version=v1.0.AssemblyAttribute.fs");
+
+			var results = GithubCommitParser.DefaultInstance.ParseSingle (commitInfo).ToList ();
+
+			Assert.AreEqual (0, results.Count, "Found issue unnecessarily");
+		}
+
+		[Test]
+		public void ParseCrossRepo ()
+		{
+			var commitInfo = new CommitInfo ("hash", "title", "title \nhttps://github.com/chamons/clio/issues/18\nhttps://github.com/xamarin/maccore/issues/592");
+
+			var results = GithubCommitParser.Create("clio").ParseSingle (commitInfo).ToList ();
+
+			Assert.AreEqual (1, results.Count, "did not find any github issues");
+			Assert.AreEqual (18, results[0].IssueId, "did not parse to correct github id");
+
+			Assert.AreEqual (ParsingConfidence.High, results[0].Confidence, "Did not determine the correct confidence #1");
 		}
 
 		static void AssertHigh (CommitInfo commitInfo, int number)
 		{
-			var results = GithubCommitParser.Instance.ParseSingle (commitInfo).ToList ();
+			var results = GithubCommitParser.DefaultInstance.ParseSingle (commitInfo).ToList ();
 			ParserTestHelpers.AssertFoundWithConfidence (ParsingConfidence.High, number, results);
 		}
 
 		static void AssertLikely (CommitInfo commitInfo, int number)
 		{
-			var results = GithubCommitParser.Instance.ParseSingle (commitInfo).ToList ();
+			var results = GithubCommitParser.DefaultInstance.ParseSingle (commitInfo).ToList ();
 			ParserTestHelpers.AssertFoundWithConfidence (ParsingConfidence.Likely, number, results);
 		}
 
 		static void AssertNone (CommitInfo commitInfo)
 		{
-			var results = GithubCommitParser.Instance.ParseSingle (commitInfo).ToList ();
+			var results = GithubCommitParser.DefaultInstance.ParseSingle (commitInfo).ToList ();
 
 			Assert.AreEqual (0, results.Count, "found an item when it should not have");
 		}
