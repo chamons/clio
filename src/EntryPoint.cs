@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Globalization;
+using System.IO;
+using System.Linq;
 using Mono.Options;
 using Optional;
 using Optional.Unsafe;
@@ -71,6 +73,7 @@ namespace clio
 						}
 					}},
 				{ "github-pat=", "Sets the PAT required to access github issues", v => options.GithubPAT = v},
+				{ "github-pat-file=", "Sets a file to read to use for github-path", v => options.GithubPAT = File.ReadLines (v).First ()},
 				{ "vsts-pat=", "Sets the PAT required to access VSTS issues", v => options.VstsPAT = v},
 				{ "github=", "Project to search issues of, such as xamarin/xamarin-macios. Must be '/' seperated", v => {
 						options.IgnoreGithub = false;
