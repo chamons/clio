@@ -29,12 +29,12 @@ namespace clio
 			using (var repo = new Repository (path))
 			{
 				var localBranches = repo.Branches.Where (x => !x.IsRemote).ToList ();
-				if (!localBranches.Any (x => x.FriendlyName == baseBranch))
+				if (!localBranches.Any (x => x.FriendlyName == baseBranch) && repo.Lookup<Commit> (baseBranch) == null)
 				{
 					Console.Error.WriteLine ($"Unable to find branch {baseBranch} in repo.");
 					return false;
 				}
-				if (!localBranches.Any (x => x.FriendlyName == branch)) {
+				if (!localBranches.Any (x => x.FriendlyName == branch) && repo.Lookup<Commit> (branch) == null) {
 					Console.Error.WriteLine ($"Unable to find branch {branch} in repo.");
 					return false;
 				}
