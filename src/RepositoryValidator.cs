@@ -26,7 +26,19 @@ namespace clio
 
 		static bool HandleBranchRange (string path, string baseBranch, string branch)
 		{
-			// This will need tweaks under new system
+			using (var repo = new Repository (path))
+			{
+				var localBranches = repo.Branches.Where (x => !x.IsRemote).ToList ();
+				if (!localBranches.Any (x => x.FriendlyName == baseBranch))
+				{
+					Console.Error.WriteLine ($"Unable to find branch {baseBranch} in repo.");
+					return false;
+				}
+				if (!localBranches.Any (x => x.FriendlyName == branch)) {
+					Console.Error.WriteLine ($"Unable to find branch {branch} in repo.");
+					return false;
+				}
+			}
 			return true;
 		}
 
