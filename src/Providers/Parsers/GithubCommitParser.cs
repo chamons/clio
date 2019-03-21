@@ -29,11 +29,11 @@ namespace clio.Providers.Parsers
 			ExpectedRepo = expectedRepo;
 		}
 
-		protected override bool ValidateLine (string line, int bugNumber)
+		protected override ValidationResults ValidateLine (string line, int bugNumber)
 		{
 			if (BuildPath.Match (line).Success) {
 				Explain.Print ($"{line} appears to be build path not issue path, ignoring.");
-				return false;
+				return ValidationResults.Ignore;
 			}
 
 			if (!String.IsNullOrEmpty (ExpectedRepo)) {
@@ -41,13 +41,13 @@ namespace clio.Providers.Parsers
 				if (issueMatch.Success) {
 					string repro = issueMatch.Groups[2].Value;
 					if (repro != ExpectedRepo) {
-						Explain.Print ($"{line} appears to be cross repro issue '{repro}' vs expected '{ExpectedRepo}' - ignoring.");
-						return false;
+						Explain.Print ($"{line} appears to be cross repro issue '{repro}' vs expected '{ExpectedRepo}' - marking low.");
+						return ValidationResults.Low;
 					}
 				}
 			}
 
-			return true;
+			return ValidationResults.Acceptable;
 		}
 
 		protected override bool ValidateBugNumber (int bugNumber)

@@ -1,17 +1,10 @@
-﻿using NUnit.Framework;
-using System;
-using clio;
-using System.Linq;
+﻿using System.Collections.Generic;
+
+using NUnit.Framework;
 using clio.Model;
-using Optional;
-using System.Collections.Generic;
-using System.Threading.Tasks;
-using clio.Providers;
-using clio.Providers.Parsers;
 
 namespace clio.Tests
 {
-	[TestFixture]
 	public static class ParserTestHelpers
 	{
 		public static void AssertFoundWithConfidence (ParsingConfidence confidence, int number, List<ParsedCommit> results)

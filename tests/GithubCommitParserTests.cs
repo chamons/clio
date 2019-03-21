@@ -4,6 +4,8 @@ using System.Linq;
 using NUnit.Framework;
 using clio.Providers;
 using clio.Providers.Parsers;
+using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace clio.Tests
 {
@@ -97,6 +99,22 @@ namespace clio.Tests
 			Assert.AreEqual (18, results[0].IssueId, "did not parse to correct github id");
 
 			Assert.AreEqual (ParsingConfidence.High, results[0].Confidence, "Did not determine the correct confidence #1");
+		}
+
+		[Test]
+		public void IgnoreOnlyRequestedTags ()
+		{
+			var commits = new List<CommitInfo> { new CommitInfo ("hash1", "Fix thing", "Fix #1"),
+												 new CommitInfo ("hash2", "[tests]Fix test", "Fix #2"),
+												 new CommitInfo ("hash3", "Fix tests without tag", "Fix #3"),
+												 new CommitInfo ("hash4", "Fix other thing", "[tests] Fix #4")
+			};
+
+			var parser = GithubCommitParser.DefaultInstance;
+			var parsedCommits = commits.SelectMany (x => parser.ParseSingle (x));
+
+			Assert.AreEqual (3, parsedCommits.Count ());
+			Assert.False (parsedCommits.Any (x => x.Commit.Hash == "hash2"));
 		}
 
 		static void AssertHigh (CommitInfo commitInfo, int number)

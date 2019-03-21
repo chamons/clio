@@ -13,10 +13,10 @@ namespace clio.Tests
 	public class BugCollectorTests
 	{
 		[Test]
-		public async Task BugCollector_HandlesDuplicateBugEntries ()
+		public async Task HandlesDuplicateBugEntries ()
 		{
-			var commits = new List<CommitInfo> () { new CommitInfo ("first", "title 1", "But this one though...\nbug 57"),
-													new CommitInfo ("second", "title 2", "Get context test right\nContext bug 57") };
+			var commits = new List<CommitInfo> { new CommitInfo ("first", "title 1", "But this one though...\nbug 57"),
+												 new CommitInfo ("second", "title 2", "Get context test right\nContext bug 57") };
 
 			var parsedCommits = await CommitParser.ParseAndValidateAsync (commits, new SearchOptions () { GithubLocation = "chamons/clio" } );
 
@@ -25,9 +25,9 @@ namespace clio.Tests
 		}
 
 		[Test]
-		public async Task BugCollector_SmokeTest ()
+		public async Task SmokeTest ()
 		{
-			var commits = new List<CommitInfo> () { new CommitInfo ("first", "title 1", "But this one though...\nbug 19"),
+			var commits = new List<CommitInfo> { new CommitInfo ("first", "title 1", "But this one though...\nbug 19"),
 													new CommitInfo ("second", "title 2", "Get context test right\nContext bug 20"),
 													new CommitInfo ("third", "title 3", "bug 57") };
 

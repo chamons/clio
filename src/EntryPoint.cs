@@ -88,6 +88,7 @@ namespace clio
 				{ "split-enhancement=", "Split out enhancement bugs from others in listing (defaults to true)", (bool v) => options.SplitEnhancementBugs = v},
 				{ "collect-authors", "Generate a list of unique authors to commits listed", v => options.CollectAuthors = true},
 				{ "ignore=", "Commit hashes to ignore", v => options.CommitsToIgnore.Add (v) },
+				{ "ignore-tag=", "Ignore commits that contain [tag] in the commit message.", v => options.TagsToIgnore.Add (v) },
 				new ResponseFileSource (),
 			};
 

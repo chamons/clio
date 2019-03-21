@@ -28,6 +28,8 @@ namespace clio
 		public bool SplitEnhancementBugs { get; set; } = true;
 		public bool CollectAuthors { get; set; } = false;
 		public List<string> CommitsToIgnore { get; set; } = new List<string> ();
+		public List<string> TagsToIgnore { get; set; } = new List<string> ();
+
 	}
 
 	public interface ISearchRange {}

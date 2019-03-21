@@ -56,7 +56,9 @@ namespace clio.Providers.Parsers
 		}
 
 		protected abstract bool ValidateBugNumber (int bugNumber);
-		protected virtual bool ValidateLine (string line, int bugNumber) => true;
+
+		protected enum ValidationResults { Ignore, Low, Acceptable }
+		protected virtual ValidationResults ValidateLine (string line, int bugNumber) => ValidationResults.Acceptable;
 
 		protected virtual bool ShouldIgnoreLine (string line)
 		{
@@ -88,8 +90,16 @@ namespace clio.Providers.Parsers
 						return new ParseResults { Confidence = ParsingConfidence.Invalid };
 					}
 
-					if (!ValidateLine (line, id))
-						return new ParseResults { Confidence = ParsingConfidence.Invalid };
+					var validateLineResults = ValidateLine (line, id);
+					switch (validateLineResults)
+					{
+						case ValidationResults.Ignore:
+							return new ParseResults { Confidence = ParsingConfidence.Invalid };
+						case ValidationResults.Low:
+							if (confidence == ParsingConfidence.High || confidence == ParsingConfidence.Likely)
+								confidence = ParsingConfidence.Low;
+							break;
+					}
 
 					Explain.Print ($"Had a valid id {id}.");
 
