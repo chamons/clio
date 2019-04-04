@@ -2,7 +2,6 @@ build::
 	msbuild clio.sln
 
 prepare::
-	git submodule update --recursive --init
 	nuget restore clio.sln
 
 release:: build
@@ -11,7 +10,7 @@ release:: build
 	cp src/clio dist/
 
 chris-install:: release
-	rm -r ~/bin/clio/
+	rm -rf ~/bin/clio/
 	mkdir -p ~/bin/clio/
 	cp -R dist/* ~/bin/clio/
 
