@@ -1,13 +1,11 @@
 build::
-	msbuild clio.sln
+	dotnet build
 
-prepare::
-	nuget restore clio.sln
-
-release:: build
+release::
+	dotnet publish
 	mkdir -p dist
-	cp -R src/bin/Debug/ dist/
-	cp src/clio dist/
+	cp -R src/Clio/bin/Debug/netcoreapp2.1/publish/ dist/
+	cp tools/Clio dist/Clio
 
 chris-install:: release
 	rm -rf ~/bin/clio/
@@ -15,5 +13,5 @@ chris-install:: release
 	cp -R dist/* ~/bin/clio/
 
 clean::
-	msbuild /t:clean clio.sln
+	dotnet clean 
 	rm -rf dist/
