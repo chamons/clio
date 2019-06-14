@@ -5,7 +5,7 @@ namespace Clio.Ranges
 {
 	public static class RangeFinder 
 	{
-		public static IEnumerable<CommitInfo> ProcessAsync (string path, SearchOptions options, ISearchRange range)
+		public static IEnumerable<CommitInfo> Find (string path, SearchOptions options, ISearchRange range)
 		{
 			if (range is HashSearchRange hashSearchRange)
 				return CommitFinder.ParseHashRange (path, options, hashSearchRange.Oldest, hashSearchRange.Newest);

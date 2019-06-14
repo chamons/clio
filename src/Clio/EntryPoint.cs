@@ -1,11 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 using System.IO;
 using System.Linq;
 
 using Mono.Options;
 
 using Clio.Ranges;
+using Clio.Requests;
 using Clio.Utilities;
 
 namespace Clio
@@ -19,7 +21,7 @@ namespace Clio
 
     class Program
     {
-        static void Main(string[] args)
+        static async Task Main(string[] args)
         {
             bool collectAuthors = false;	
            	string path = null;
@@ -87,14 +89,20 @@ namespace Clio
 				return;
 			}
 
-			if (!options.GithubLocation.Contains ("/"))
-					Errors.Die ("--github formatted incorrectly");
+			if (String.IsNullOrEmpty (options.GithubLocation) || !options.GithubLocation.Contains ("/"))
+				Errors.Die ("--github formatted incorrectly");
 					
 			if (!RepositoryValidator.ValidateGitHashes (path, range))
 				Environment.Exit (-1);
 
+			if (String.IsNullOrEmpty (options.GithubPAT))
+				Errors.Die ("Unable to read GitHub PAT token");
+
             var commits = RangeFinder.Find (path, options, range);
 
+			var finder = new RequestFinder (options.GithubPAT);
+            var prs = await finder.FindPullRequests (options.GithubLocation, commits.Select (x => x.Hash));
+			Console.WriteLine (prs);
         }
 
         static void ShowHelp (OptionSet os)
