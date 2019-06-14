@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace clio
+namespace Clio.Utilities 
 {
 	public static class EnumerableExtensions
 	{

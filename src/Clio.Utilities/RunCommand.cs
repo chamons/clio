@@ -2,7 +2,7 @@
 using System.Diagnostics;
 using System.Text;
 
-namespace clio
+namespace Clio.Utilities 
 {
 	public class RunCommand
 	{
