@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Octokit;
 
+using Clio.Ranges;
 using Clio.Utilities;
 
 namespace Clio.Requests
@@ -26,30 +27,32 @@ namespace Clio.Requests
             return (bits[0], bits[1]);
         }
 
-        Task<SearchIssuesResult> FindPR (string commit)
+        public async Task AssertLimits ()
         {
-                var request = new SearchIssuesRequest ("SHA " + commit) {
-                    Type = IssueTypeQualifier.PullRequest,
-                };
-                return Client.Search.SearchIssues (request);
+            var limits = await Client.Miscellaneous.GetRateLimits ();
+            int coreLimit = limits.Resources.Core.Remaining;
+            int searchLimit = limits.Resources.Search.Remaining;
+            if (coreLimit < 1 || searchLimit < 1)
+                Errors.Die ($"Rate Limit Hit: {coreLimit} {searchLimit}");
         }
 
-        public async Task<RequestCollection> FindPullRequests (string location, IEnumerable<string> commits)
+        public async Task<RequestCollection> FindPullRequests (string location, IEnumerable<CommitInfo> commits)
         {
             var (owner, area) = ParseLocation (location);
 
             var requests = new RequestCollection ();
-            foreach (var commit in commits) {
-                var commitInfo = await Client.Repository.Commit.Get (owner, area, commit);
-                var pr = await FindPR (commit);
 
-                var commitLines = commitInfo.Commit.Message.SplitLines ();
-                string commitMessage = commitLines.First (); 
-                string commitDescription = string.Join ("", commitLines.Skip (1));
-                if (pr.Items.Count != 1)
-                    Errors.Die ($"Found {pr.Items.Count} items for hash {commit} not 1");
-                var prItem = pr.Items[0];
-                requests.Add (new RequestInfo (prItem.Id, string.Format ("{0:MM/dd/yyyy}", prItem.ClosedAt), commitMessage, commitDescription, prItem.Title, prItem.Body, commit, commitInfo.Commit.Author.Email, prItem.Url));
+            var allPRs = await Client.Search.SearchIssues (new SearchIssuesRequest () {
+                Type = IssueTypeQualifier.PullRequest,
+                Repos = new RepositoryCollection () { location }
+            });
+
+            foreach (var commit in commits) {
+                // There are zero items here, where oh where is the merge Commit!?
+                var prItem = allPRs.Items.FirstOrDefault (x => x.PullRequest.MergeCommitSha == commit.Hash);
+                if (prItem != null)
+                    requests.Add (new RequestInfo (prItem.Id, string.Format ("{0:MM/dd/yyyy}", prItem.ClosedAt), commit.Title, 
+                        commit.Description, prItem.Title, prItem.Body, commit.Hash, commit.Author, prItem.Url));
             }
             return requests;
         }

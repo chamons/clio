@@ -56,6 +56,7 @@ namespace Clio
 			OptionSet os = new OptionSet ()
 			{
 				{ "h|?|help", "Displays the help", v => requestedAction = ActionType.Help },
+				{ "verbose", "Print more details", v => Explain.Enabled = true },
 				{ "explain-commit=", "Parse a single commit and explain.", v => {
 					requestedAction = ActionType.ExplainCommit;
 					range = new SingleHashSearchRange { Hash = v };
@@ -98,10 +99,19 @@ namespace Clio
 			if (String.IsNullOrEmpty (options.GithubPAT))
 				Errors.Die ("Unable to read GitHub PAT token");
 
-            var commits = RangeFinder.Find (path, options, range);
+			Explain.Print ("Finding Commits in Range");
+			Explain.Indent ();
+            var commits = RangeFinder.Find (path, options, range).ToList ();
+			Explain.Print ($"Found: {commits.Count}");
+			Explain.Deindent ();
 
+			Explain.Print ("Finding Pull Requests");
+			Explain.Indent ();
 			var finder = new RequestFinder (options.GithubPAT);
-            var prs = await finder.FindPullRequests (options.GithubLocation, commits.Select (x => x.Hash));
+			await finder.AssertLimits ();
+            var prs = await finder.FindPullRequests (options.GithubLocation, commits);
+			Explain.Print ($"Found: {prs.All.Count}");
+			Explain.Deindent ();
 
 			var printer = new ConsolePrinter (options.GithubLocation);
 			printer.Print (prs, collectAuthors);
