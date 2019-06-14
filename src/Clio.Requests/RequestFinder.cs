@@ -49,7 +49,7 @@ namespace Clio.Requests
                 if (pr.Items.Count != 1)
                     Errors.Die ($"Found {pr.Items.Count} items for hash {commit} not 1");
                 var prItem = pr.Items[0];
-                requests.Add (new RequestInfo (prItem.Id, prItem.ClosedAt.ToString (), commitMessage, commitDescription, prItem.Title, prItem.Body, commit, commitInfo.Commit.Author.Email, prItem.Url));
+                requests.Add (new RequestInfo (prItem.Id, string.Format ("{0:MM/dd/yyyy}", prItem.ClosedAt), commitMessage, commitDescription, prItem.Title, prItem.Body, commit, commitInfo.Commit.Author.Email, prItem.Url));
             }
             return requests;
         }
