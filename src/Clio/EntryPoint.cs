@@ -102,7 +102,9 @@ namespace Clio
 
 			var finder = new RequestFinder (options.GithubPAT);
             var prs = await finder.FindPullRequests (options.GithubLocation, commits.Select (x => x.Hash));
-			Console.WriteLine (prs);
+
+			var printer = new ConsolePrinter (options.GithubLocation);
+			printer.Print (prs, collectAuthors);
         }
 
         static void ShowHelp (OptionSet os)

@@ -34,11 +34,11 @@ namespace Clio.Requests
                 return Client.Search.SearchIssues (request);
         }
 
-        public async Task<IEnumerable<RequestInfo>> FindPullRequests (string location, IEnumerable<string> commits)
+        public async Task<RequestCollection> FindPullRequests (string location, IEnumerable<string> commits)
         {
             var (owner, area) = ParseLocation (location);
 
-            var requests = new List<RequestInfo> ();
+            var requests = new RequestCollection ();
             foreach (var commit in commits) {
                 var commitInfo = await Client.Repository.Commit.Get (owner, area, commit);
                 var pr = await FindPR (commit);
@@ -46,7 +46,10 @@ namespace Clio.Requests
                 var commitLines = commitInfo.Commit.Message.SplitLines ();
                 string commitMessage = commitLines.First (); 
                 string commitDescription = string.Join ("", commitLines.Skip (1));
-                requests.Add (new RequestInfo (commitMessage, commitDescription, pr.Items[0].Title, pr.Items[0].Body, commit, commitInfo.Commit.Author.Email));
+                if (pr.Items.Count != 1)
+                    Errors.Die ($"Found {pr.Items.Count} items for hash {commit} not 1");
+                var prItem = pr.Items[0];
+                requests.Add (new RequestInfo (prItem.Id, prItem.ClosedAt.ToString (), commitMessage, commitDescription, prItem.Title, prItem.Body, commit, commitInfo.Commit.Author.Email, prItem.Url));
             }
             return requests;
         }

@@ -16,17 +16,23 @@ namespace Clio.Requests
 
 	public struct RequestInfo 
     {
-        ItemInfo CommitInfo;
-        ItemInfo PRInfo;
-        string Hash;
-        string Author;
+        public int ID;
+        public string Date;
+        public ItemInfo CommitInfo;
+        public ItemInfo PRInfo;
+        public string Hash;
+        public string Author;
+        public string URL;
 
-        public RequestInfo (string commitTitle, string commitDescription, string prTitle, string prDescription, string hash, string author)
+        public RequestInfo (int id, string date, string commitTitle, string commitDescription, string prTitle, string prDescription, string hash, string author, string url)
         {
+            ID = id;
+            Date = date;
             CommitInfo = new ItemInfo (commitTitle, commitDescription);
             PRInfo = new ItemInfo (prTitle, prDescription);
             Hash = hash;
             Author = author;
+            URL = url;
         }
 	}
 }
