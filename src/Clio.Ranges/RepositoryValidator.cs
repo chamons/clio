@@ -2,7 +2,7 @@
 using System.Linq;
 using LibGit2Sharp;
 
-namespace clio
+namespace Clio.Ranges
 {
 	public static class RepositoryValidator
 	{

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using LibGit2Sharp;
+using Clio.Utilities;
 
 namespace Clio.Ranges 
 {
@@ -56,7 +57,7 @@ namespace Clio.Ranges
 				StringBuilder stringBuilder = new StringBuilder ();
 				int cherryReturnValue = RunCommand.Run ("/usr/local/bin/git", $"cherry {cherryArguments}", path, output: stringBuilder);
 				if (cherryReturnValue != 0)
-					EntryPoint.Die ($"git cherry returned {cherryReturnValue} with arguments {cherryArguments}");
+					Errors.Die ($"git cherry returned {cherryReturnValue} with arguments {cherryArguments}");
 				foreach (var line in stringBuilder.ToString ().Split (new string[] { Environment.NewLine }, StringSplitOptions.None))
 				{
 					if (line.StartsWith ("+", StringComparison.Ordinal)) {
