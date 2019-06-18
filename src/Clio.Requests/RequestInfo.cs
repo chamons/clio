@@ -1,4 +1,5 @@
 using System;
+using System.Diagnostics;
 
 namespace Clio.Requests
 {
@@ -14,6 +15,7 @@ namespace Clio.Requests
         }
     }
 
+    [DebuggerDisplay("{ID} - {PRInfo.Title}")]
 	public struct RequestInfo 
     {
         public int ID;

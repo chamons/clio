@@ -60,13 +60,12 @@ namespace Clio
 		{
 			StringBuilder output = new StringBuilder ();
 			output.AppendLine ($"* [{pr.ID}]({pr.URL})");
-			output.AppendLine ($"\t * {pr.Date}");
 			output.AppendLine ($"\t * {pr.PRInfo.Title}");
 
 			if (!String.IsNullOrEmpty (pr.CommitInfo.Title))
 				output.AppendLine ($"\t * {pr.CommitInfo.Title}");
 
-			output.AppendLine ();
+			output.AppendLine ($"\t * {pr.Date}");
 			return output.ToString ();
 		}
 	}
@@ -104,8 +103,10 @@ namespace Clio
 			{
 				Console.WriteLine (title);
 				Console.WriteLine ();
-				foreach (var pr in list)
+				foreach (var pr in list) {
 					PrintPR (pr);
+					Console.WriteLine ();
+				}
 			}
 		}
 
