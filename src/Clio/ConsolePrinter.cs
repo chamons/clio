@@ -58,16 +58,28 @@ namespace Clio
 			HarvestHashLinks (pr.PRInfo.Description);
 		}
 
+		string LabelSuffix (RequestInfo pr)
+		{
+			StringBuilder suffix = new StringBuilder ();
+
+			if (pr.Labels.Contains ("community"))
+				suffix.Append ("  *Community Contribution* 🎉");
+			return suffix.ToString ();
+		}
+
 		string FormatOutput (RequestInfo pr)
 		{
 			StringBuilder output = new StringBuilder ();
-			output.AppendLine ($"* [{pr.ID}]({FixLink (pr.URL)}) - {pr.PRInfo.Title}");
+			output.AppendLine ($"* [{pr.ID}]({FixLink (pr.URL)}) - {pr.PRInfo.Title}{LabelSuffix(pr)}");
 			output.AppendLine ($"\t * {pr.PRInfo.Title}");
 
 			if (!String.IsNullOrEmpty (pr.CommitInfo.Title))
 				output.AppendLine ($"\t * {pr.CommitInfo.Title}");
 
 			output.AppendLine ($"\t * {pr.Date}");
+
+			if (pr.Labels.Count > 0)
+				output.AppendLine ($"\t * {string.Join (" ", pr.Labels)}");
 			return output.ToString ();
 		}
 	}

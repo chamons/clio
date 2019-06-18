@@ -1,5 +1,6 @@
 using System;
 using System.Diagnostics;
+using System.Collections.Generic;
 
 namespace Clio.Requests
 {
@@ -25,8 +26,9 @@ namespace Clio.Requests
 		public string Hash;
 		public string Author;
 		public string URL;
+		public HashSet<string> Labels;
 
-		public RequestInfo (int id, string date, string commitTitle, string commitDescription, string prTitle, string prDescription, string hash, string author, string url)
+		public RequestInfo (int id, string date, string commitTitle, string commitDescription, string prTitle, string prDescription, string hash, string author, string url, IEnumerable<string> labels)
 		{
 			ID = id;
 			Date = date;
@@ -35,6 +37,7 @@ namespace Clio.Requests
 			Hash = hash;
 			Author = author;
 			URL = url;
+			Labels = new HashSet<string> (labels);
 		}
 	}
 }
