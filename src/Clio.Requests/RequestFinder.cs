@@ -2,6 +2,8 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using System.Text.RegularExpressions;
+
 using Octokit;
 
 using Clio.Ranges;
@@ -36,6 +38,7 @@ namespace Clio.Requests
                 Errors.Die ($"Rate Limit Hit: {coreLimit} {searchLimit}");
         }
 
+        Regex PRExpression = new Regex (@"[(]#(\d*)[)]", RegexOptions.Compiled);
         public async Task<RequestCollection> FindPullRequests (string location, IEnumerable<CommitInfo> commits)
         {
             var (owner, area) = ParseLocation (location);
@@ -48,11 +51,16 @@ namespace Clio.Requests
             });
 
             foreach (var commit in commits) {
-                // There are zero items here, where oh where is the merge Commit!?
-                var prItem = allPRs.Items.FirstOrDefault (x => x.PullRequest.MergeCommitSha == commit.Hash);
-                if (prItem != null)
-                    requests.Add (new RequestInfo (prItem.Id, string.Format ("{0:MM/dd/yyyy}", prItem.ClosedAt), commit.Title, 
-                        commit.Description, prItem.Title, prItem.Body, commit.Hash, commit.Author, prItem.Url));
+                var match = PRExpression.Match (commit.Title);
+                if (match.Success) {
+                    if (Int32.TryParse (match.Groups[1].Value, out int id)) {
+                        var matchPR = allPRs.Items.FirstOrDefault (x => x.Number == id);
+                        if (matchPR != null) {
+                            requests.Add (new RequestInfo (matchPR.Number, string.Format ("{0:MM/dd/yyyy}", matchPR.ClosedAt), commit.Title, 
+                                commit.Description, matchPR.Title, matchPR.Body, commit.Hash, commit.Author, matchPR.Url));
+                        }
+                    }
+                }
             }
             return requests;
         }
