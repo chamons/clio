@@ -17,14 +17,14 @@ namespace Clio
 		Help,
 		ExplainCommit,
 		List,
-    }
+	}
 
-    class Program
-    {
-        static async Task Main(string[] args)
-        {
-            bool collectAuthors = false;	
-           	string path = null;
+	class Program
+	{
+		static async Task Main(string[] args)
+		{
+			bool collectAuthors = false;	
+		   	string path = null;
 			SearchOptions options = new SearchOptions ();
 			ISearchRange range = null;
 			ActionType requestedAction = ActionType.List;
@@ -101,7 +101,7 @@ namespace Clio
 
 			Explain.Print ("Finding Commits in Range");
 			Explain.Indent ();
-            var commits = RangeFinder.Find (path, options, range).ToList ();
+			var commits = RangeFinder.Find (path, options, range).ToList ();
 			Explain.Print ($"Found: {commits.Count}");
 			Explain.Deindent ();
 
@@ -109,18 +109,18 @@ namespace Clio
 			Explain.Indent ();
 			var finder = new RequestFinder (options.GithubPAT);
 			await finder.AssertLimits ();
-            var prs = await finder.FindPullRequests (options.GithubLocation, commits);
+			var prs = await finder.FindPullRequests (options.GithubLocation, commits);
 			Explain.Print ($"Found: {prs.All.Count}");
 			Explain.Deindent ();
 
 			var printer = new ConsolePrinter (options.GithubLocation);
 			printer.Print (prs, collectAuthors);
-        }
+		}
 
-        static void ShowHelp (OptionSet os)
+		static void ShowHelp (OptionSet os)
 		{
 			Console.WriteLine ("clio [options] path");
 			os.WriteOptionDescriptions (Console.Out);
 		}
-    }
+	}
 }
