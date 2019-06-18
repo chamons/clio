@@ -29,9 +29,11 @@ namespace Clio
 			return FormatOutput (pr);
 		}
 
+		string FixLink (string link) => link.Replace ("api.github.com/repos", "github.com");
+
 		void Add (string link)
 		{
-			link = link.Replace ("api.github.com/repos", "github.com");
+			link = FixLink (link);
 
 			if (!Links.Contains (link))
 				Links.Add (link);
@@ -59,7 +61,7 @@ namespace Clio
 		string FormatOutput (RequestInfo pr)
 		{
 			StringBuilder output = new StringBuilder ();
-			output.AppendLine ($"* [{pr.ID}]({pr.URL})");
+			output.AppendLine ($"* [{pr.ID}]({FixLink (pr.URL)}) - {pr.PRInfo.Title}");
 			output.AppendLine ($"\t * {pr.PRInfo.Title}");
 
 			if (!String.IsNullOrEmpty (pr.CommitInfo.Title))
