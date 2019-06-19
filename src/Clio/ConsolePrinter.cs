@@ -71,7 +71,6 @@ namespace Clio
 		{
 			StringBuilder output = new StringBuilder ();
 			output.AppendLine ($"* [{pr.ID}]({FixLink (pr.URL)}) - {pr.PRInfo.Title}{LabelSuffix(pr)}");
-			output.AppendLine ($"\t * {pr.PRInfo.Title}");
 
 			if (!String.IsNullOrEmpty (pr.CommitInfo.Title))
 				output.AppendLine ($"\t * {pr.CommitInfo.Title}");
