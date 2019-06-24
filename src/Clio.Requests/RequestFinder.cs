@@ -87,7 +87,7 @@ namespace Clio.Requests
 				
 				if (prMatch != null && Int32.TryParse (prMatch, out int id)) {
 					Issue matchPR = allPRs.Items.FirstOrDefault (x => x.Number == id);
-					if (matchPR != null) {
+					if (matchPR != null && !matchPR.Labels.Any (x => x.Name == "not-notes-worthy")) {
 						requests.Add (new RequestInfo (matchPR.Number, string.Format ("{0:MM/dd/yyyy}", matchPR.ClosedAt), commit.Title, 
 							commit.Description, matchPR.Title, matchPR.Body, commit.Hash, commit.Author, matchPR.Url, 
 							matchPR.Labels.Where (x => IsInterestingLabel (x.Name)).Select (x => x.Name)));
