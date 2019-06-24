@@ -38,7 +38,28 @@ namespace Clio.Requests
 				Errors.Die ($"Rate Limit Hit: {coreLimit} {searchLimit}");
 		}
 
-		Regex PRExpression = new Regex (@"[(]#(\d*)[)]", RegexOptions.Compiled);
+		bool IsInterestingLabel (string label)
+		{
+			switch (label)
+			{
+				case "bug":
+				case "enhancement":
+				case "note-highlight":
+				case "note-infrastructure":
+					return true; // Top level divisions
+				case "breaking-change":
+				case "regression":
+				case "note-deprecation":
+					return true; // Worth calling out as negative impacting
+				case "community":
+					return true; // Worth calling out as positive!
+			}
+			return false;
+		}
+
+		Regex SquashExpression = new Regex (@"[(]#(\d*)[)]", RegexOptions.Compiled);
+		Regex MergeExpression = new Regex (@"Merge pull request #(\d*)", RegexOptions.Compiled);
+	
 		public async Task<RequestCollection> FindPullRequests (string location, IEnumerable<CommitInfo> commits)
 		{
 			var (owner, area) = ParseLocation (location);
@@ -51,14 +72,25 @@ namespace Clio.Requests
 			});
 
 			foreach (var commit in commits) {
-				var match = PRExpression.Match (commit.Title);
+				string prMatch = null;
+				
+				var match = SquashExpression.Match (commit.Title);
 				if (match.Success) {
-					if (Int32.TryParse (match.Groups[1].Value, out int id)) {
-						var matchPR = allPRs.Items.FirstOrDefault (x => x.Number == id);
-						if (matchPR != null) {
-							requests.Add (new RequestInfo (matchPR.Number, string.Format ("{0:MM/dd/yyyy}", matchPR.ClosedAt), commit.Title, 
-								commit.Description, matchPR.Title, matchPR.Body, commit.Hash, commit.Author, matchPR.Url));
-						}
+					prMatch = match.Groups[1].Value; 
+				}
+				else {
+					match = MergeExpression.Match (commit.Title);
+					if (match.Success) {
+						prMatch = match.Groups[1].Value; 
+					}
+				}
+				
+				if (prMatch != null && Int32.TryParse (prMatch, out int id)) {
+					Issue matchPR = allPRs.Items.FirstOrDefault (x => x.Number == id);
+					if (matchPR != null) {
+						requests.Add (new RequestInfo (matchPR.Number, string.Format ("{0:MM/dd/yyyy}", matchPR.ClosedAt), commit.Title, 
+							commit.Description, matchPR.Title, matchPR.Body, commit.Hash, commit.Author, matchPR.Url, 
+							matchPR.Labels.Where (x => IsInterestingLabel (x.Name)).Select (x => x.Name)));
 					}
 				}
 			}

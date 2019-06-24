@@ -29,7 +29,7 @@ namespace Clio
 			return FormatOutput (pr);
 		}
 
-		string FixLink (string link) => link.Replace ("api.github.com/repos", "github.com");
+		public string FixLink (string link) => link.Replace ("api.github.com/repos", "github.com");
 
 		void Add (string link)
 		{
@@ -52,22 +52,36 @@ namespace Clio
 		{
 			Add (CommitURL + pr.Hash);
 			Add (pr.URL);
-			HarvestHashLinks (pr.CommitInfo.Title);
 			HarvestHashLinks (pr.CommitInfo.Description);
 			HarvestHashLinks (pr.PRInfo.Title);
 			HarvestHashLinks (pr.PRInfo.Description);
 		}
 
+		string LabelSuffix (RequestInfo pr)
+		{
+			StringBuilder suffix = new StringBuilder ();
+
+			if (pr.Labels.Contains ("community"))
+				suffix.Append ("  *Community Contribution* ❤️");
+			if (pr.Labels.Contains ("regression"))
+				suffix.Append ("  *Regression* ⚠️️");
+			if (pr.Labels.Contains ("note-deprecation"))
+				suffix.Append ("  *Deprecation* ℹ️");
+			return suffix.ToString ();
+		}
+
 		string FormatOutput (RequestInfo pr)
 		{
 			StringBuilder output = new StringBuilder ();
-			output.AppendLine ($"* [{pr.ID}]({FixLink (pr.URL)}) - {pr.PRInfo.Title}");
-			output.AppendLine ($"\t * {pr.PRInfo.Title}");
+			output.AppendLine ($"* [{pr.ID}]({FixLink (pr.URL)}) - {pr.PRInfo.Title}{LabelSuffix(pr)}");
 
 			if (!String.IsNullOrEmpty (pr.CommitInfo.Title))
 				output.AppendLine ($"\t * {pr.CommitInfo.Title}");
 
 			output.AppendLine ($"\t * {pr.Date}");
+
+			if (pr.Labels.Count > 0)
+				output.AppendLine ($"\t * {string.Join (" ", pr.Labels)}");
 			return output.ToString ();
 		}
 	}
@@ -91,7 +105,10 @@ namespace Clio
 
 		public void Print (RequestCollection requests, bool printAuthors)
 		{
-			PrintList ("All:", requests.All);
+			PrintList ("", requests.Highlights);
+			PrintList ("", requests.Breaking);
+			PrintList ("Enhancements:", requests.Enhancements);
+			PrintList ("Bugs:", requests.Bugs);
 
 			if (printAuthors) {
 				HashSet<string> authors = new HashSet<string> (requests.All.Select (x => x.Author));
@@ -103,8 +120,10 @@ namespace Clio
 		{
 			if (list.Count () > 0)
 			{
-				Console.WriteLine (title);
-				Console.WriteLine ();
+				if (!string.IsNullOrEmpty (title)) {
+					Console.WriteLine (title);
+					Console.WriteLine ();
+				}
 				foreach (var pr in list) {
 					PrintPR (pr);
 					Console.WriteLine ();
@@ -124,20 +143,20 @@ namespace Clio
 			}
 		}
 
-		static void PrintLinkList (List<string> links)
+		void PrintLinkList (RequestInfo pr, List<string> links)
 		{
 			if (links.Count () > 0)
 			{
-				Console.WriteLine ("\t* Links");
-				foreach (var link in links)
+				string titleLink = Printer.FixLink (pr.URL);
+				foreach (var link in links.Where (x => x != titleLink))
 					Console.WriteLine ($"\t * [{link}]({link})");
 			}
 		}
 
 		void PrintPR (RequestInfo pr)
 		{
-			Console.WriteLine (Printer.Parse (pr));
-			PrintLinkList (Printer.Links);
+			Console.Write (Printer.Parse (pr));
+			PrintLinkList (pr, Printer.Links);
 		}
 	}
 }
