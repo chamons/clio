@@ -89,6 +89,7 @@ namespace Clio
 	class ConsolePrinter
 	{
 		ConsolePRPrinter Printer;
+		HashSet <RequestInfo> AlreadyPrinted = new HashSet<RequestInfo> ();
 
 		public ConsolePrinter (string location)
 		{
@@ -109,6 +110,8 @@ namespace Clio
 			PrintList ("", requests.Breaking);
 			PrintList ("Enhancements:", requests.Enhancements);
 			PrintList ("Bugs:", requests.Bugs);
+			
+			PrintList ("All:", requests.All);
 
 			if (printAuthors) {
 				HashSet<string> authors = new HashSet<string> (requests.All.Select (x => x.Author));
@@ -118,13 +121,15 @@ namespace Clio
 
 		void PrintList (string title, IEnumerable<RequestInfo> list)
 		{
-			if (list.Count () > 0)
+			var listToPrint = list.Where (x => !AlreadyPrinted.Contains (x));
+			if (listToPrint.Count () > 0)
 			{
 				if (!string.IsNullOrEmpty (title)) {
 					Console.WriteLine (title);
 					Console.WriteLine ();
 				}
-				foreach (var pr in list) {
+				foreach (var pr in listToPrint) {
+					AlreadyPrinted.Add (pr);
 					PrintPR (pr);
 					Console.WriteLine ();
 				}
