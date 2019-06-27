@@ -41,6 +41,9 @@ namespace Clio
 
 		void HarvestHashLinks (string s)
 		{
+			// It is valid to have empty descriptions, and OctoKit kindly gives us nulls ;(
+			if (s == null) 
+				return;
 			foreach (Match m in BugRegex.Matches (s))
 			{
 				if (m.Success)
