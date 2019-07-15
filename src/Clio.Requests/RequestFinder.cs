@@ -59,34 +59,25 @@ namespace Clio.Requests
 
 		Regex SquashExpression = new Regex (@"[(]#(\d*)[)]", RegexOptions.Compiled);
 		Regex MergeExpression = new Regex (@"Merge pull request #(\d*)", RegexOptions.Compiled);
-	
+
 		public async Task<RequestCollection> FindPullRequests (string location, IEnumerable<CommitInfo> commits)
 		{
 			var (owner, area) = ParseLocation (location);
 
 			var requests = new RequestCollection ();
 
-			var allPRs = await Client.Search.SearchIssues (new SearchIssuesRequest () {
-				Type = IssueTypeQualifier.PullRequest,
-				Repos = new RepositoryCollection () { location }
-			});
+			var allIssues = await Client.Issue.GetAllForRepository (owner, area, new RepositoryIssueRequest { State = ItemStateFilter.All });
 
 			foreach (var commit in commits) {
-				string prMatch = null;
-				
-				var match = SquashExpression.Match (commit.Title);
-				if (match.Success) {
-					prMatch = match.Groups[1].Value; 
-				}
-				else {
-					match = MergeExpression.Match (commit.Title);
-					if (match.Success) {
-						prMatch = match.Groups[1].Value; 
-					}
-				}
+
+				string prMatch = TryExpression (SquashExpression, commit);
+
+				if (prMatch == null)
+					prMatch = TryExpression (MergeExpression, commit);
 				
 				if (prMatch != null && Int32.TryParse (prMatch, out int id)) {
-					Issue matchPR = allPRs.Items.FirstOrDefault (x => x.Number == id);
+					var matchPR = allIssues.FirstOrDefault (x => x.Number == id);
+
 					if (matchPR != null && !matchPR.Labels.Any (x => x.Name == "not-notes-worthy")) {
 						requests.Add (new RequestInfo (matchPR.Number, string.Format ("{0:MM/dd/yyyy}", matchPR.ClosedAt), commit.Title, 
 							commit.Description, matchPR.Title, matchPR.Body, commit.Hash, commit.Author, matchPR.Url, 
@@ -95,6 +86,14 @@ namespace Clio.Requests
 				}
 			}
 			return requests;
+		}
+
+		string TryExpression (Regex expression, CommitInfo commit)
+		{
+			var match = expression.Match (commit.Title);
+			if (match.Success)
+				return match.Groups[1].Value;
+			return null;
 		}
 	}
 }
