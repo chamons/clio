@@ -67,7 +67,6 @@ namespace Clio
 			if (pr.Labels.Contains ("community"))
 				suffix.Append ("  *Community Contribution* ❤️");
 			if (pr.Labels.Contains ("regression"))
-
 				suffix.Append ("  *Regression* ⚠️️");
 			if (pr.Labels.Contains ("note-deprecation"))
 				suffix.Append ("  *Deprecation* ℹ️");
