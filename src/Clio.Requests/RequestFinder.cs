@@ -64,9 +64,9 @@ namespace Clio.Requests
 		{
 			var (owner, area) = ParseLocation (location);
 
-			var requests = new RequestCollection ();
-
 			var allIssues = await Client.Issue.GetAllForRepository (owner, area, new RepositoryIssueRequest { State = ItemStateFilter.All });
+
+			var requests = new RequestCollection (allIssues);
 
 			foreach (var commit in commits) {
 

@@ -109,12 +109,12 @@ namespace Clio
 			Explain.Indent ();
 			var finder = new RequestFinder (options.GithubPAT);
 			await finder.AssertLimits ();
-			var prs = await finder.FindPullRequests (options.GithubLocation, commits);
-			Explain.Print ($"Found: {prs.All.Count}");
+			var requestCollection = await finder.FindPullRequests (options.GithubLocation, commits);
+			Explain.Print ($"Found: {requestCollection.All.Count}");
 			Explain.Deindent ();
 
-			var printer = new ConsolePrinter (options.GithubLocation);
-			printer.Print (prs, collectAuthors);
+			var printer = new ConsolePrinter (requestCollection, options.GithubLocation);
+			printer.Print (collectAuthors);
 		}
 
 		static void ShowHelp (OptionSet os)
