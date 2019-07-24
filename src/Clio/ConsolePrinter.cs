@@ -67,6 +67,7 @@ namespace Clio
 			if (pr.Labels.Contains ("community"))
 				suffix.Append ("  *Community Contribution* ❤️");
 			if (pr.Labels.Contains ("regression"))
+
 				suffix.Append ("  *Regression* ⚠️️");
 			if (pr.Labels.Contains ("note-deprecation"))
 				suffix.Append ("  *Deprecation* ℹ️");
@@ -93,31 +94,25 @@ namespace Clio
 	{
 		ConsolePRPrinter Printer;
 		HashSet <RequestInfo> AlreadyPrinted = new HashSet<RequestInfo> ();
+		RequestCollection Requests;
 
-		public ConsolePrinter (string location)
+		public ConsolePrinter (RequestCollection requests, string location)
 		{
 			Printer = new ConsolePRPrinter (location);
+			Requests = requests;
 		}
 
-		public static ConsolePrinter Create (string location) => new ConsolePrinter (location);
-
-		public void PrintCommits (IEnumerable<RequestInfo> prs)
+		public void Print (bool printAuthors)
 		{
-			foreach (var pr in prs)
-				Console.WriteLine ($"{pr.Hash} {pr.PRInfo.Title}");
-		}
-
-		public void Print (RequestCollection requests, bool printAuthors)
-		{
-			PrintList ("", requests.Highlights);
-			PrintList ("", requests.Breaking);
-			PrintList ("Enhancements:", requests.Enhancements);
-			PrintList ("Bugs:", requests.Bugs);
+			PrintList ("", Requests.Highlights);
+			PrintList ("", Requests.Breaking);
+			PrintList ("Enhancements:", Requests.Enhancements);
+			PrintList ("Bugs:", Requests.Bugs);
 			
-			PrintList ("All:", requests.All);
+			PrintList ("All:", Requests.All);
 
 			if (printAuthors) {
-				HashSet<string> authors = new HashSet<string> (requests.All.Select (x => x.Author));
+				HashSet<string> authors = new HashSet<string> (Requests.All.Select (x => x.Author));
 				PrintList ("Authors:", authors); 
 			}
 		}
@@ -151,13 +146,33 @@ namespace Clio
 			}
 		}
 
+		static Regex IssueURLRegex = new Regex (@"^http(s)?://github\.com/.*/.*/issues/(\d*)$", RegexOptions.Compiled | RegexOptions.IgnoreCase);
+
+		string GetLinkContent (string link)
+		{
+			foreach (Match m in IssueURLRegex.Matches (link))
+			{
+				if (m.Success) {
+					if (int.TryParse (m.Groups[2].Value, out int issueID)) {
+						var issue = Requests.AllIssues.FirstOrDefault (x => x.Number == issueID);
+						if (issue != null)
+							return " - " + issue.Title;
+					}
+				}
+			}
+			return "";
+		}
+
 		void PrintLinkList (RequestInfo pr, List<string> links)
 		{
 			if (links.Count () > 0)
 			{
 				string titleLink = Printer.FixLink (pr.URL);
-				foreach (var link in links.Where (x => x != titleLink))
-					Console.WriteLine ($"\t * [{link}]({link})");
+				foreach (var link in links.Where (x => x != titleLink)) {
+
+					string linkContent = GetLinkContent (link);
+					Console.WriteLine ($"\t * [{link}]({link}){linkContent}");
+				}
 			}
 		}
 

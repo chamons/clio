@@ -1,10 +1,14 @@
 using System.Collections.Generic;
 using System.Linq;
 
+using Octokit;
+
 namespace Clio.Requests
 {
     public class RequestCollection
     {
+        public List<Issue> AllIssues;
+
         public List <RequestInfo> All = new List<RequestInfo> ();
 
         public IEnumerable<RequestInfo> Bugs => All.Where (x => x.Labels.Contains ("bug"));
@@ -14,8 +18,9 @@ namespace Clio.Requests
         public IEnumerable<RequestInfo> Highlights => All.Where (x => x.Labels.Contains ("note-highlight"));
         public IEnumerable<RequestInfo> Breaking => All.Where (x => x.Labels.Contains ("breaking-change"));
 
-        public RequestCollection ()
+        public RequestCollection (IEnumerable<Issue> allIssues)
         {
+            AllIssues = allIssues.ToList ();
         }
 
         public void Add (RequestInfo info)
