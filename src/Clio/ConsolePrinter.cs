@@ -106,7 +106,7 @@ namespace Clio
 			PrintList ("", Requests.Highlights);
 			PrintList ("", Requests.Breaking);
 			PrintList ("Enhancements:", Requests.Enhancements);
-			PrintList ("Bugs:", Requests.Bugs);
+			PrintList ("Issues:", Requests.Bugs);
 			
 			PrintList ("All:", Requests.All);
 
