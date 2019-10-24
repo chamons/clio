@@ -19,7 +19,7 @@ and will cross reference bugzilla to verify the existance of referenced bugs whe
 ## Building
 
 ```
-make prepare
+make build
 make release
 ```
 
