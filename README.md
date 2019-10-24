@@ -38,6 +38,13 @@ To parse commits, clio must have a range to consider. There are two formats avai
 - `--oldest` `--newest` - This passes a raw range of commits to git for consideration. Equivilant to git log OLD_HASH..NEW_HASH.
     - Do note that due to how git handles merges, merge parents from release ago could show up in this list.
 
+For example:
+
+```
+~/bin/clio/clio --github=xamarin/xamarin-macios --github-pat-file=/Users/whitneyschmidt/gitpath --oldest=2e360ee4e2265e8f7f00c03560d1a5a756b1eccb --newest=4b3a6a79fae5f48cffaf067eab6bc6f173ca6673 .
+```
+
+Where `--github-pat-file` is the full path of the file containing your github validation token (instructions below).
 
 ## Actions
 
