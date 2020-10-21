@@ -21,14 +21,6 @@ namespace Clio.Requests
 			Client.Credentials = new Credentials (pat);
 		}
 
-		(string Owner, string Area) ParseLocation (string location)
-		{
-			var bits = location.Split ('/');
-			if (bits.Length != 2)
-				Errors.Die ("--github formatted incorrectly");
-			return (bits[0], bits[1]);
-		}
-
 		public async Task AssertLimits ()
 		{
 			var limits = await Client.Miscellaneous.GetRateLimits ();
@@ -61,11 +53,9 @@ namespace Clio.Requests
 		Regex MergeExpression = new Regex (@"Merge pull request #(\d*)", RegexOptions.Compiled);
 		Regex BackportExpression = new Regex (@"Backport of #(\d*)", RegexOptions.Compiled);
 
-		public async Task<RequestCollection> FindPullRequests (string location, IEnumerable<CommitInfo> commits)
+		public async Task<RequestCollection> FindPullRequests (string location, bool useCache, IEnumerable<CommitInfo> commits)
 		{
-			var (owner, area) = ParseLocation (location);
-
-			var allIssues = await Client.Issue.GetAllForRepository (owner, area, new RepositoryIssueRequest { State = ItemStateFilter.All });
+			var allIssues = await IssueCache.GetIssues (this.Client, location, useCache);
 
 			var requests = new RequestCollection (allIssues);
 
@@ -93,10 +83,10 @@ namespace Clio.Requests
 								}
 							}
 						}
-						if (!labels.Any (x => x.Name == "not-notes-worthy")) {
+						if (!labels.Any (x => x == "not-notes-worthy")) {
 							requests.Add (new RequestInfo (matchPR.Number, string.Format ("{0:MM/dd/yyyy}", matchPR.ClosedAt), commit.Title, 
 								commit.Description, matchPR.Title, matchPR.Body, commit.Hash, commit.Author, matchPR.Url, 
-								labels.Where (x => IsInterestingLabel (x.Name)).Select (x => x.Name)));
+								labels.Where (x => IsInterestingLabel (x))));
 						}
 					}
 				}

@@ -74,6 +74,7 @@ namespace Clio
 					}},
 				{ "collect-authors", "Generate a list of unique authors to commits listed", v => collectAuthors = true},
 				{ "ignore=", "Commit hashes to ignore", v => options.CommitsToIgnore.Add (v) },
+				{ "cache", "Use cache of last results from Github", v => options.UseCache = true },
 				new ResponseFileSource (),
 			};
 
@@ -109,7 +110,7 @@ namespace Clio
 			Explain.Indent ();
 			var finder = new RequestFinder (options.GithubPAT);
 			await finder.AssertLimits ();
-			var requestCollection = await finder.FindPullRequests (options.GithubLocation, commits);
+			var requestCollection = await finder.FindPullRequests (options.GithubLocation, options.UseCache, commits);
 			Explain.Print ($"Found: {requestCollection.All.Count}");
 			Explain.Deindent ();
 
