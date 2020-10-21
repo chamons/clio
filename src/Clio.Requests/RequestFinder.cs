@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Text.RegularExpressions;
+using System.Diagnostics;
 
 using Octokit;
 
@@ -11,6 +12,16 @@ using Clio.Utilities;
 
 namespace Clio.Requests
 {
+	public record ItemInfo (string Title, string Description);
+
+	[DebuggerDisplay("{ID} - {PRInfo.Title}")]
+	public record RequestInfo (int ID, string Date, ItemInfo CommitInfo, ItemInfo PRInfo, string Hash, string Author, string URL, List<string> Labels)
+	{
+		public RequestInfo (int id, string date, string commitTitle, string commitDescription, string prTitle, string prDescription, string hash, string author, string url, List<string> labels) : this(id, date, new ItemInfo (commitTitle, commitDescription), new ItemInfo (prTitle, prDescription), hash, author, url, labels)
+		{
+		}
+	}
+
 	public class RequestFinder 
 	{
 		GitHubClient Client;
@@ -86,7 +97,7 @@ namespace Clio.Requests
 						if (!labels.Any (x => x == "not-notes-worthy")) {
 							requests.Add (new RequestInfo (matchPR.Number, string.Format ("{0:MM/dd/yyyy}", matchPR.ClosedAt), commit.Title, 
 								commit.Description, matchPR.Title, matchPR.Body, commit.Hash, commit.Author, matchPR.Url, 
-								labels.Where (x => IsInterestingLabel (x))));
+								labels.Where (x => IsInterestingLabel (x)).ToList()));
 						}
 					}
 				}
