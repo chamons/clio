@@ -4,7 +4,7 @@ build::
 release::
 	dotnet publish
 	mkdir -p dist
-	cp -R src/Clio/bin/Debug/netcoreapp2.1/publish/ dist/
+	cp -R src/Clio/bin/Debug/net5.0/publish/ dist/
 	cp tools/Clio dist/Clio
 
 chris-install:: release
