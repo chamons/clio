@@ -25,6 +25,7 @@ namespace Clio.Ranges
 	{
 		public string GithubLocation { get; set; }
 		public string GithubPAT { get; set; }
+		public bool UseCache { get; set; }
 
 		public List<string> CommitsToIgnore { get; set; } = new List<string> ();
 	}

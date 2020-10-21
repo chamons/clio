@@ -7,7 +7,7 @@ namespace Clio.Requests
 {
     public class RequestCollection
     {
-        public List<Issue> AllIssues;
+        public List<ClioIssue> AllIssues;
 
         public List <RequestInfo> All = new List<RequestInfo> ();
 
@@ -18,7 +18,7 @@ namespace Clio.Requests
         public IEnumerable<RequestInfo> Highlights => All.Where (x => x.Labels.Contains ("note-highlight"));
         public IEnumerable<RequestInfo> Breaking => All.Where (x => x.Labels.Contains ("breaking-change"));
 
-        public RequestCollection (IEnumerable<Issue> allIssues)
+        public RequestCollection (IEnumerable<ClioIssue> allIssues)
         {
             AllIssues = allIssues.ToList ();
         }
