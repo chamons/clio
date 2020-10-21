@@ -7,6 +7,9 @@ using Clio.Utilities;
 
 namespace Clio.Ranges 
 {
+	// Raw data harvested from git
+	public record CommitInfo (string Hash, string Title, string Description, string Author, string CommitDate);
+
 	public static class CommitFinder
 	{
 		static CommitInfo CreateInfoFromCommit (Commit x) => new CommitInfo (x.Sha, x.MessageShort, x.Message, x.Committer.When.ToString ("MM/dd/yyyy"), x.Author.Email);
