@@ -59,6 +59,7 @@ namespace Clio.Requests
 
 		Regex SquashExpression = new Regex (@"[(]#(\d*)[)]", RegexOptions.Compiled);
 		Regex MergeExpression = new Regex (@"Merge pull request #(\d*)", RegexOptions.Compiled);
+		Regex BackportExpression = new Regex (@"Backport of #(\d*)", RegexOptions.Compiled);
 
 		public async Task<RequestCollection> FindPullRequests (string location, IEnumerable<CommitInfo> commits)
 		{
@@ -78,10 +79,25 @@ namespace Clio.Requests
 				if (prMatch != null && Int32.TryParse (prMatch, out int id)) {
 					var matchPR = allIssues.FirstOrDefault (x => x.Number == id);
 
-					if (matchPR != null && !matchPR.Labels.Any (x => x.Name == "not-notes-worthy")) {
-						requests.Add (new RequestInfo (matchPR.Number, string.Format ("{0:MM/dd/yyyy}", matchPR.ClosedAt), commit.Title, 
-							commit.Description, matchPR.Title, matchPR.Body, commit.Hash, commit.Author, matchPR.Url, 
-							matchPR.Labels.Where (x => IsInterestingLabel (x.Name)).Select (x => x.Name)));
+					if (matchPR != null) 
+					{
+						var labels = matchPR.Labels;
+						if (labels.Count == 0) {
+							var backport = TryBodyExpression(BackportExpression, matchPR.Body);
+							if (backport != null && Int32.TryParse (backport, out int backportID))
+							{
+								var matchBackport = allIssues.FirstOrDefault (x => x.Number == backportID);
+								if (matchBackport != null) 
+								{
+									labels = matchBackport.Labels;
+								}
+							}
+						}
+						if (!labels.Any (x => x.Name == "not-notes-worthy")) {
+							requests.Add (new RequestInfo (matchPR.Number, string.Format ("{0:MM/dd/yyyy}", matchPR.ClosedAt), commit.Title, 
+								commit.Description, matchPR.Title, matchPR.Body, commit.Hash, commit.Author, matchPR.Url, 
+								labels.Where (x => IsInterestingLabel (x.Name)).Select (x => x.Name)));
+						}
 					}
 				}
 			}
@@ -91,6 +107,14 @@ namespace Clio.Requests
 		string TryExpression (Regex expression, CommitInfo commit)
 		{
 			var match = expression.Match (commit.Title);
+			if (match.Success)
+				return match.Groups[1].Value;
+			return null;
+		}
+
+		string TryBodyExpression (Regex expression, string body)
+		{
+			var match = expression.Match (body);
 			if (match.Success)
 				return match.Groups[1].Value;
 			return null;
