@@ -115,6 +115,8 @@ namespace Clio.Requests
 
 		string TryBodyExpression (Regex expression, string body)
 		{
+			if (body == null) 
+				return null;
 			var match = expression.Match (body);
 			if (match.Success)
 				return match.Groups[1].Value;
